@@ -1,6 +1,5 @@
 package jp.kaleidot725.adbpad.domain.service
 
-import jp.kaleidot725.adbpad.domain.model.command.TextCommand
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.os.OSContext
 import jp.kaleidot725.adbpad.domain.model.setting.Appearance
@@ -50,7 +49,6 @@ object SettingFileCreator {
         val language: Language.Type = Language.Type.ENGLISH,
         val appearance: Appearance = Appearance.LIGHT,
         val sdkPath: SdkPath = SdkPath(),
-        val textCommandIdList: List<TextCommand> = emptyList(),
         val windowSize: WindowSize = WindowSize.DEFAULT,
     )
 }
