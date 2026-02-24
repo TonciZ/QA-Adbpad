@@ -60,15 +60,7 @@ fun ScrcpyNewDisplayScreen(
         remember(state.profiles) {
             state.profiles.maxOfOrNull { max(it.width, it.height) }?.toFloat() ?: 1f
         }
-    val effectiveProfile =
-        remember(state.selectedProfile, state.inputWidth, state.inputHeight, state.inputDpi) {
-            state.selectedProfile?.let { profile ->
-                val w = state.inputWidth.toIntOrNull() ?: profile.width
-                val h = state.inputHeight.toIntOrNull() ?: profile.height
-                val dpi = state.inputDpi.toIntOrNull() ?: profile.densityDpi
-                profile.copy(width = w, height = h, densityDpi = dpi)
-            }
-        }
+    val selectedProfile = state.selectedProfile
 
     ThreePaneLayout(
         splitterState = splitterState,
@@ -146,7 +138,7 @@ fun ScrcpyNewDisplayScreen(
             }
         },
         center = {
-            if (effectiveProfile != null) {
+            if (selectedProfile != null) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -170,8 +162,8 @@ fun ScrcpyNewDisplayScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         DeviceMockup(
-                            width = effectiveProfile.width,
-                            height = effectiveProfile.height,
+                            width = state.inputWidth.toIntOrNull() ?: selectedProfile.width,
+                            height = state.inputHeight.toIntOrNull() ?: selectedProfile.height,
                             maxDimension = maxProfileDimension,
                             modifier = Modifier.fillMaxSize(),
                         )
@@ -189,7 +181,7 @@ fun ScrcpyNewDisplayScreen(
             }
         },
         right =
-            effectiveProfile?.let {
+            selectedProfile?.let {
                 {
                     ScrcpyNewDisplayMenu(
                         isEditable = true,

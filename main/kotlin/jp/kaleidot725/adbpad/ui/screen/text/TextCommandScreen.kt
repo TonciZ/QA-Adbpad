@@ -1,15 +1,20 @@
 package jp.kaleidot725.adbpad.ui.screen.text
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.ui.common.resource.UserColor
 import jp.kaleidot725.adbpad.ui.component.layout.ThreePaneLayout
 import jp.kaleidot725.adbpad.ui.screen.text.component.TextCommandDetailMenu
@@ -59,15 +64,24 @@ fun TextCommandScreen(
                 )
             }
         },
-        center = selectedCommand?.let { command ->
-            {
+        center = {
+            if (selectedCommand != null) {
                 TextCommandEditor(
-                    command = command,
+                    command = selectedCommand,
                     option = state.selectedTextCommandOption,
                     onUpdateTitle = { id, title -> onAction(TextCommandAction.UpdateCommandTitle(id, title)) },
                     onUpdateText = { id, text -> onAction(TextCommandAction.UpdateCommandText(id, text)) },
                     modifier = Modifier.fillMaxSize(),
                 )
+            } else {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = Language.notFoundInputText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                }
             }
         },
         right = selectedCommand?.let { command ->
