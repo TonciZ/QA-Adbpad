@@ -43,7 +43,7 @@ kotlin {
                 implementation(libs.coil)
                 implementation(libs.zoomable)
                 implementation(libs.scrcpy.kt)
-                implementation("com.github.kaleidot725:PulseMVI:0.2.0")
+                implementation(libs.pulse.mvi)
                 implementation(project(":core:util"))
                 implementation(project(":core:data"))
                 implementation(project(":core:domain"))
