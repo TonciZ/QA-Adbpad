@@ -28,61 +28,60 @@ fun AppDetailPane(
 ) {
     if (app == null) {
         AppDetailEmptyState(modifier = modifier)
-        return
-    }
-
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+    } else {
+        Column(
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            AppInitialIcon(
-                name = app.displayName,
-                isLoading = isProcessing,
-                modifier = Modifier.size(48.dp),
-            )
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(
-                    text = app.displayName,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                AppInitialIcon(
+                    name = app.displayName,
+                    isLoading = isProcessing,
+                    modifier = Modifier.size(48.dp),
                 )
-                Text(
-                    text = app.packageName,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text(
+                        text = app.displayName,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = app.packageName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+
+            ExpandableSection(title = Language.appDetailsTitle) {
+                AppDetailPropertyRow(
+                    label = Language.appPackageName,
+                    value = app.packageName,
+                )
+                AppDetailPropertyRow(
+                    label = Language.appSourceDir,
+                    value = app.sourceDir ?: "",
+                )
+                AppDetailPropertyRow(
+                    label = Language.appDataDirectory,
+                    value = app.dataDir,
                 )
             }
-        }
-
-        ExpandableSection(title = Language.appDetailsTitle) {
-            AppDetailPropertyRow(
-                label = Language.appPackageName,
-                value = app.packageName,
-            )
-            AppDetailPropertyRow(
-                label = Language.appSourceDir,
-                value = app.sourceDir ?: "",
-            )
-            AppDetailPropertyRow(
-                label = Language.appDataDirectory,
-                value = app.dataDir,
-            )
         }
     }
 }
