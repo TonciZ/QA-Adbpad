@@ -67,6 +67,12 @@ object Language : StringResources {
         get() = getCurrentResources().appDataDirectory
     override val fetchAppIcon: String
         get() = getCurrentResources().fetchAppIcon
+    override val installApp: String
+        get() = getCurrentResources().installApp
+    override val selectInstallPackage: String
+        get() = getCurrentResources().selectInstallPackage
+    override val uninstallApp: String
+        get() = getCurrentResources().uninstallApp
     override val textCommandUnTitle: String
         get() = getCurrentResources().textCommandUnTitle
     override val screenshotTakeByCurrentTheme: String

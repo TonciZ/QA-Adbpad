@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.PackagePlus
 import com.composables.icons.lucide.RefreshCw
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.sort.SortType
@@ -29,9 +30,12 @@ fun AppHeader(
     searchText: String,
     sortType: SortType,
     isLoading: Boolean,
+    isInstalling: Boolean,
+    canInstall: Boolean,
     onUpdateSortType: (SortType) -> Unit,
     onUpdateSearchText: (String) -> Unit,
     onRefresh: () -> Unit,
+    onInstall: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -70,6 +74,31 @@ fun AppHeader(
                 Icon(
                     imageVector = Lucide.RefreshCw,
                     contentDescription = "Refresh app list",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
+
+        Box(
+            modifier =
+                Modifier
+                    .padding(vertical = 4.dp, horizontal = 4.dp)
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .clickableBackground(isDarker = MaterialTheme.colorScheme.surface.luminance() <= 0.5)
+                    .clickable(enabled = canInstall && !isInstalling) { onInstall() },
+            contentAlignment = Alignment.Center,
+        ) {
+            if (isInstalling) {
+                RunningIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp),
+                )
+            } else {
+                Icon(
+                    imageVector = Lucide.PackagePlus,
+                    contentDescription = Language.installApp,
                     tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(20.dp),
                 )

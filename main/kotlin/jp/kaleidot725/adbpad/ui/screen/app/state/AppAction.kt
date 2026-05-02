@@ -23,6 +23,12 @@ sealed class AppAction : PulseAction {
         val app: InstalledApp,
     ) : AppAction()
 
+    data object InstallPackage : AppAction()
+
+    data class UninstallApp(
+        val app: InstalledApp,
+    ) : AppAction()
+
     data object SelectNextApp : AppAction()
 
     data object SelectPreviousApp : AppAction()

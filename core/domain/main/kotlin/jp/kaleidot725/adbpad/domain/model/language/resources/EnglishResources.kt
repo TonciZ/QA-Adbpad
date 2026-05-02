@@ -33,6 +33,9 @@ object EnglishResources : StringResources {
     override val appSourceDir: String = "APK path"
     override val appDataDirectory: String = "Data directory"
     override val fetchAppIcon: String = "Fetch icon"
+    override val installApp: String = "Install"
+    override val selectInstallPackage: String = "Select APK to install"
+    override val uninstallApp: String = "Uninstall"
 
     override val textCommandUnTitle: String = "untitle text command"
 

@@ -11,4 +11,14 @@ interface InstalledAppRepository {
         device: Device,
         app: InstalledApp,
     ): File?
+
+    suspend fun installPackage(
+        device: Device,
+        packageFile: File,
+    )
+
+    suspend fun uninstallInstalledApp(
+        device: Device,
+        app: InstalledApp,
+    )
 }

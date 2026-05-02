@@ -38,9 +38,12 @@ fun AppScreen(
                     searchText = state.searchText,
                     sortType = state.sortType,
                     isLoading = state.isLoading,
+                    isInstalling = state.isInstalling,
+                    canInstall = state.selectedDevice != null,
                     onUpdateSortType = { onAction(AppAction.UpdateSortType(it)) },
                     onUpdateSearchText = { onAction(AppAction.UpdateSearchText(it)) },
                     onRefresh = { onAction(AppAction.RefreshApps) },
+                    onInstall = { onAction(AppAction.InstallPackage) },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                 )
 
@@ -53,9 +56,10 @@ fun AppScreen(
                     isLoading = state.isLoading,
                     errorMessage = state.errorMessage,
                     iconFilePath = { state.getIconFilePath(it) },
-                    isIconLoading = { state.isIconLoading(it) },
+                    isIconLoading = { state.isProcessing(it) },
                     onSelectApp = { onAction(AppAction.SelectApp(it)) },
                     onFetchIcon = { onAction(AppAction.FetchIcon(it)) },
+                    onUninstallApp = { onAction(AppAction.UninstallApp(it)) },
                     onNextApp = { onAction(AppAction.SelectNextApp) },
                     onPreviousApp = { onAction(AppAction.SelectPreviousApp) },
                     modifier = Modifier.fillMaxSize(),
@@ -66,7 +70,7 @@ fun AppScreen(
             AppDetailPane(
                 app = state.selectedApp,
                 iconFilePath = state.selectedApp?.let { state.getIconFilePath(it) },
-                isIconLoading = state.selectedApp?.let { state.isIconLoading(it) } ?: false,
+                isIconLoading = state.selectedApp?.let { state.isProcessing(it) } ?: false,
                 modifier = Modifier.fillMaxSize(),
             )
         },

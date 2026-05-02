@@ -33,6 +33,9 @@ object JapaneseResources : StringResources {
     override val appSourceDir: String = "APKパス"
     override val appDataDirectory: String = "データ領域"
     override val fetchAppIcon: String = "アイコンを取得"
+    override val installApp: String = "インストール"
+    override val selectInstallPackage: String = "インストールするAPKを選択"
+    override val uninstallApp: String = "アンインストール"
 
     override val textCommandUnTitle: String = "untitle text command"
     override val screenshotTakeByCurrentTheme = "現在のテーマで撮影する"

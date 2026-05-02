@@ -2,6 +2,8 @@ package jp.kaleidot725.adbpad.data.repository
 
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.request.Feature
+import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
+import com.malinskiy.adam.request.pkg.StreamingPackageInstallRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.PullRequest
 import jp.kaleidot725.adbpad.domain.model.app.InstalledApp
@@ -61,6 +63,39 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
 
             return@withContext extractIcon(apkFile, appDirectory)
         }
+
+    override suspend fun installPackage(
+        device: Device,
+        packageFile: File,
+    ) {
+        withContext(Dispatchers.IO) {
+            val supportedFeatures = adbClient.execute(FetchDeviceFeaturesRequest(device.serial), device.serial)
+            val result =
+                adbClient.execute(
+                    StreamingPackageInstallRequest(
+                        pkg = packageFile,
+                        supportedFeatures = supportedFeatures,
+                        reinstall = true,
+                    ),
+                    device.serial,
+                )
+            if (!result.success) {
+                error(result.output.ifBlank { "Package install failed: ${packageFile.absolutePath}" })
+            }
+        }
+    }
+
+    override suspend fun uninstallInstalledApp(
+        device: Device,
+        app: InstalledApp,
+    ) {
+        withContext(Dispatchers.IO) {
+            val result = adbClient.execute(ShellCommandRequest("pm uninstall ${app.packageName}"), device.serial)
+            if (result.exitCode != 0 || result.output.contains("Failure", ignoreCase = true)) {
+                error(result.output.ifBlank { "pm uninstall failed with exit code ${result.exitCode}" })
+            }
+        }
+    }
 
     private fun String.toInstalledApp(): InstalledApp? {
         val line = trim()

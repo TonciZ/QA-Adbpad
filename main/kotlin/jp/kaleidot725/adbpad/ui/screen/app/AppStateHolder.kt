@@ -2,9 +2,12 @@ package jp.kaleidot725.adbpad.ui.screen.app
 
 import jp.kaleidot725.adbpad.domain.model.app.InstalledApp
 import jp.kaleidot725.adbpad.domain.model.device.Device
+import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.sort.SortType
 import jp.kaleidot725.adbpad.domain.usecase.app.GetInstalledAppIconUseCase
 import jp.kaleidot725.adbpad.domain.usecase.app.GetInstalledAppsUseCase
+import jp.kaleidot725.adbpad.domain.usecase.app.InstallPackageUseCase
+import jp.kaleidot725.adbpad.domain.usecase.app.UninstallInstalledAppUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.GetSelectedDeviceFlowUseCase
 import jp.kaleidot725.adbpad.ui.container.AppBroadCast
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppAction
@@ -13,13 +16,22 @@ import jp.kaleidot725.adbpad.ui.screen.app.state.AppState
 import jp.kaleidot725.adbpad.ui.screen.app.state.filterInstalledApps
 import jp.kaleidot725.pulse.mvi.PulseStore
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.swing.Swing
+import kotlinx.coroutines.withContext
+import java.awt.KeyboardFocusManager
+import java.io.File
+import javax.swing.JFileChooser
+import javax.swing.filechooser.FileNameExtensionFilter
 
 class AppStateHolder(
     private val getSelectedDeviceFlowUseCase: GetSelectedDeviceFlowUseCase,
     private val getInstalledAppsUseCase: GetInstalledAppsUseCase,
     private val getInstalledAppIconUseCase: GetInstalledAppIconUseCase,
+    private val installPackageUseCase: InstallPackageUseCase,
+    private val uninstallInstalledAppUseCase: UninstallInstalledAppUseCase,
 ) : PulseStore<AppState, AppAction, AppSideEffect, AppBroadCast>(
         initialUiState = AppState(),
     ) {
@@ -52,6 +64,14 @@ class AppStateHolder(
 
             is AppAction.FetchIcon -> {
                 fetchIcon(uiAction.app)
+            }
+
+            AppAction.InstallPackage -> {
+                installPackage()
+            }
+
+            is AppAction.UninstallApp -> {
+                uninstallApp(uiAction.app)
             }
 
             AppAction.SelectNextApp -> {
@@ -157,7 +177,7 @@ class AppStateHolder(
 
     private fun fetchIcon(app: InstalledApp) {
         val device = currentState.selectedDevice ?: return
-        if (currentState.isIconLoading(app)) return
+        if (currentState.isProcessing(app)) return
 
         update {
             copy(
@@ -186,6 +206,72 @@ class AppStateHolder(
                     update {
                         copy(
                             loadingIconPackageNames = loadingIconPackageNames - app.packageName,
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun installPackage() {
+        val device = currentState.selectedDevice ?: return
+        if (currentState.isInstalling) return
+
+        coroutineScope.launch {
+            val packageFile = selectInstallPackageFile() ?: return@launch
+            if (currentState.isInstalling) return@launch
+
+            update { copy(isInstalling = true) }
+            runCatching { installPackageUseCase(device, packageFile) }
+                .onSuccess {
+                    update { copy(isInstalling = false) }
+                    loadApps(device)
+                }.onFailure { throwable ->
+                    if (throwable is CancellationException) throw throwable
+                    update { copy(isInstalling = false) }
+                }
+        }
+    }
+
+    private suspend fun selectInstallPackageFile(): File? =
+        withContext(Dispatchers.Swing) {
+            val chooser =
+                JFileChooser().apply {
+                    dialogTitle = Language.selectInstallPackage
+                    fileSelectionMode = JFileChooser.FILES_ONLY
+                    isAcceptAllFileFilterUsed = false
+                    fileFilter = FileNameExtensionFilter("APK", "apk")
+                }
+            val parent = KeyboardFocusManager.getCurrentKeyboardFocusManager().activeWindow
+            val result = chooser.showOpenDialog(parent)
+            if (result == JFileChooser.APPROVE_OPTION) chooser.selectedFile else null
+        }
+
+    private fun uninstallApp(app: InstalledApp) {
+        val device = currentState.selectedDevice ?: return
+        if (currentState.isProcessing(app)) return
+
+        update {
+            copy(
+                uninstallingPackageNames = uninstallingPackageNames + app.packageName,
+            )
+        }
+
+        coroutineScope.launch {
+            runCatching { uninstallInstalledAppUseCase(device, app) }
+                .onSuccess {
+                    update {
+                        copy(
+                            iconFilePaths = iconFilePaths - app.packageName,
+                            loadingIconPackageNames = loadingIconPackageNames - app.packageName,
+                            uninstallingPackageNames = uninstallingPackageNames - app.packageName,
+                        )
+                    }
+                    loadApps(device)
+                }.onFailure { throwable ->
+                    if (throwable is CancellationException) throw throwable
+                    update {
+                        copy(
+                            uninstallingPackageNames = uninstallingPackageNames - app.packageName,
                         )
                     }
                 }

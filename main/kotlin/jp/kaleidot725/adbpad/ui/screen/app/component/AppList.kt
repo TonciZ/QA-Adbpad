@@ -44,6 +44,7 @@ fun AppList(
     isIconLoading: (InstalledApp) -> Boolean,
     onSelectApp: (InstalledApp) -> Unit,
     onFetchIcon: (InstalledApp) -> Unit,
+    onUninstallApp: (InstalledApp) -> Unit,
     onNextApp: () -> Unit,
     onPreviousApp: () -> Unit,
     modifier: Modifier = Modifier,
@@ -92,6 +93,10 @@ fun AppList(
                                     ContextMenuItem(
                                         label = Language.fetchAppIcon,
                                         onClick = { onFetchIcon(app) },
+                                    ),
+                                    ContextMenuItem(
+                                        label = Language.uninstallApp,
+                                        onClick = { onUninstallApp(app) },
                                     ),
                                 )
                             },

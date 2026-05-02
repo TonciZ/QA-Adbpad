@@ -33,6 +33,9 @@ object ChineseResources : StringResources {
     override val appSourceDir: String = "APK 路径"
     override val appDataDirectory: String = "数据目录"
     override val fetchAppIcon: String = "获取图标"
+    override val installApp: String = "安装"
+    override val selectInstallPackage: String = "选择要安装的 APK"
+    override val uninstallApp: String = "卸载"
 
     override val textCommandUnTitle: String = "取消文本标题命令"
 
