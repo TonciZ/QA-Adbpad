@@ -27,7 +27,6 @@ fun AppList(
     apps: List<InstalledApp>,
     selectedDevice: Device?,
     isLoading: Boolean,
-    errorMessage: String?,
     isProcessing: (InstalledApp) -> Boolean,
     onSelectApp: (InstalledApp) -> Unit,
     onUninstallApp: (InstalledApp) -> Unit,
@@ -39,14 +38,6 @@ fun AppList(
         when {
             selectedDevice == null -> {
                 AppListEmptyState(text = Language.notFoundDevice, modifier = Modifier.align(Alignment.Center))
-            }
-
-            errorMessage != null -> {
-                AppListErrorState(
-                    title = Language.appListLoadFailed,
-                    details = errorMessage,
-                    modifier = Modifier.align(Alignment.Center),
-                )
             }
 
             apps.isNotEmpty() -> {

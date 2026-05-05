@@ -26,7 +26,6 @@ interface StringResources {
     val system: String
     val search: String
     val loadingAppList: String
-    val appListLoadFailed: String
     val appDetailsTitle: String
     val appPackageName: String
     val appDataDirectory: String

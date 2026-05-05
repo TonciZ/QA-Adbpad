@@ -55,8 +55,6 @@ object Language : StringResources {
         get() = getCurrentResources().search
     override val loadingAppList: String
         get() = getCurrentResources().loadingAppList
-    override val appListLoadFailed: String
-        get() = getCurrentResources().appListLoadFailed
     override val appDetailsTitle: String
         get() = getCurrentResources().appDetailsTitle
     override val appPackageName: String

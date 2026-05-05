@@ -11,7 +11,6 @@ import jp.kaleidot725.adbpad.ui.screen.app.state.AppAction
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppSideEffect
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppState
 import jp.kaleidot725.pulse.mvi.PulseStore
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -39,37 +38,16 @@ class AppStateHolder(
     }
 
     override fun onAction(uiAction: AppAction) {
-        when (uiAction) {
-            AppAction.RefreshApps -> {
-                coroutineScope.launch { loadApps(currentState.selectedDevice) }
-            }
-
-            is AppAction.UpdateSearchText -> {
-                updateSearchText(uiAction.text)
-            }
-
-            is AppAction.UpdateSortType -> {
-                updateSortType(uiAction.sortType)
-            }
-
-            is AppAction.SelectApp -> {
-                selectApp(uiAction.app)
-            }
-
-            AppAction.InstallPackage -> {
-                installPackage()
-            }
-
-            is AppAction.UninstallApp -> {
-                uninstallApp(uiAction.app)
-            }
-
-            AppAction.SelectNextApp -> {
-                selectNextApp()
-            }
-
-            AppAction.SelectPreviousApp -> {
-                selectPreviousApp()
+        coroutineScope.launch {
+            when (uiAction) {
+                AppAction.RefreshApps -> loadApps(currentState.selectedDevice)
+                is AppAction.UpdateSearchText -> updateSearchText(uiAction.text)
+                is AppAction.UpdateSortType -> updateSortType(uiAction.sortType)
+                is AppAction.SelectApp -> selectApp(uiAction.app)
+                AppAction.InstallPackage -> installPackage()
+                is AppAction.UninstallApp -> uninstallApp(uiAction.app)
+                AppAction.SelectNextApp -> selectNextApp()
+                AppAction.SelectPreviousApp -> selectPreviousApp()
             }
         }
     }
@@ -90,30 +68,14 @@ class AppStateHolder(
                     filteredApps = emptyList(),
                     selectedAppPackageName = null,
                     isLoading = false,
-                    errorMessage = null,
                 )
             }
             return
         }
 
-        update { copy(isLoading = true, errorMessage = null) }
-        runCatching { installedAppRepository.getInstalledApps(device) }
-            .onSuccess { apps -> updateApps(apps) }
-            .onFailure { throwable ->
-                if (throwable is CancellationException) throw throwable
-                update {
-                    copy(
-                        apps = emptyList(),
-                        filteredApps = emptyList(),
-                        selectedAppPackageName = null,
-                        isLoading = false,
-                        errorMessage = throwable.message,
-                    )
-                }
-            }
-    }
+        update { copy(isLoading = true) }
 
-    private fun updateApps(apps: List<InstalledApp>) {
+        val apps = installedAppRepository.getInstalledApps(device)
         update {
             val filteredApps = filterInstalledApps(apps, searchText, sortType)
             val nextSelection =
@@ -127,7 +89,6 @@ class AppStateHolder(
                 filteredApps = filteredApps,
                 selectedAppPackageName = nextSelection,
                 isLoading = false,
-                errorMessage = null,
             )
         }
     }
@@ -170,24 +131,17 @@ class AppStateHolder(
         update { copy(selectedAppPackageName = app.packageName) }
     }
 
-    private fun installPackage() {
+    private suspend fun installPackage() {
         val device = currentState.selectedDevice ?: return
         if (currentState.isInstalling) return
 
-        coroutineScope.launch {
-            val packageFile = selectInstallPackageFile() ?: return@launch
-            if (currentState.isInstalling) return@launch
+        val packageFile = selectInstallPackageFile() ?: return
+        if (currentState.isInstalling) return
 
-            update { copy(isInstalling = true) }
-            runCatching { installedAppRepository.installPackage(device, packageFile) }
-                .onSuccess {
-                    update { copy(isInstalling = false) }
-                    loadApps(device)
-                }.onFailure { throwable ->
-                    if (throwable is CancellationException) throw throwable
-                    update { copy(isInstalling = false) }
-                }
-        }
+        update { copy(isInstalling = true) }
+        val isInstalled = installedAppRepository.installPackage(device, packageFile)
+        update { copy(isInstalling = false) }
+        if (isInstalled) loadApps(device)
     }
 
     private suspend fun selectInstallPackageFile(): File? =
@@ -204,7 +158,7 @@ class AppStateHolder(
             if (result == JFileChooser.APPROVE_OPTION) chooser.selectedFile else null
         }
 
-    private fun uninstallApp(app: InstalledApp) {
+    private suspend fun uninstallApp(app: InstalledApp) {
         val device = currentState.selectedDevice ?: return
         if (currentState.isProcessing(app)) return
 
@@ -214,24 +168,13 @@ class AppStateHolder(
             )
         }
 
-        coroutineScope.launch {
-            runCatching { installedAppRepository.uninstallInstalledApp(device, app) }
-                .onSuccess {
-                    update {
-                        copy(
-                            uninstallingPackageNames = uninstallingPackageNames - app.packageName,
-                        )
-                    }
-                    loadApps(device)
-                }.onFailure { throwable ->
-                    if (throwable is CancellationException) throw throwable
-                    update {
-                        copy(
-                            uninstallingPackageNames = uninstallingPackageNames - app.packageName,
-                        )
-                    }
-                }
+        val isUninstalled = installedAppRepository.uninstallInstalledApp(device, app)
+        update {
+            copy(
+                uninstallingPackageNames = uninstallingPackageNames - app.packageName,
+            )
         }
+        if (isUninstalled) loadApps(device)
     }
 
     private fun selectNextApp() {

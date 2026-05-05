@@ -13,7 +13,6 @@ data class AppState(
     val searchText: String = "",
     val sortType: SortType = SortType.SORT_BY_NAME_ASC,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
     val uninstallingPackageNames: Set<String> = emptySet(),
     val isInstalling: Boolean = false,
 ) : PulseState {

@@ -27,7 +27,6 @@ object JapaneseResources : StringResources {
     override val system = "System"
     override val search: String = "Search"
     override val loadingAppList: String = "アプリ一覧を取得中"
-    override val appListLoadFailed: String = "アプリ一覧を取得できません"
     override val appDetailsTitle: String = "アプリ情報"
     override val appPackageName: String = "パッケージ名"
     override val appDataDirectory: String = "データ領域"

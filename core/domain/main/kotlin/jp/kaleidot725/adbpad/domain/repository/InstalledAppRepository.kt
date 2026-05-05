@@ -10,10 +10,10 @@ interface InstalledAppRepository {
     suspend fun installPackage(
         device: Device,
         packageFile: File,
-    )
+    ): Boolean
 
     suspend fun uninstallInstalledApp(
         device: Device,
         app: InstalledApp,
-    )
+    ): Boolean
 }

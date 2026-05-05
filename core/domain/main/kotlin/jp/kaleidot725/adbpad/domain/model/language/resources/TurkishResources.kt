@@ -27,7 +27,6 @@ object TurkishResources : StringResources {
     override val system = "Sistem"
     override val search: String = "Ara"
     override val loadingAppList: String = "Uygulamalar yükleniyor"
-    override val appListLoadFailed: String = "Uygulamalar yüklenemedi"
     override val appDetailsTitle: String = "Uygulama bilgileri"
     override val appPackageName: String = "Paket adı"
     override val appDataDirectory: String = "Veri dizini"

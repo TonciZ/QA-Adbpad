@@ -27,7 +27,6 @@ object EnglishResources : StringResources {
     override val system = "System"
     override val search: String = "Search"
     override val loadingAppList: String = "Loading apps"
-    override val appListLoadFailed: String = "Failed to load apps"
     override val appDetailsTitle: String = "App information"
     override val appPackageName: String = "Package name"
     override val appDataDirectory: String = "Data directory"

@@ -27,7 +27,6 @@ object ChineseResources : StringResources {
     override val system = "系统"
     override val search: String = "搜索"
     override val loadingAppList: String = "正在加载应用"
-    override val appListLoadFailed: String = "无法加载应用列表"
     override val appDetailsTitle: String = "应用信息"
     override val appPackageName: String = "包名"
     override val appDataDirectory: String = "数据目录"

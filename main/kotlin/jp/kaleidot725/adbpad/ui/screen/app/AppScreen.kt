@@ -54,7 +54,6 @@ fun AppScreen(
                     apps = state.filteredApps,
                     selectedDevice = state.selectedDevice,
                     isLoading = state.isLoading,
-                    errorMessage = state.errorMessage,
                     isProcessing = { state.isProcessing(it) },
                     onSelectApp = { onAction(AppAction.SelectApp(it)) },
                     onUninstallApp = { onAction(AppAction.UninstallApp(it)) },
