@@ -17,6 +17,8 @@ object Language : StringResources {
         get() = getCurrentResources().notFoundInputText
     override val notFoundScreenshot: String
         get() = getCurrentResources().notFoundScreenshot
+    override val notFoundApp: String
+        get() = getCurrentResources().notFoundApp
     override val execute: String
         get() = getCurrentResources().execute
     override val tab: String
@@ -51,6 +53,20 @@ object Language : StringResources {
         get() = getCurrentResources().system
     override val search: String
         get() = getCurrentResources().search
+    override val loadingAppList: String
+        get() = getCurrentResources().loadingAppList
+    override val appDetailsTitle: String
+        get() = getCurrentResources().appDetailsTitle
+    override val appPackageName: String
+        get() = getCurrentResources().appPackageName
+    override val appDataDirectory: String
+        get() = getCurrentResources().appDataDirectory
+    override val installApp: String
+        get() = getCurrentResources().installApp
+    override val selectInstallPackage: String
+        get() = getCurrentResources().selectInstallPackage
+    override val uninstallApp: String
+        get() = getCurrentResources().uninstallApp
     override val textCommandUnTitle: String
         get() = getCurrentResources().textCommandUnTitle
     override val screenshotTakeByCurrentTheme: String
@@ -422,6 +438,8 @@ object Language : StringResources {
         get() = getCurrentResources().tooltipScrcpy
     override val tooltipNewDisplay: String
         get() = getCurrentResources().tooltipNewDisplay
+    override val tooltipApp: String
+        get() = getCurrentResources().tooltipApp
 
     // MenuBar Window menu
     override val menuWindow: String
