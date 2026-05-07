@@ -34,8 +34,9 @@ class AppStateHolder(
     override fun onSetup() {
         coroutineScope.launch {
             getSelectedDeviceFlowUseCase().collectLatest { device ->
+                val shouldResetFileTrees = currentState.selectedDevice?.serial != device?.serial
                 update { copy(selectedDevice = device) }
-                loadApps(device)
+                loadApps(device, forceResetFileTrees = shouldResetFileTrees)
             }
         }
     }
@@ -65,7 +66,10 @@ class AppStateHolder(
         }
     }
 
-    private suspend fun loadApps(device: Device?) {
+    private suspend fun loadApps(
+        device: Device?,
+        forceResetFileTrees: Boolean = false,
+    ) {
         if (device == null) {
             update {
                 copy(
@@ -84,24 +88,26 @@ class AppStateHolder(
 
         update { copy(isLoading = true) }
 
+        val previousSelectedPackageName = currentState.selectedAppPackageName
         val apps = installedAppRepository.getInstalledApps(device)
         val filteredApps = filterInstalledApps(apps, currentState.searchText, currentState.sortType)
         val nextSelection =
             when {
-                filteredApps.any { it.packageName == currentState.selectedAppPackageName } -> currentState.selectedAppPackageName
+                filteredApps.any { it.packageName == previousSelectedPackageName } -> previousSelectedPackageName
                 else -> filteredApps.firstOrNull()?.packageName
             }
         val selectedApp = filteredApps.firstOrNull { it.packageName == nextSelection }
+        val shouldResetFileTrees = forceResetFileTrees || nextSelection != previousSelectedPackageName
         update {
             copy(
                 apps = apps,
                 filteredApps = filteredApps,
                 selectedAppPackageName = nextSelection,
                 isLoading = false,
-                dataFileTree = AppFileTreeState(),
-                sdCardDataFileTree = AppFileTreeState(),
-                selectedDataFile = null,
-                selectedSdCardDataFile = null,
+                dataFileTree = if (shouldResetFileTrees) AppFileTreeState() else dataFileTree,
+                sdCardDataFileTree = if (shouldResetFileTrees) AppFileTreeState() else sdCardDataFileTree,
+                selectedDataFile = if (shouldResetFileTrees) null else selectedDataFile,
+                selectedSdCardDataFile = if (shouldResetFileTrees) null else selectedSdCardDataFile,
             )
         }
         if (selectedApp != null) {
