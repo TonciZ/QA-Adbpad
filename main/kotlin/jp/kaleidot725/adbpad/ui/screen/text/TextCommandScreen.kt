@@ -3,6 +3,7 @@ package jp.kaleidot725.adbpad.ui.screen.text
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -83,19 +84,18 @@ fun TextCommandScreen(
                 }
             }
         },
-        right =
-            selectedCommand?.let { command ->
-                {
-                    TextCommandDetailMenu(
-                        command = command,
-                        canSend = state.canSend,
-                        onSendText = { onAction(TextCommandAction.SendTextCommand) },
-                        selectedOption = state.selectedTextCommandOption,
-                        onUpdateTextCommandOption = { onAction(TextCommandAction.UpdateTextCommandOption(it)) },
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-            },
+        right = selectedCommand?.let { command ->
+            {
+                TextCommandDetailMenu(
+                    command = command,
+                    canSend = state.canSend,
+                    onSendText = { onAction(TextCommandAction.SendTextCommand) },
+                    selectedOption = state.selectedTextCommandOption,
+                    onUpdateTextCommandOption = { onAction(TextCommandAction.UpdateTextCommandOption(it)) },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+        },
     )
 }
 
