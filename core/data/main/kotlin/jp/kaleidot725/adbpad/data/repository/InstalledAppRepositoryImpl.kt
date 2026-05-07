@@ -87,7 +87,7 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
     ): Result<List<AppFileEntry>, Exception> =
         withContext(Dispatchers.IO) {
             try {
-                val rootPath = directory.getRootPath(app)
+                val rootPath = getRootPath(app, directory)
                 val targetPath = if (path == rootPath || path.startsWith("$rootPath/")) path else rootPath
                 val files = adbClient.execute(ListFilesRequest(targetPath), device.serial)
                 Ok(files.toAppFileEntries())
@@ -95,6 +95,15 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
                 if (exception is CancellationException) throw exception
                 Err(exception)
             }
+        }
+
+    private fun getRootPath(
+        app: InstalledApp,
+        directory: AppDataDirectory,
+    ): String =
+        when (directory) {
+            AppDataDirectory.Data -> app.dataDir
+            AppDataDirectory.SdCardData -> app.sdCardDataDir
         }
 
     // Parses `pm list packages` lines like `package:com.example.app`.
