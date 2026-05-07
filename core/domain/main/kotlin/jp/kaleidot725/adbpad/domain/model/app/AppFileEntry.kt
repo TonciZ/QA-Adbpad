@@ -5,8 +5,9 @@ data class AppFileEntry(
     val path: String,
     val type: AppFileType,
     val permissions: String,
-    val size: Long?,
-    val modifiedAt: String?,
+    val size: Long,
+    val date: String,
+    val time: String,
 ) {
     val isDirectory: Boolean
         get() = type == AppFileType.Directory

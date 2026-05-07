@@ -130,7 +130,8 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
             type = type.toAppFileType(),
             permissions = permissions,
             size = size,
-            modifiedAt = "$date $time",
+            date = date,
+            time = time,
         )
 
     private fun AndroidFileType.toAppFileType(): AppFileType =
