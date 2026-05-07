@@ -25,3 +25,15 @@ internal val previewAppFileEntries =
         ),
     )
 
+internal val previewChildAppFileEntries =
+    listOf(
+        AppFileEntry(
+            name = "cache.db",
+            path = "/data/data/com.example.notes/files/cache.db",
+            type = AppFileType.File,
+            permissions = "-rw-rw----",
+            size = 4096,
+            date = "2026-05-08",
+            time = "12:36",
+        ),
+    )

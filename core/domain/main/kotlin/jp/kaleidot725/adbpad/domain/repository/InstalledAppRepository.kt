@@ -25,4 +25,9 @@ interface InstalledAppRepository {
         app: InstalledApp,
         directory: AppDataDirectory,
     ): Result<List<AppFileEntry>, Exception>
+
+    suspend fun getAppFileChildren(
+        device: Device,
+        directory: AppFileEntry,
+    ): Result<List<AppFileEntry>, Exception>
 }

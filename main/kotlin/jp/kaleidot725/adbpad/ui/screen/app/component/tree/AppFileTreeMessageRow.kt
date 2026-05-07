@@ -15,13 +15,14 @@ import jp.kaleidot725.adbpad.domain.model.language.Language
 @Composable
 internal fun AppFileTreeMessageRow(
     message: String,
+    depth: Int = 0,
     modifier: Modifier = Modifier,
 ) {
     Text(
         text = message,
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier.fillMaxWidth().padding(vertical = 6.dp),
+        modifier = modifier.fillMaxWidth().padding(start = (depth * 16).dp, top = 6.dp, bottom = 6.dp),
         maxLines = 3,
         overflow = TextOverflow.Ellipsis,
     )
@@ -35,4 +36,3 @@ private fun AppFileTreeMessageRowPreview() {
         modifier = Modifier.width(280.dp).padding(16.dp),
     )
 }
-

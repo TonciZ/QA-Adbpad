@@ -260,11 +260,33 @@ class AppStateHolder(
     }
 
     private suspend fun selectDataFileNode(entry: AppFileEntry) {
+        val tree = currentState.dataFileTree
         update { copy(selectedDataFile = entry) }
+        selectAppFileNode(AppDataDirectory.Data, tree, entry)
     }
 
     private suspend fun selectSdCardDataFileNode(entry: AppFileEntry) {
+        val tree = currentState.sdCardDataFileTree
         update { copy(selectedSdCardDataFile = entry) }
+        selectAppFileNode(AppDataDirectory.SdCardData, tree, entry)
+    }
+
+    private suspend fun selectAppFileNode(
+        directory: AppDataDirectory,
+        tree: AppFileTreeState,
+        entry: AppFileEntry,
+    ) {
+        if (!entry.isDirectory) return
+
+        if (tree.expandedPaths.contains(entry.path)) {
+            updateFileTree(directory) { copy(expandedPaths = expandedPaths - entry.path) }
+            return
+        }
+
+        updateFileTree(directory) { copy(expandedPaths = expandedPaths + entry.path) }
+        if (!tree.childrenByPath.containsKey(entry.path)) {
+            loadAppFileTreeChildren(directory, entry)
+        }
     }
 
     private suspend fun loadAppFileTreeRoots(
@@ -301,6 +323,40 @@ class AppStateHolder(
                 copy(
                     isLoading = false,
                     errorMessage = result.error.message ?: "Failed to load files",
+                )
+            }
+        }
+    }
+
+    private suspend fun loadAppFileTreeChildren(
+        directory: AppDataDirectory,
+        entry: AppFileEntry,
+    ) {
+        val device = currentState.selectedDevice ?: return
+        val packageName = currentState.selectedAppPackageName ?: return
+
+        updateFileTree(directory) {
+            copy(
+                loadingPaths = loadingPaths + entry.path,
+                errorMessages = errorMessages - entry.path,
+            )
+        }
+
+        val result = installedAppRepository.getAppFileChildren(device, entry)
+        if (currentState.selectedAppPackageName != packageName) return
+
+        updateFileTree(directory) {
+            if (result.isOk) {
+                copy(
+                    childrenByPath = childrenByPath + (entry.path to result.value),
+                    loadingPaths = loadingPaths - entry.path,
+                    errorMessages = errorMessages - entry.path,
+                )
+            } else {
+                copy(
+                    loadingPaths = loadingPaths - entry.path,
+                    errorMessages =
+                        errorMessages + (entry.path to (result.error.message ?: "Failed to load files")),
                 )
             }
         }

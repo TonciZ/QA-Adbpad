@@ -28,6 +28,8 @@ fun AppFileTreeView(
                 tree.entries.forEach { entry ->
                     AppFileTreeNode(
                         entry = entry,
+                        tree = tree,
+                        depth = 0,
                         selectedFile = selectedFile,
                         onSelectNode = onSelectNode,
                     )
@@ -40,11 +42,17 @@ fun AppFileTreeView(
 @Preview
 @Composable
 private fun AppFileTreeViewPreview() {
+    val directory = previewAppFileEntries.first()
+
     AppFileTreeView(
-        tree = AppFileTreeState(entries = previewAppFileEntries),
-        selectedFile = previewAppFileEntries.first(),
+        tree =
+            AppFileTreeState(
+                entries = previewAppFileEntries,
+                expandedPaths = setOf(directory.path),
+                childrenByPath = mapOf(directory.path to previewChildAppFileEntries),
+            ),
+        selectedFile = directory,
         onSelectNode = {},
         modifier = Modifier.width(280.dp).padding(16.dp),
     )
 }
-

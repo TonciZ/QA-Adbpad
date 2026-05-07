@@ -86,17 +86,38 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
     ): Result<List<AppFileEntry>, Exception> =
         withContext(Dispatchers.IO) {
             try {
-                val rootPath =
-                    when (directory) {
-                        AppDataDirectory.Data -> app.dataDir
-                        AppDataDirectory.SdCardData -> app.sdCardDataDir
-                    }
+                val rootPath = getRootPath(app, directory)
                 val files = adbClient.execute(ListFilesRequest(rootPath), device.serial)
                 Ok(files.toAppFileEntries())
             } catch (exception: Exception) {
                 if (exception is CancellationException) throw exception
                 Err(exception)
             }
+        }
+
+    override suspend fun getAppFileChildren(
+        device: Device,
+        directory: AppFileEntry,
+    ): Result<List<AppFileEntry>, Exception> =
+        withContext(Dispatchers.IO) {
+            try {
+                if (!directory.isDirectory) return@withContext Ok(emptyList())
+
+                val files = adbClient.execute(ListFilesRequest(directory.path), device.serial)
+                Ok(files.toAppFileEntries())
+            } catch (exception: Exception) {
+                if (exception is CancellationException) throw exception
+                Err(exception)
+            }
+        }
+
+    private fun getRootPath(
+        app: InstalledApp,
+        directory: AppDataDirectory,
+    ): String =
+        when (directory) {
+            AppDataDirectory.Data -> app.dataDir
+            AppDataDirectory.SdCardData -> app.sdCardDataDir
         }
 
     private fun String.toInstalledApp(): InstalledApp? {
