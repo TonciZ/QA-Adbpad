@@ -20,6 +20,7 @@ import jp.kaleidot725.adbpad.domain.model.app.AppFileEntry
 import jp.kaleidot725.adbpad.domain.model.app.InstalledApp
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.ui.component.layout.ExpandableSection
+import jp.kaleidot725.adbpad.ui.screen.app.component.tree.AppFileTreeView
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppFileTreeState
 
 @Composable
