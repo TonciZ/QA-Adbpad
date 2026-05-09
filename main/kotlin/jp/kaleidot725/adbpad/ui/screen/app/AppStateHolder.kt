@@ -11,6 +11,7 @@ import jp.kaleidot725.adbpad.domain.usecase.device.GetSelectedDeviceFlowUseCase
 import jp.kaleidot725.adbpad.ui.container.AppBroadCast
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppAction
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppFileTreeState
+import jp.kaleidot725.adbpad.ui.screen.app.state.AppProcessState
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppSideEffect
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppState
 import jp.kaleidot725.pulse.mvi.PulseStore
@@ -21,7 +22,6 @@ import kotlinx.coroutines.swing.Swing
 import kotlinx.coroutines.withContext
 import java.awt.KeyboardFocusManager
 import java.io.File
-import java.util.Locale
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 
@@ -31,52 +31,131 @@ class AppStateHolder(
 ) : PulseStore<AppState, AppAction, AppSideEffect, AppBroadCast>(
         initialUiState = AppState(),
     ) {
+    private var appFileTreeTarget: AppFileTreeTarget? = null
+
     override fun onSetup() {
-        coroutineScope.launch {
-            getSelectedDeviceFlowUseCase().collectLatest { device ->
-                val shouldResetFileTrees = currentState.selectedDevice?.serial != device?.serial
-                update { copy(selectedDevice = device) }
-                loadApps(device, forceResetFileTrees = shouldResetFileTrees)
-            }
-        }
+        collectSelectedDevice()
     }
 
     override fun onAction(uiAction: AppAction) {
         coroutineScope.launch {
             when (uiAction) {
-                AppAction.RefreshApps -> loadApps(currentState.selectedDevice)
-                is AppAction.UpdateSearchText -> updateSearchText(uiAction.text)
-                is AppAction.UpdateSortType -> updateSortType(uiAction.sortType)
-                is AppAction.SelectApp -> selectApp(uiAction.app)
-                AppAction.InstallPackage -> installPackage()
-                is AppAction.UninstallApp -> uninstallApp(uiAction.app)
-                AppAction.SelectNextApp -> selectNextApp()
-                AppAction.SelectPreviousApp -> selectPreviousApp()
-                is AppAction.SelectDataFileNode -> selectDataFileNode(uiAction.entry)
-                is AppAction.SelectSdCardDataFileNode -> selectSdCardDataFileNode(uiAction.entry)
+                AppAction.RefreshApps -> reduceRefreshApps()
+                is AppAction.UpdateSearchText -> reduceUpdateSearchText(uiAction.text)
+                is AppAction.UpdateSortType -> reduceUpdateSortType(uiAction.sortType)
+                is AppAction.SelectApp -> reduceSelectApp(uiAction.app)
+                AppAction.InstallPackage -> reduceInstallPackage()
+                is AppAction.UninstallApp -> reduceUninstallApp(uiAction.app)
+                AppAction.SelectNextApp -> reduceSelectNextApp()
+                AppAction.SelectPreviousApp -> reduceSelectPreviousApp()
+                is AppAction.SelectDataFileNode -> reduceSelectDataFileNode(uiAction.entry)
+                is AppAction.SelectSdCardDataFileNode -> reduceSelectSdCardDataFileNode(uiAction.entry)
             }
         }
     }
 
     override fun onReceive(broadcast: AppBroadCast) {
-        when (broadcast) {
-            AppBroadCast.Refresh -> {
-                coroutineScope.launch { loadApps(currentState.selectedDevice) }
+        coroutineScope.launch {
+            when (broadcast) {
+                AppBroadCast.Refresh -> reduceRefreshApps()
             }
         }
     }
 
-    private suspend fun loadApps(
-        device: Device?,
-        forceResetFileTrees: Boolean = false,
-    ) {
-        if (device == null) {
+    private suspend fun reduceRefreshApps() {
+        if (currentState.processState != AppProcessState.Idle) return
+
+        update { copy(processState = AppProcessState.Loading) }
+        refreshApps()
+        refreshAppFileTreeRoots()
+        update { copy(processState = AppProcessState.Idle) }
+    }
+
+    private suspend fun reduceUpdateSearchText(text: String) {
+        update { copy(searchText = text) }
+        refreshAppFileTreeRoots()
+    }
+
+    private suspend fun reduceUpdateSortType(sortType: SortType) {
+        update { copy(sortType = sortType) }
+        refreshAppFileTreeRoots()
+    }
+
+    private suspend fun reduceSelectApp(app: InstalledApp) {
+        update { copy(selectedApp = app) }
+        refreshAppFileTreeRoots()
+    }
+
+    private suspend fun reduceInstallPackage() {
+        if (currentState.processState != AppProcessState.Idle) return
+
+        val device = currentState.selectedDevice ?: return
+        val packageFile = selectInstallApplication() ?: return
+
+        update { copy(processState = AppProcessState.Installing) }
+        val isInstalled = installedAppRepository.installPackage(device, packageFile)
+        if (isInstalled) reduceRefreshApps()
+        update { copy(processState = AppProcessState.Idle) }
+    }
+
+    private suspend fun reduceUninstallApp(app: InstalledApp) {
+        if (currentState.processState != AppProcessState.Idle) return
+        val device = currentState.selectedDevice ?: return
+
+        update { copy(processState = AppProcessState.Uninstalling) }
+        val isUninstalled = installedAppRepository.uninstallInstalledApp(device, app)
+        if (isUninstalled) reduceRefreshApps()
+        update { copy(processState = AppProcessState.Idle) }
+    }
+
+    private suspend fun reduceSelectNextApp() {
+        selectNextOrPreviousApp(offset = 1)
+        refreshAppFileTreeRoots()
+    }
+
+    private suspend fun reduceSelectPreviousApp() {
+        selectNextOrPreviousApp(offset = -1)
+        refreshAppFileTreeRoots()
+    }
+
+    private suspend fun reduceSelectDataFileNode(entry: AppFileEntry) {
+        update { copy(selectedDataFile = entry) }
+        selectAppFileNode(AppDataDirectory.Data, currentState.dataFileTree, entry)
+    }
+
+    private suspend fun reduceSelectSdCardDataFileNode(entry: AppFileEntry) {
+        update { copy(selectedSdCardDataFile = entry) }
+        selectAppFileNode(AppDataDirectory.SdCardData, currentState.sdCardDataFileTree, entry)
+    }
+
+    private suspend fun refreshApps() {
+        val device = currentState.selectedDevice ?: return
+        val apps = installedAppRepository.getInstalledApps(device)
+        update {
+            copy(
+                apps = apps,
+                selectedApp = selectedApp?.takeIf { apps.contains(it) } ?: apps.firstOrNull(),
+            )
+        }
+    }
+
+    private suspend fun refreshAppFileTreeRoots() {
+        val device = currentState.selectedDevice
+        val app = currentState.selectedApp
+        val nextTarget =
+            if (device != null && app != null) {
+                AppFileTreeTarget(
+                    deviceSerial = device.serial,
+                    packageName = app.packageName,
+                )
+            } else {
+                null
+            }
+
+        if (nextTarget == null) {
+            appFileTreeTarget = null
             update {
                 copy(
-                    apps = emptyList(),
-                    filteredApps = emptyList(),
-                    selectedAppPackageName = null,
-                    isLoading = false,
                     dataFileTree = AppFileTreeState(),
                     sdCardDataFileTree = AppFileTreeState(),
                     selectedDataFile = null,
@@ -86,126 +165,178 @@ class AppStateHolder(
             return
         }
 
-        update { copy(isLoading = true) }
+        if (appFileTreeTarget == nextTarget) return
 
-        val previousSelectedPackageName = currentState.selectedAppPackageName
-        val apps = installedAppRepository.getInstalledApps(device)
-        val filteredApps = filterInstalledApps(apps, currentState.searchText, currentState.sortType)
-        val nextSelection =
-            when {
-                filteredApps.any { it.packageName == previousSelectedPackageName } -> previousSelectedPackageName
-                else -> filteredApps.firstOrNull()?.packageName
+        appFileTreeTarget = null
+        update {
+            copy(
+                dataFileTree = AppFileTreeState(),
+                sdCardDataFileTree = AppFileTreeState(),
+                selectedDataFile = null,
+                selectedSdCardDataFile = null,
+            )
+        }
+
+        val isDataLoaded = refreshAppFileTree(AppDataDirectory.Data)
+        val selectedDevice = currentState.selectedDevice
+        val selectedApp = currentState.selectedApp
+        val selectedTarget =
+            if (selectedDevice != null && selectedApp != null) {
+                AppFileTreeTarget(
+                    deviceSerial = selectedDevice.serial,
+                    packageName = selectedApp.packageName,
+                )
+            } else {
+                null
             }
-        val selectedApp = filteredApps.firstOrNull { it.packageName == nextSelection }
-        val shouldResetFileTrees = forceResetFileTrees || nextSelection != previousSelectedPackageName
-        update {
-            copy(
-                apps = apps,
-                filteredApps = filteredApps,
-                selectedAppPackageName = nextSelection,
-                isLoading = false,
-                dataFileTree = if (shouldResetFileTrees) AppFileTreeState() else dataFileTree,
-                sdCardDataFileTree = if (shouldResetFileTrees) AppFileTreeState() else sdCardDataFileTree,
-                selectedDataFile = if (shouldResetFileTrees) null else selectedDataFile,
-                selectedSdCardDataFile = if (shouldResetFileTrees) null else selectedSdCardDataFile,
-            )
-        }
-        if (selectedApp != null) {
-            loadAppFileTreeRoots(device, selectedApp)
+        if (selectedTarget != nextTarget) return
+
+        val isSdCardDataLoaded = refreshAppFileTree(AppDataDirectory.SdCardData)
+        val currentDevice = currentState.selectedDevice
+        val currentApp = currentState.selectedApp
+        val currentTarget =
+            if (currentDevice != null && currentApp != null) {
+                AppFileTreeTarget(
+                    deviceSerial = currentDevice.serial,
+                    packageName = currentApp.packageName,
+                )
+            } else {
+                null
+            }
+
+        if (isDataLoaded && isSdCardDataLoaded && currentTarget == nextTarget) {
+            appFileTreeTarget = nextTarget
         }
     }
 
-    private suspend fun updateSearchText(text: String) {
-        var nextSelectedApp: InstalledApp? = null
-        var shouldLoadFileTrees = false
+    private suspend fun refreshAppFileTree(directory: AppDataDirectory): Boolean {
+        val device = currentState.selectedDevice ?: return false
+        val app = currentState.selectedApp ?: return false
+        val deviceSerial = device.serial
+        val packageName = app.packageName
+
         update {
-            val filteredApps = filterInstalledApps(apps, text, sortType)
-            val nextSelection =
-                when {
-                    filteredApps.any { it.packageName == selectedAppPackageName } -> selectedAppPackageName
-                    else -> filteredApps.firstOrNull()?.packageName
+            when (directory) {
+                AppDataDirectory.Data ->
+                    copy(
+                        dataFileTree =
+                            dataFileTree.copy(
+                                isLoading = true,
+                                errorMessage = null,
+                            ),
+                    )
+
+                AppDataDirectory.SdCardData ->
+                    copy(
+                        sdCardDataFileTree =
+                            sdCardDataFileTree.copy(
+                                isLoading = true,
+                                errorMessage = null,
+                            ),
+                    )
+            }
+        }
+
+        val result = installedAppRepository.getAppFiles(device, app, directory)
+        if (currentState.selectedDevice?.serial != deviceSerial || currentState.selectedApp?.packageName != packageName) {
+            return false
+        }
+
+        update {
+            val tree =
+                when (directory) {
+                    AppDataDirectory.Data -> dataFileTree
+                    AppDataDirectory.SdCardData -> sdCardDataFileTree
                 }
-            nextSelectedApp = filteredApps.firstOrNull { it.packageName == nextSelection }
-            shouldLoadFileTrees = nextSelection != selectedAppPackageName
-
-            copy(
-                searchText = text,
-                filteredApps = filteredApps,
-                selectedAppPackageName = nextSelection,
-                dataFileTree = if (shouldLoadFileTrees) AppFileTreeState() else dataFileTree,
-                sdCardDataFileTree = if (shouldLoadFileTrees) AppFileTreeState() else sdCardDataFileTree,
-                selectedDataFile = if (shouldLoadFileTrees) null else selectedDataFile,
-                selectedSdCardDataFile = if (shouldLoadFileTrees) null else selectedSdCardDataFile,
-            )
-        }
-        val device = currentState.selectedDevice
-        val app = nextSelectedApp
-        if (shouldLoadFileTrees && device != null && app != null) {
-            loadAppFileTreeRoots(device, app)
-        }
-    }
-
-    private suspend fun updateSortType(sortType: SortType) {
-        var nextSelectedApp: InstalledApp? = null
-        var shouldLoadFileTrees = false
-        update {
-            val filteredApps = filterInstalledApps(apps, searchText, sortType)
-            val nextSelection =
-                when {
-                    filteredApps.any { it.packageName == selectedAppPackageName } -> selectedAppPackageName
-                    else -> filteredApps.firstOrNull()?.packageName
+            val nextTree =
+                if (result.isOk) {
+                    tree.copy(
+                        entries = result.value,
+                        isLoading = false,
+                        errorMessage = null,
+                    )
+                } else {
+                    tree.copy(
+                        isLoading = false,
+                        errorMessage = result.error.message ?: "Failed to load files",
+                    )
                 }
-            nextSelectedApp = filteredApps.firstOrNull { it.packageName == nextSelection }
-            shouldLoadFileTrees = nextSelection != selectedAppPackageName
 
-            copy(
-                sortType = sortType,
-                filteredApps = filteredApps,
-                selectedAppPackageName = nextSelection,
-                dataFileTree = if (shouldLoadFileTrees) AppFileTreeState() else dataFileTree,
-                sdCardDataFileTree = if (shouldLoadFileTrees) AppFileTreeState() else sdCardDataFileTree,
-                selectedDataFile = if (shouldLoadFileTrees) null else selectedDataFile,
-                selectedSdCardDataFile = if (shouldLoadFileTrees) null else selectedSdCardDataFile,
-            )
+            when (directory) {
+                AppDataDirectory.Data -> copy(dataFileTree = nextTree)
+                AppDataDirectory.SdCardData -> copy(sdCardDataFileTree = nextTree)
+            }
         }
-        val device = currentState.selectedDevice
-        val app = nextSelectedApp
-        if (shouldLoadFileTrees && device != null && app != null) {
-            loadAppFileTreeRoots(device, app)
-        }
+        return result.isOk
     }
 
-    private suspend fun selectApp(app: InstalledApp) {
-        val shouldLoadFileTrees = currentState.selectedAppPackageName != app.packageName
+    private fun selectNextOrPreviousApp(offset: Int) {
+        val filteredApps = currentState.filteredApps
+        if (filteredApps.isEmpty()) return
+
+        val selectedApp = currentState.selectedApp
+        val currentIndex = if (selectedApp == null) -1 else filteredApps.indexOf(selectedApp)
+        val targetIndex =
+            when {
+                currentIndex == -1 && offset > 0 -> 0
+                currentIndex == -1 -> return
+                else -> currentIndex + offset
+            }
+
+        if (targetIndex !in filteredApps.indices) return
+
         update {
             copy(
-                selectedAppPackageName = app.packageName,
-                dataFileTree = if (shouldLoadFileTrees) AppFileTreeState() else dataFileTree,
-                sdCardDataFileTree = if (shouldLoadFileTrees) AppFileTreeState() else sdCardDataFileTree,
-                selectedDataFile = if (shouldLoadFileTrees) null else selectedDataFile,
-                selectedSdCardDataFile = if (shouldLoadFileTrees) null else selectedSdCardDataFile,
+                selectedApp = filteredApps[targetIndex],
             )
         }
-        val device = currentState.selectedDevice
-        if (shouldLoadFileTrees && device != null) {
-            loadAppFileTreeRoots(device, app)
+    }
+
+    private suspend fun selectAppFileNode(
+        directory: AppDataDirectory,
+        tree: AppFileTreeState,
+        entry: AppFileEntry,
+    ) {
+        if (!entry.isDirectory) return
+
+        if (tree.expandedPaths.contains(entry.path)) {
+            update {
+                when (directory) {
+                    AppDataDirectory.Data ->
+                        copy(dataFileTree = dataFileTree.copy(expandedPaths = dataFileTree.expandedPaths - entry.path))
+
+                    AppDataDirectory.SdCardData ->
+                        copy(
+                            sdCardDataFileTree =
+                                sdCardDataFileTree.copy(
+                                    expandedPaths = sdCardDataFileTree.expandedPaths - entry.path,
+                                ),
+                        )
+                }
+            }
+            return
+        }
+
+        update {
+            when (directory) {
+                AppDataDirectory.Data ->
+                    copy(dataFileTree = dataFileTree.copy(expandedPaths = dataFileTree.expandedPaths + entry.path))
+
+                AppDataDirectory.SdCardData ->
+                    copy(
+                        sdCardDataFileTree =
+                            sdCardDataFileTree.copy(
+                                expandedPaths = sdCardDataFileTree.expandedPaths + entry.path,
+                            ),
+                    )
+            }
+        }
+        if (!tree.childrenByPath.containsKey(entry.path)) {
+            loadAppFileTreeChildren(directory, entry)
         }
     }
 
-    private suspend fun installPackage() {
-        val device = currentState.selectedDevice ?: return
-        if (currentState.isInstalling) return
-
-        val packageFile = selectInstallPackageFile() ?: return
-        if (currentState.isInstalling) return
-
-        update { copy(isInstalling = true) }
-        val isInstalled = installedAppRepository.installPackage(device, packageFile)
-        update { copy(isInstalling = false) }
-        if (isInstalled) loadApps(device)
-    }
-
-    private suspend fun selectInstallPackageFile(): File? =
+    private suspend fun selectInstallApplication(): File? =
         withContext(Dispatchers.Swing) {
             val chooser =
                 JFileChooser().apply {
@@ -219,188 +350,91 @@ class AppStateHolder(
             if (result == JFileChooser.APPROVE_OPTION) chooser.selectedFile else null
         }
 
-    private suspend fun uninstallApp(app: InstalledApp) {
-        val device = currentState.selectedDevice ?: return
-        if (currentState.isProcessing(app)) return
-
-        update {
-            copy(
-                uninstallingPackageNames = uninstallingPackageNames + app.packageName,
-            )
-        }
-
-        val isUninstalled = installedAppRepository.uninstallInstalledApp(device, app)
-        update {
-            copy(
-                uninstallingPackageNames = uninstallingPackageNames - app.packageName,
-            )
-        }
-        if (isUninstalled) loadApps(device)
-    }
-
-    private suspend fun selectNextApp() {
-        val filteredApps = currentState.filteredApps
-        if (filteredApps.isEmpty()) return
-
-        val currentPackageName = currentState.selectedApp?.packageName
-        val currentIndex = filteredApps.indexOfFirst { it.packageName == currentPackageName }
-        val nextIndex =
-            when {
-                currentIndex == -1 -> 0
-                currentIndex < filteredApps.lastIndex -> currentIndex + 1
-                else -> return
-            }
-
-        selectApp(filteredApps[nextIndex])
-    }
-
-    private suspend fun selectPreviousApp() {
-        val filteredApps = currentState.filteredApps
-        if (filteredApps.isEmpty()) return
-
-        val currentPackageName = currentState.selectedApp?.packageName ?: return
-        val currentIndex = filteredApps.indexOfFirst { it.packageName == currentPackageName }
-        if (currentIndex <= 0) return
-
-        selectApp(filteredApps[currentIndex - 1])
-    }
-
-    private suspend fun selectDataFileNode(entry: AppFileEntry) {
-        val tree = currentState.dataFileTree
-        update { copy(selectedDataFile = entry) }
-        selectAppFileNode(AppDataDirectory.Data, tree, entry)
-    }
-
-    private suspend fun selectSdCardDataFileNode(entry: AppFileEntry) {
-        val tree = currentState.sdCardDataFileTree
-        update { copy(selectedSdCardDataFile = entry) }
-        selectAppFileNode(AppDataDirectory.SdCardData, tree, entry)
-    }
-
-    private suspend fun selectAppFileNode(
-        directory: AppDataDirectory,
-        tree: AppFileTreeState,
-        entry: AppFileEntry,
-    ) {
-        if (!entry.isDirectory) return
-
-        if (tree.expandedPaths.contains(entry.path)) {
-            updateFileTree(directory) { copy(expandedPaths = expandedPaths - entry.path) }
-            return
-        }
-
-        updateFileTree(directory) { copy(expandedPaths = expandedPaths + entry.path) }
-        if (!tree.childrenByPath.containsKey(entry.path)) {
-            loadAppFileTreeChildren(directory, entry)
-        }
-    }
-
-    private suspend fun loadAppFileTreeRoots(
-        device: Device,
-        app: InstalledApp,
-    ) {
-        loadAppFileTree(device, app, AppDataDirectory.Data)
-        loadAppFileTree(device, app, AppDataDirectory.SdCardData)
-    }
-
-    private suspend fun loadAppFileTree(
-        device: Device,
-        app: InstalledApp,
-        directory: AppDataDirectory,
-    ) {
-        updateFileTree(directory) {
-            copy(
-                isLoading = true,
-                errorMessage = null,
-            )
-        }
-
-        val result = installedAppRepository.getAppFiles(device, app, directory)
-        if (currentState.selectedAppPackageName != app.packageName) return
-
-        updateFileTree(directory) {
-            if (result.isOk) {
-                copy(
-                    entries = result.value,
-                    isLoading = false,
-                    errorMessage = null,
-                )
-            } else {
-                copy(
-                    isLoading = false,
-                    errorMessage = result.error.message ?: "Failed to load files",
-                )
-            }
-        }
-    }
-
     private suspend fun loadAppFileTreeChildren(
         directory: AppDataDirectory,
         entry: AppFileEntry,
     ) {
         val device = currentState.selectedDevice ?: return
-        val packageName = currentState.selectedAppPackageName ?: return
+        val packageName = currentState.selectedApp?.packageName ?: return
 
-        updateFileTree(directory) {
-            copy(
-                loadingPaths = loadingPaths + entry.path,
-                errorMessages = errorMessages - entry.path,
-            )
+        update {
+            when (directory) {
+                AppDataDirectory.Data ->
+                    copy(
+                        dataFileTree =
+                            dataFileTree.copy(
+                                loadingPaths = dataFileTree.loadingPaths + entry.path,
+                                errorMessages = dataFileTree.errorMessages - entry.path,
+                            ),
+                    )
+
+                AppDataDirectory.SdCardData ->
+                    copy(
+                        sdCardDataFileTree =
+                            sdCardDataFileTree.copy(
+                                loadingPaths = sdCardDataFileTree.loadingPaths + entry.path,
+                                errorMessages = sdCardDataFileTree.errorMessages - entry.path,
+                            ),
+                    )
+            }
         }
 
         val result = installedAppRepository.getAppFileChildren(device, entry)
-        if (currentState.selectedAppPackageName != packageName) return
+        if (currentState.selectedApp?.packageName != packageName) return
 
-        updateFileTree(directory) {
-            if (result.isOk) {
-                copy(
-                    childrenByPath = childrenByPath + (entry.path to result.value),
-                    loadingPaths = loadingPaths - entry.path,
-                    errorMessages = errorMessages - entry.path,
-                )
-            } else {
-                copy(
-                    loadingPaths = loadingPaths - entry.path,
-                    errorMessages =
-                        errorMessages + (entry.path to (result.error.message ?: "Failed to load files")),
-                )
-            }
-        }
-    }
-
-    private fun updateFileTree(
-        directory: AppDataDirectory,
-        transform: AppFileTreeState.() -> AppFileTreeState,
-    ) {
         update {
-            when (directory) {
-                AppDataDirectory.Data -> copy(dataFileTree = dataFileTree.transform())
-                AppDataDirectory.SdCardData -> copy(sdCardDataFileTree = sdCardDataFileTree.transform())
-            }
-        }
-    }
-
-    private fun filterInstalledApps(
-        apps: List<InstalledApp>,
-        query: String,
-        sortType: SortType,
-    ): List<InstalledApp> {
-        val normalized = query.trim().lowercase(Locale.getDefault())
-        val filtered =
-            if (normalized.isBlank()) {
-                apps
-            } else {
-                apps.filter { app ->
-                    listOf(
-                        app.displayName,
-                        app.packageName,
-                    ).any { it.contains(normalized, ignoreCase = true) }
+            val tree =
+                when (directory) {
+                    AppDataDirectory.Data -> dataFileTree
+                    AppDataDirectory.SdCardData -> sdCardDataFileTree
                 }
-            }
+            val nextTree =
+                if (result.isOk) {
+                    tree.copy(
+                        childrenByPath = tree.childrenByPath + (entry.path to result.value),
+                        loadingPaths = tree.loadingPaths - entry.path,
+                        errorMessages = tree.errorMessages - entry.path,
+                    )
+                } else {
+                    tree.copy(
+                        loadingPaths = tree.loadingPaths - entry.path,
+                        errorMessages =
+                            tree.errorMessages + (entry.path to (result.error.message ?: "Failed to load files")),
+                    )
+                }
 
-        return when (sortType) {
-            SortType.SORT_BY_NAME_ASC -> filtered.sortedBy { it.packageName.lowercase(Locale.getDefault()) }
-            SortType.SORT_BY_NAME_DESC -> filtered.sortedByDescending { it.packageName.lowercase(Locale.getDefault()) }
+            when (directory) {
+                AppDataDirectory.Data -> copy(dataFileTree = nextTree)
+                AppDataDirectory.SdCardData -> copy(sdCardDataFileTree = nextTree)
+            }
         }
     }
+
+    private fun collectSelectedDevice() {
+        coroutineScope.launch {
+            getSelectedDeviceFlowUseCase().collectLatest { device ->
+                if (device == null) {
+                    clearState()
+                    return@collectLatest
+                }
+
+                update {
+                    copy(
+                        selectedDevice = device,
+                    )
+                }
+                reduceRefreshApps()
+            }
+        }
+    }
+
+    private fun clearState() {
+        appFileTreeTarget = null
+        update { AppState() }
+    }
+
+    private data class AppFileTreeTarget(
+        val deviceSerial: String,
+        val packageName: String,
+    )
 }

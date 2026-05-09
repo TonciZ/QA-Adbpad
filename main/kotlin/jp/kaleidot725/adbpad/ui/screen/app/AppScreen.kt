@@ -54,7 +54,7 @@ fun AppScreen(
                     apps = state.filteredApps,
                     selectedDevice = state.selectedDevice,
                     isLoading = state.isLoading,
-                    isProcessing = { state.isProcessing(it) },
+                    isProcessing = state.isUninstalling,
                     onSelectApp = { onAction(AppAction.SelectApp(it)) },
                     onUninstallApp = { onAction(AppAction.UninstallApp(it)) },
                     onNextApp = { onAction(AppAction.SelectNextApp) },
@@ -66,7 +66,7 @@ fun AppScreen(
         center = {
             AppDetailPane(
                 app = state.selectedApp,
-                isProcessing = state.selectedApp?.let { state.isProcessing(it) } ?: false,
+                isProcessing = state.isUninstalling,
                 dataFileTree = state.dataFileTree,
                 sdCardDataFileTree = state.sdCardDataFileTree,
                 selectedDataFile = state.selectedDataFile,
@@ -97,8 +97,7 @@ private fun AppScreenPreview() {
         state =
             AppState(
                 apps = apps,
-                filteredApps = apps,
-                selectedAppPackageName = "com.example.notes",
+                selectedApp = apps.first(),
             ),
         onAction = {},
         splitterState = rememberSplitPaneState(initialPositionPercentage = 0.25f),
