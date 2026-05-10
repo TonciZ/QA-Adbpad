@@ -28,6 +28,6 @@ interface InstalledAppRepository {
 
     suspend fun getAppFileChildren(
         device: Device,
-        directory: AppFileEntry,
+        directory: AppFileEntry.Directory,
     ): Result<List<AppFileEntry>, Exception>
 }

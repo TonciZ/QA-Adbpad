@@ -97,7 +97,7 @@ private fun AppScreenPreview() {
         state =
             AppState(
                 apps = apps,
-                selectedApp = apps.first(),
+                selectedAppIndex = 0,
             ),
         onAction = {},
         splitterState = rememberSplitPaneState(initialPositionPercentage = 0.25f),

@@ -12,7 +12,6 @@ import com.malinskiy.adam.request.sync.AndroidFileType
 import com.malinskiy.adam.request.sync.ListFilesRequest
 import jp.kaleidot725.adbpad.domain.model.app.AppDataDirectory
 import jp.kaleidot725.adbpad.domain.model.app.AppFileEntry
-import jp.kaleidot725.adbpad.domain.model.app.AppFileType
 import jp.kaleidot725.adbpad.domain.model.app.InstalledApp
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.repository.InstalledAppRepository
@@ -97,12 +96,10 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
 
     override suspend fun getAppFileChildren(
         device: Device,
-        directory: AppFileEntry,
+        directory: AppFileEntry.Directory,
     ): Result<List<AppFileEntry>, Exception> =
         withContext(Dispatchers.IO) {
             try {
-                if (!directory.isDirectory) return@withContext Ok(emptyList())
-
                 val files = adbClient.execute(ListFilesRequest(directory.path), device.serial)
                 Ok(files.toAppFileEntries())
             } catch (exception: Exception) {
@@ -136,24 +133,47 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
                     .thenBy { it.name.lowercase(Locale.getDefault()) },
             ).toList()
 
-    private fun AndroidFile.toAppFileEntry(): AppFileEntry =
-        AppFileEntry(
-            name = name,
-            path = directory.resolveChildPath(name),
-            type = type.toAppFileType(),
-            permissions = permissions,
-            size = size,
-            date = date,
-            time = time,
-        )
-
-    private fun AndroidFileType.toAppFileType(): AppFileType =
-        when (this) {
-            AndroidFileType.DIRECTORY -> AppFileType.Directory
-            AndroidFileType.REGULAR_FILE -> AppFileType.File
-            AndroidFileType.SYMBOLIC_LINK -> AppFileType.Link
-            else -> AppFileType.Other
+    private fun AndroidFile.toAppFileEntry(): AppFileEntry {
+        val path = directory.resolveChildPath(name)
+        return when (type) {
+            AndroidFileType.DIRECTORY ->
+                AppFileEntry.Directory(
+                    name = name,
+                    path = path,
+                    permissions = permissions,
+                    size = size,
+                    date = date,
+                    time = time,
+                )
+            AndroidFileType.REGULAR_FILE ->
+                AppFileEntry.File(
+                    name = name,
+                    path = path,
+                    permissions = permissions,
+                    size = size,
+                    date = date,
+                    time = time,
+                )
+            AndroidFileType.SYMBOLIC_LINK ->
+                AppFileEntry.Link(
+                    name = name,
+                    path = path,
+                    permissions = permissions,
+                    size = size,
+                    date = date,
+                    time = time,
+                )
+            else ->
+                AppFileEntry.Other(
+                    name = name,
+                    path = path,
+                    permissions = permissions,
+                    size = size,
+                    date = date,
+                    time = time,
+                )
         }
+    }
 
     private fun String.resolveChildPath(name: String): String =
         if (endsWith("/")) {

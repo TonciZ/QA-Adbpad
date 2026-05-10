@@ -8,9 +8,9 @@ import jp.kaleidot725.pulse.mvi.PulseState
 import java.util.Locale
 
 data class AppState(
-    val apps: List<InstalledApp> = emptyList(),
-    val selectedApp: InstalledApp? = null,
     val selectedDevice: Device? = null,
+    val apps: List<InstalledApp> = emptyList(),
+    val selectedAppIndex: Int? = null,
     val searchText: String = "",
     val sortType: SortType = SortType.SORT_BY_NAME_ASC,
     val processState: AppProcessState = AppProcessState.Idle,
@@ -22,6 +22,8 @@ data class AppState(
     val isLoading: Boolean = processState == AppProcessState.Loading
     val isUninstalling: Boolean = processState == AppProcessState.Uninstalling
     val isInstalling: Boolean = processState == AppProcessState.Installing
+
+    val selectedApp: InstalledApp? get() = selectedAppIndex?.let { apps.getOrNull(it) }
 
     val filteredApps: List<InstalledApp>
         get() {
