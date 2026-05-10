@@ -67,7 +67,7 @@ class AppStateHolder(
         if (currentState.processState != AppProcessState.Idle) return
 
         update { copy(processState = AppProcessState.Loading) }
-        refreshApps()
+        refreshApps(device = currentState.selectedDevice)
         update { copy(processState = AppProcessState.Idle) }
     }
 
@@ -145,8 +145,10 @@ class AppStateHolder(
                     return@collectLatest
                 }
 
+                update { copy(processState = AppProcessState.Loading) }
                 update { copy(selectedDevice = device) }
-                reduceRefreshApps()
+                refreshApps(device)
+                update { copy(processState = AppProcessState.Idle) }
             }
         }
     }
@@ -183,8 +185,8 @@ class AppStateHolder(
         return currentState.apps.indexOf(filteredApps[targetIndex]).coerceAtLeast(0)
     }
 
-    private suspend fun refreshApps() {
-        val device = currentState.selectedDevice ?: return
+    private suspend fun refreshApps(device: Device? = null) {
+        val device = device ?: return
         val selectedApp = currentState.selectedApp
         val apps = installedAppRepository.getInstalledApps(device)
         val selectedAppIndex =
