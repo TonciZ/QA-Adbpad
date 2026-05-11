@@ -1,13 +1,18 @@
 package jp.kaleidot725.adbpad.ui.screen.app.component
 
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -15,20 +20,31 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Minus
+import com.composables.icons.lucide.Plus
 import jp.kaleidot725.adbpad.domain.model.app.AppFileEntry
 import jp.kaleidot725.adbpad.domain.model.app.AppFilePreview
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.ui.common.resource.UserColor
+import jp.kaleidot725.adbpad.ui.component.button.CommandIconButton
+import jp.kaleidot725.adbpad.ui.component.button.CommandTextButton
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppFilePreviewState
+import kotlinx.coroutines.launch
+import net.engawapg.lib.zoomable.rememberZoomState
+import net.engawapg.lib.zoomable.zoomable
 
 @Composable
 fun AppFilePreviewPane(
@@ -43,7 +59,7 @@ fun AppFilePreviewPane(
 
         HorizontalDivider(color = UserColor.getSplitterColor())
 
-        Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Box(modifier = Modifier.fillMaxSize()) {
             when {
                 state.isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -51,25 +67,23 @@ fun AppFilePreviewPane(
                 state.errorMessage != null -> {
                     AppFilePreviewNoImage(
                         details = state.errorMessage,
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
                     )
                 }
                 state.preview is AppFilePreview.Image -> {
-                    AsyncImage(
-                        model = state.preview.localFile,
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
+                    AppFileImagePreview(
+                        preview = state.preview,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
                 state.preview is AppFilePreview.Text -> {
                     AppFileTextPreview(
                         text = state.preview.text,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
                     )
                 }
                 else -> {
-                    AppFilePreviewNoImage(modifier = Modifier.align(Alignment.Center))
+                    AppFilePreviewNoImage(modifier = Modifier.align(Alignment.Center).padding(16.dp))
                 }
             }
         }
@@ -103,6 +117,95 @@ private fun AppFilePreviewHeader(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppFileImagePreview(
+    preview: AppFilePreview.Image,
+    modifier: Modifier = Modifier,
+) {
+    val zoomState = rememberZoomState()
+    val coroutineScope = rememberCoroutineScope()
+
+    BoxWithConstraints(modifier = modifier) {
+        val constraints = this
+
+        AsyncImage(
+            model = preview.localFile,
+            contentDescription = null,
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .clip(RectangleShape)
+                    .zoomable(zoomState),
+        )
+
+        Column(
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(12.dp)
+                    .background(
+                        color = UserColor.getFloatingBackgroundColor(),
+                        shape = RoundedCornerShape(4.dp),
+                    ),
+        ) {
+            CommandIconButton(
+                image = Lucide.Plus,
+                onClick = {
+                    coroutineScope.launch {
+                        zoomState.changeScale(
+                            targetScale = zoomState.scale + 0.5f,
+                            position =
+                                Offset(
+                                    constraints.maxWidth.value / 2f,
+                                    constraints.maxHeight.value / 2f,
+                                ),
+                            animationSpec = tween(),
+                        )
+                    }
+                },
+                modifier =
+                    Modifier
+                        .padding(4.dp)
+                        .size(32.dp),
+            )
+
+            CommandIconButton(
+                image = Lucide.Minus,
+                onClick = {
+                    coroutineScope.launch {
+                        zoomState.changeScale(
+                            targetScale = zoomState.scale - 0.5f,
+                            position =
+                                Offset(
+                                    constraints.maxWidth.value / 2f,
+                                    constraints.maxHeight.value / 2f,
+                                ),
+                            animationSpec = tween(),
+                        )
+                    }
+                },
+                modifier =
+                    Modifier
+                        .padding(4.dp)
+                        .size(32.dp),
+            )
+
+            CommandTextButton(
+                text = "100%",
+                onClick = {
+                    coroutineScope.launch {
+                        zoomState.reset()
+                    }
+                },
+                modifier =
+                    Modifier
+                        .padding(4.dp)
+                        .size(32.dp),
             )
         }
     }

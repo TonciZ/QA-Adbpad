@@ -35,7 +35,7 @@ object ChineseResources : StringResources {
     override val appFileTreeTitle: String = "文件"
     override val appFileTreeEmpty: String = "没有文件"
     override val appFilePreviewTitle: String = "预览"
-    override val appFilePreviewNoImage: String = "No image"
+    override val appFilePreviewNoImage: String = "双击预览"
     override val loadingAppFiles: String = "正在加载文件"
     override val installApp: String = "安装"
     override val selectInstallPackage: String = "选择要安装的 APK"

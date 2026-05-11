@@ -86,9 +86,6 @@ class AppStateHolder(
         update {
             copy(
                 selectedAppIndex = apps.indexOf(app).takeIf { it >= 0 },
-                selectedDataFile = null,
-                selectedSdCardDataFile = null,
-                filePreview = AppFilePreviewState(),
             )
         }
     }

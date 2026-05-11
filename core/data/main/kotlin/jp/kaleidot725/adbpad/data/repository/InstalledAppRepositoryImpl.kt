@@ -180,7 +180,7 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
     private fun AndroidFile.toAppFileEntry(): AppFileEntry {
         val path = directory.resolveChildPath(name)
         return when (type) {
-            AndroidFileType.DIRECTORY ->
+            AndroidFileType.DIRECTORY -> {
                 AppFileEntry.Directory(
                     name = name,
                     path = path,
@@ -189,7 +189,9 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
                     date = date,
                     time = time,
                 )
-            AndroidFileType.REGULAR_FILE ->
+            }
+
+            AndroidFileType.REGULAR_FILE -> {
                 AppFileEntry.File(
                     name = name,
                     path = path,
@@ -198,7 +200,9 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
                     date = date,
                     time = time,
                 )
-            AndroidFileType.SYMBOLIC_LINK ->
+            }
+
+            AndroidFileType.SYMBOLIC_LINK -> {
                 AppFileEntry.Link(
                     name = name,
                     path = path,
@@ -207,7 +211,9 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
                     date = date,
                     time = time,
                 )
-            else ->
+            }
+
+            else -> {
                 AppFileEntry.Other(
                     name = name,
                     path = path,
@@ -216,6 +222,7 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
                     date = date,
                     time = time,
                 )
+            }
         }
     }
 
