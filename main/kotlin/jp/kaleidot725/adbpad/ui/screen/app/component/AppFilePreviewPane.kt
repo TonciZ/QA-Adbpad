@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +36,7 @@ import coil3.compose.AsyncImage
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Minus
 import com.composables.icons.lucide.Plus
+import com.composables.icons.lucide.Save
 import jp.kaleidot725.adbpad.domain.model.app.AppFileEntry
 import jp.kaleidot725.adbpad.domain.model.app.AppFilePreview
 import jp.kaleidot725.adbpad.domain.model.language.Language
@@ -49,11 +51,14 @@ import net.engawapg.lib.zoomable.zoomable
 @Composable
 fun AppFilePreviewPane(
     state: AppFilePreviewState,
+    onSaveFile: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         AppFilePreviewHeader(
             entry = state.entry,
+            canSave = state.entry is AppFileEntry.File && !state.isLoading && !state.isSaving,
+            onSaveFile = onSaveFile,
             modifier = Modifier.fillMaxWidth().padding(16.dp),
         )
 
@@ -93,17 +98,31 @@ fun AppFilePreviewPane(
 @Composable
 private fun AppFilePreviewHeader(
     entry: AppFileEntry?,
+    canSave: Boolean,
+    onSaveFile: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(
-            text = Language.appFilePreviewTitle,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = Language.appFilePreviewTitle,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f),
+            )
+            CommandIconButton(
+                image = Lucide.Save,
+                onClick = onSaveFile,
+                enabled = canSave,
+                modifier = Modifier.size(32.dp),
+            )
+        }
         if (entry != null) {
             Text(
                 text = entry.name,
@@ -286,6 +305,7 @@ private fun AppFilePreviewPanePreview() {
                         text = "{\n  \"enabled\": true\n}",
                     ),
             ),
+        onSaveFile = {},
         modifier = Modifier.fillMaxSize(),
     )
 }

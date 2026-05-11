@@ -133,15 +133,43 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
             }
         }
 
+    override suspend fun saveAppFile(
+        device: Device,
+        entry: AppFileEntry.File,
+        destination: File,
+    ): Result<Unit, Exception> =
+        withContext(Dispatchers.IO) {
+            try {
+                val target = prepareDestinationFile(destination)
+                if (entry.size == 0L) {
+                    target.outputStream().use { }
+                } else {
+                    pullAppFile(device, entry, target)
+                }
+                Ok(Unit)
+            } catch (exception: Exception) {
+                if (exception is CancellationException) throw exception
+                Err(exception)
+            }
+        }
+
     private suspend fun pullAppFile(
         device: Device,
         entry: AppFileEntry.File,
     ): File {
-        val supportedFeatures = adbClient.execute(FetchDeviceFeaturesRequest(device.serial), device.serial)
         val localFile = createPreviewFile(entry)
+        pullAppFile(device, entry, localFile)
+        return localFile
+    }
+
+    private suspend fun pullAppFile(
+        device: Device,
+        entry: AppFileEntry.File,
+        localFile: File,
+    ) {
+        val supportedFeatures = adbClient.execute(FetchDeviceFeaturesRequest(device.serial), device.serial)
         val isPulled = adbClient.execute(PullRequest(entry.path, localFile, supportedFeatures), device.serial)
         if (!isPulled) throw IOException("Failed to load ${entry.name}")
-        return localFile
     }
 
     private fun createPreviewFile(entry: AppFileEntry.File): File {
@@ -150,6 +178,19 @@ class InstalledAppRepositoryImpl : InstalledAppRepository {
         return createTempFile(prefix = "adbpad-preview-", suffix = suffix)
             .toFile()
             .apply { deleteOnExit() }
+    }
+
+    private fun prepareDestinationFile(destination: File): File {
+        if (destination.exists() && destination.isDirectory) {
+            throw IOException("${destination.name} is a directory")
+        }
+
+        destination.parentFile?.mkdirs()
+        if (!destination.exists() && !destination.createNewFile()) {
+            throw IOException("Failed to create ${destination.name}")
+        }
+
+        return destination
     }
 
     private fun getRootPath(

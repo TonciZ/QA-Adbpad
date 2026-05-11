@@ -54,6 +54,7 @@ class AppStateHolder(
                 is AppAction.SelectSdCardDataFileNode -> reduceSelectSdCardDataFileNode(uiAction.entry)
                 is AppAction.PreviewDataFileNode -> reducePreviewDataFileNode(uiAction.entry)
                 is AppAction.PreviewSdCardDataFileNode -> reducePreviewSdCardDataFileNode(uiAction.entry)
+                AppAction.SavePreviewFile -> reduceSavePreviewFile()
             }
         }
     }
@@ -150,6 +151,40 @@ class AppStateHolder(
         previewAppFile(entry)
     }
 
+    private suspend fun reduceSavePreviewFile() {
+        val device = currentState.selectedDevice ?: return
+        val entry = currentState.filePreview.entry as? AppFileEntry.File ?: return
+        if (currentState.filePreview.isSaving) return
+
+        val destination = selectSaveAppFile(entry) ?: return
+
+        update {
+            copy(
+                filePreview =
+                    filePreview.copy(
+                        isSaving = true,
+                        errorMessage = null,
+                    ),
+            )
+        }
+
+        val result = installedAppRepository.saveAppFile(device, entry, destination)
+        update {
+            copy(
+                filePreview =
+                    filePreview.copy(
+                        isSaving = false,
+                        errorMessage =
+                            if (result.isErr) {
+                                result.error.message ?: "Failed to save file"
+                            } else {
+                                null
+                            },
+                    ),
+            )
+        }
+    }
+
     private fun collectSelectedDevice() {
         coroutineScope.launch {
             getSelectedDeviceFlowUseCase().collectLatest { device ->
@@ -186,6 +221,19 @@ class AppStateHolder(
                 }
             val parent = KeyboardFocusManager.getCurrentKeyboardFocusManager().activeWindow
             val result = chooser.showOpenDialog(parent)
+            if (result == JFileChooser.APPROVE_OPTION) chooser.selectedFile else null
+        }
+
+    private suspend fun selectSaveAppFile(entry: AppFileEntry.File): File? =
+        withContext(Dispatchers.Swing) {
+            val chooser =
+                JFileChooser().apply {
+                    dialogTitle = Language.save
+                    fileSelectionMode = JFileChooser.FILES_ONLY
+                    selectedFile = File(entry.name)
+                }
+            val parent = KeyboardFocusManager.getCurrentKeyboardFocusManager().activeWindow
+            val result = chooser.showSaveDialog(parent)
             if (result == JFileChooser.APPROVE_OPTION) chooser.selectedFile else null
         }
 

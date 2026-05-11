@@ -36,4 +36,10 @@ interface InstalledAppRepository {
         device: Device,
         entry: AppFileEntry,
     ): Result<AppFilePreview, Exception>
+
+    suspend fun saveAppFile(
+        device: Device,
+        entry: AppFileEntry.File,
+        destination: File,
+    ): Result<Unit, Exception>
 }
