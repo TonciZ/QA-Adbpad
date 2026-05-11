@@ -10,6 +10,7 @@ import jp.kaleidot725.adbpad.domain.repository.InstalledAppRepository
 import jp.kaleidot725.adbpad.domain.usecase.device.GetSelectedDeviceFlowUseCase
 import jp.kaleidot725.adbpad.ui.container.AppBroadCast
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppAction
+import jp.kaleidot725.adbpad.ui.screen.app.state.AppFilePreviewState
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppFileTreeState
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppProcessState
 import jp.kaleidot725.adbpad.ui.screen.app.state.AppSideEffect
@@ -51,6 +52,9 @@ class AppStateHolder(
                 AppAction.SelectPreviousApp -> reduceSelectPreviousApp()
                 is AppAction.SelectDataFileNode -> reduceSelectDataFileNode(uiAction.entry)
                 is AppAction.SelectSdCardDataFileNode -> reduceSelectSdCardDataFileNode(uiAction.entry)
+                is AppAction.PreviewDataFileNode -> reducePreviewDataFileNode(uiAction.entry)
+                is AppAction.PreviewSdCardDataFileNode -> reducePreviewSdCardDataFileNode(uiAction.entry)
+                AppAction.SavePreviewFile -> reduceSavePreviewFile()
             }
         }
     }
@@ -137,6 +141,50 @@ class AppStateHolder(
         }
     }
 
+    private suspend fun reducePreviewDataFileNode(entry: AppFileEntry) {
+        update { copy(selectedDataFile = entry) }
+        previewAppFile(entry)
+    }
+
+    private suspend fun reducePreviewSdCardDataFileNode(entry: AppFileEntry) {
+        update { copy(selectedSdCardDataFile = entry) }
+        previewAppFile(entry)
+    }
+
+    private suspend fun reduceSavePreviewFile() {
+        val device = currentState.selectedDevice ?: return
+        val entry = currentState.filePreview.entry as? AppFileEntry.File ?: return
+        if (currentState.filePreview.isSaving) return
+
+        val destination = selectSaveAppFile(entry) ?: return
+
+        update {
+            copy(
+                filePreview =
+                    filePreview.copy(
+                        isSaving = true,
+                        errorMessage = null,
+                    ),
+            )
+        }
+
+        val result = installedAppRepository.saveAppFile(device, entry, destination)
+        update {
+            copy(
+                filePreview =
+                    filePreview.copy(
+                        isSaving = false,
+                        errorMessage =
+                            if (result.isErr) {
+                                result.error.message ?: "Failed to save file"
+                            } else {
+                                null
+                            },
+                    ),
+            )
+        }
+    }
+
     private fun collectSelectedDevice() {
         coroutineScope.launch {
             getSelectedDeviceFlowUseCase().collectLatest { device ->
@@ -173,6 +221,19 @@ class AppStateHolder(
                 }
             val parent = KeyboardFocusManager.getCurrentKeyboardFocusManager().activeWindow
             val result = chooser.showOpenDialog(parent)
+            if (result == JFileChooser.APPROVE_OPTION) chooser.selectedFile else null
+        }
+
+    private suspend fun selectSaveAppFile(entry: AppFileEntry.File): File? =
+        withContext(Dispatchers.Swing) {
+            val chooser =
+                JFileChooser().apply {
+                    dialogTitle = Language.save
+                    fileSelectionMode = JFileChooser.FILES_ONLY
+                    selectedFile = File(entry.name)
+                }
+            val parent = KeyboardFocusManager.getCurrentKeyboardFocusManager().activeWindow
+            val result = chooser.showSaveDialog(parent)
             if (result == JFileChooser.APPROVE_OPTION) chooser.selectedFile else null
         }
 
@@ -213,6 +274,7 @@ class AppStateHolder(
                     sdCardDataFileTree = AppFileTreeState(),
                     selectedDataFile = null,
                     selectedSdCardDataFile = null,
+                    filePreview = AppFilePreviewState(),
                 )
             }
         } else {
@@ -359,6 +421,40 @@ class AppStateHolder(
                 }
 
             updateTree(nextTree)
+        }
+    }
+
+    private suspend fun previewAppFile(entry: AppFileEntry) {
+        val device = currentState.selectedDevice ?: return
+        update {
+            copy(
+                filePreview =
+                    AppFilePreviewState(
+                        entry = entry,
+                        isLoading = true,
+                    ),
+            )
+        }
+
+        val result = installedAppRepository.getAppFilePreview(device, entry)
+        update {
+            if (result.isOk) {
+                copy(
+                    filePreview =
+                        AppFilePreviewState(
+                            entry = entry,
+                            preview = result.value,
+                        ),
+                )
+            } else {
+                copy(
+                    filePreview =
+                        AppFilePreviewState(
+                            entry = entry,
+                            errorMessage = result.error.message ?: "Failed to load preview",
+                        ),
+                )
+            }
         }
     }
 }

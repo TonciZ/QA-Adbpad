@@ -37,4 +37,14 @@ sealed class AppAction : PulseAction {
     data class SelectSdCardDataFileNode(
         val entry: AppFileEntry,
     ) : AppAction()
+
+    data class PreviewDataFileNode(
+        val entry: AppFileEntry,
+    ) : AppAction()
+
+    data class PreviewSdCardDataFileNode(
+        val entry: AppFileEntry,
+    ) : AppAction()
+
+    data object SavePreviewFile : AppAction()
 }
