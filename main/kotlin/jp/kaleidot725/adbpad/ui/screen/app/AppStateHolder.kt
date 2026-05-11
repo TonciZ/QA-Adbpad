@@ -378,8 +378,6 @@ class AppStateHolder(
 
     private suspend fun previewAppFile(entry: AppFileEntry) {
         val device = currentState.selectedDevice ?: return
-        val packageName = currentState.selectedApp?.packageName ?: return
-
         update {
             copy(
                 filePreview =
@@ -391,10 +389,6 @@ class AppStateHolder(
         }
 
         val result = installedAppRepository.getAppFilePreview(device, entry)
-        if (currentState.selectedDevice != device) return
-        if (currentState.selectedApp?.packageName != packageName) return
-        if (currentState.filePreview.entry?.path != entry.path) return
-
         update {
             if (result.isOk) {
                 copy(
