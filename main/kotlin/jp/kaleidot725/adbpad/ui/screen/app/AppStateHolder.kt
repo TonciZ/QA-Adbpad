@@ -99,8 +99,8 @@ class AppStateHolder(
 
         update { copy(processState = AppProcessState.Installing) }
         val isInstalled = installedAppRepository.installPackage(device, packageFile)
+        if (isInstalled) refreshApps(device)
         update { copy(processState = AppProcessState.Idle) }
-        if (isInstalled) reduceRefreshApps()
     }
 
     private suspend fun reduceUninstallApp(app: InstalledApp) {
@@ -109,8 +109,8 @@ class AppStateHolder(
 
         update { copy(processState = AppProcessState.Uninstalling) }
         val isUninstalled = installedAppRepository.uninstallInstalledApp(device, app)
+        if (isUninstalled) refreshApps(device)
         update { copy(processState = AppProcessState.Idle) }
-        if (isUninstalled) reduceRefreshApps()
     }
 
     private suspend fun reduceSelectNextApp() {
