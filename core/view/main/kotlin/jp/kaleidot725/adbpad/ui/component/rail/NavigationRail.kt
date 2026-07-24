@@ -18,6 +18,7 @@ import com.composables.icons.lucide.File
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MonitorSmartphone
 import com.composables.icons.lucide.Package
+import com.composables.icons.lucide.ScrollText
 import com.composables.icons.lucide.Settings
 import jp.kaleidot725.adbpad.domain.model.MainCategory
 import jp.kaleidot725.adbpad.domain.model.language.Language
@@ -78,6 +79,15 @@ fun NavigationRail(
             isSelected = category == MainCategory.App,
             isCollapsed = isCollapsed,
             onClick = { onSelectCategory(MainCategory.App) },
+        )
+
+        NavigationRailItem(
+            label = Language.tooltipLog,
+            icon = Lucide.ScrollText,
+            contentDescription = "log menu",
+            isSelected = category == MainCategory.Log,
+            isCollapsed = isCollapsed,
+            onClick = { onSelectCategory(MainCategory.Log) },
         )
 
         Spacer(modifier = Modifier.weight(1f, fill = true))

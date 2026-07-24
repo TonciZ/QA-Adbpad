@@ -14,5 +14,10 @@ interface NormalCommandRepository {
         onFailed: suspend (command: String, output: String) -> Unit,
     )
 
+    suspend fun queryShell(
+        device: Device,
+        command: String,
+    ): String
+
     fun clear()
 }

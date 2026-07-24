@@ -13,6 +13,7 @@ data class CommandState(
     val selectedDevice: Device? = null,
     val layoutMode: CommandLayoutMode = CommandLayoutMode.CARD,
     val executionHistory: CommandExecutionHistory? = null,
+    val toggleStates: Map<String, Boolean?> = emptyMap(),
 ) : PulseState {
     val canExecuteCommand: Boolean get() = selectedDevice != null
 }

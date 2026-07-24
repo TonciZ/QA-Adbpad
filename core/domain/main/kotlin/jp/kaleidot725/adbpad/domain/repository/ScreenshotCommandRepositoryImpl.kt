@@ -3,6 +3,7 @@ package jp.kaleidot725.adbpad.domain.repository
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import jp.kaleidot725.adbpad.domain.model.command.NormalCommand
 import jp.kaleidot725.adbpad.domain.model.command.ScreenshotCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
@@ -10,8 +11,10 @@ import jp.kaleidot725.adbpad.domain.model.os.OSContext
 import jp.kaleidot725.adbpad.domain.model.screenshot.Screenshot
 import jp.kaleidot725.adbpad.domain.model.sort.SortType
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
@@ -160,10 +163,42 @@ class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
         delay: Long = DEFAULT_DELAY,
     ): Boolean {
         delay(delay)
-        val adb = AndroidDebugBridgeClientFactory().build()
-        val adapter = RawImageScreenCaptureAdapter()
-        val image = adb.execute(request = ScreenCaptureRequest(adapter), serial = device.serial).toBufferedImage()
-        return ImageIO.write(image, EXTENSION_NAME, file)
+        return try {
+            withTimeout(CAPTURE_TIMEOUT) {
+                val adb = AndroidDebugBridgeClientFactory().build()
+                val adapter = RawImageScreenCaptureAdapter()
+                val image = adb.execute(request = ScreenCaptureRequest(adapter), serial = device.serial).toBufferedImage()
+                ImageIO.write(image, EXTENSION_NAME, file)
+            }
+        } catch (e: TimeoutCancellationException) {
+            captureFallback(device, file)
+        }
+    }
+
+    private suspend fun captureFallback(
+        device: Device,
+        file: File,
+    ): Boolean {
+        return try {
+            withTimeout(CAPTURE_TIMEOUT) {
+                val adb = AndroidDebugBridgeClientFactory().build()
+                val remotePath = "/data/local/tmp/adbpad_screenshot.png"
+                val result = adb.execute(ShellCommandRequest("screencap -p $remotePath"), device.serial)
+                if (result.exitCode != 0) return@withTimeout false
+                val supportedFeatures = adb.execute(
+                    com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest(device.serial),
+                    device.serial,
+                )
+                val pulled = adb.execute(
+                    com.malinskiy.adam.request.sync.PullRequest(remotePath, file, supportedFeatures),
+                    device.serial,
+                )
+                adb.execute(ShellCommandRequest("rm -f $remotePath"), device.serial)
+                pulled && file.exists() && file.length() > 0
+            }
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun concat(
@@ -194,14 +229,20 @@ class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
         device: Device,
         command: NormalCommand,
     ): Boolean {
-        return withContext(Dispatchers.IO) {
-            command.requests.forEach { request ->
-                val result = adbClient.execute(request, device.serial)
-                if (result.exitCode != 0) {
-                    return@withContext false
+        return try {
+            withTimeout(COMMAND_TIMEOUT) {
+                withContext(Dispatchers.IO) {
+                    command.requests.forEach { request ->
+                        val result = adbClient.execute(request, device.serial)
+                        if (result.exitCode != 0) {
+                            return@withContext false
+                        }
+                    }
+                    return@withContext true
                 }
             }
-            return@withContext true
+        } catch (e: TimeoutCancellationException) {
+            false
         }
     }
 
@@ -211,6 +252,8 @@ class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
         private const val FILE_NAME_RESULT = "Screenshot"
         private const val EXTENSION_NAME = "png"
         private const val DEFAULT_DELAY = 500L
+        private const val CAPTURE_TIMEOUT = 10_000L
+        private const val COMMAND_TIMEOUT = 5_000L
 
         private fun createDirectory() {
             getDirectory().mkdir()

@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,6 +39,9 @@ fun CommandItemList(
     onToggleFavorite: () -> Unit,
     canExecute: Boolean,
     onExecute: () -> Unit,
+    isToggle: Boolean = false,
+    toggleState: Boolean? = null,
+    onToggle: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -86,19 +90,27 @@ fun CommandItemList(
                 )
             }
 
-            Button(
-                onClick = onExecute,
-                enabled = canExecute,
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            ) {
-                Box(
-                    modifier = Modifier.width(60.dp),
-                    contentAlignment = Alignment.Center,
+            if (isToggle) {
+                Switch(
+                    checked = toggleState ?: false,
+                    onCheckedChange = { onToggle() },
+                    enabled = canExecute,
+                )
+            } else {
+                Button(
+                    onClick = onExecute,
+                    enabled = canExecute,
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 ) {
-                    if (isRunning) {
-                        RunningIndicator(modifier = Modifier.size(16.dp))
-                    } else {
-                        Text(text = Language.execute)
+                    Box(
+                        modifier = Modifier.width(60.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (isRunning) {
+                            RunningIndicator(modifier = Modifier.size(16.dp))
+                        } else {
+                            Text(text = Language.execute)
+                        }
                     }
                 }
             }

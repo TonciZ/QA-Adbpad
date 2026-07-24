@@ -233,6 +233,16 @@ object ChineseResources : StringResources {
     override val tooltipBack: String = "返回"
     override val tooltipHome: String = "主页"
     override val tooltipRecents: String = "最近任务"
+    override val tooltipWirelessAdb: String = "无线ADB"
+
+    // Wireless ADB Dialog
+    override val wirelessAdbTitle: String = "无线ADB"
+    override val wirelessAdbHost: String = "IP地址"
+    override val wirelessAdbPort: String = "端口"
+    override val wirelessAdbPairingCode: String = "配对码"
+    override val wirelessAdbConnect: String = "连接"
+    override val wirelessAdbPair: String = "配对"
+    override val wirelessAdbDisconnect: String = "断开"
 
     // NavigationRail tooltips
     override val tooltipCommand: String = "命令"
@@ -325,6 +335,14 @@ object ChineseResources : StringResources {
     override val scrcpyNewDisplayTitleFormat: String = "%s 虚拟显示"
     override val scrcpyNewDisplayTargetDeviceFormat: String = "目标设备：%s"
     override val scrcpyNewDisplayLaunchOptions: String = "启动选项"
+
+    // Log screen
+    override val tooltipLog: String = "日志"
+    override val logStart: String = "开始记录"
+    override val logStop: String = "停止并保存"
+    override val logClear: String = "清除"
+    override val logFilter: String = "过滤 (例: *:E)"
+    override val logSaved: String = "已保存到:"
 
     override val commandCategoryAll: String = "全部"
     override val commandCategoryCommunication: String = "通信"

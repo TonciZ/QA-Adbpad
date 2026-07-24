@@ -131,6 +131,7 @@ fun MainScreen(
     screenshotContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
     scrcpyNewDisplayContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
     appContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
+    logContent: @Composable () -> Unit,
     settingContent: @Composable () -> Unit,
     deviceSettingsContent: @Composable () -> Unit,
 ) {
@@ -208,6 +209,7 @@ fun MainScreen(
                 screenshotContent = screenshotContent,
                 scrcpyNewDisplayContent = scrcpyNewDisplayContent,
                 appContent = appContent,
+                logContent = logContent,
                 settingContent = settingContent,
                 deviceSettingsContent = deviceSettingsContent,
             )
@@ -226,6 +228,7 @@ private fun App(
     screenshotContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
     scrcpyNewDisplayContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
     appContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
+    logContent: @Composable () -> Unit,
     settingContent: @Composable () -> Unit,
     deviceSettingsContent: @Composable () -> Unit,
 ) {
@@ -297,6 +300,12 @@ private fun App(
                     appContent(appSplitPaneState, appRightSplitPaneState)
                 }
             }
+        val logCategoryContent =
+            remember {
+                movableContentOf {
+                    logContent()
+                }
+            }
         val fileCategoryContent =
             remember {
                 movableContentOf {
@@ -336,6 +345,10 @@ private fun App(
                         CategoryContentLayer(
                             isSelected = state.category == MainCategory.App,
                             content = appCategoryContent,
+                        )
+                        CategoryContentLayer(
+                            isSelected = state.category == MainCategory.Log,
+                            content = logCategoryContent,
                         )
                         CategoryContentLayer(
                             isSelected = state.category == MainCategory.File,

@@ -1,6 +1,7 @@
 package jp.kaleidot725.adbpad.domain.repository
 
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import jp.kaleidot725.adbpad.domain.model.command.NormalCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import kotlinx.coroutines.Dispatchers
@@ -78,6 +79,15 @@ class NormalCommandRepositoryImpl : NormalCommandRepository {
                         it is NormalCommand.SetTimeZone && it.timeZoneId == spec.timeZoneId
                     },
             )
+        }
+
+    override suspend fun queryShell(
+        device: Device,
+        command: String,
+    ): String =
+        withContext(Dispatchers.IO) {
+            val result = adbClient.execute(ShellCommandRequest(command), device.serial)
+            result.output.trim()
         }
 
     override suspend fun sendCommand(

@@ -46,6 +46,8 @@ fun CommandScreen(
         canExecute = state.canExecuteCommand,
         onExecute = { command -> onAction(CommandAction.ExecuteCommand(command)) },
         onToggleFavorite = { command -> onAction(CommandAction.ToggleFavorite(command)) },
+        toggleStates = state.toggleStates,
+        onToggle = { command -> onAction(CommandAction.ToggleSwitch(command)) },
         splitterState = splitterState,
     )
 }
@@ -62,6 +64,8 @@ private fun CommandScreen(
     canExecute: Boolean,
     onExecute: (NormalCommand) -> Unit,
     onToggleFavorite: (NormalCommand) -> Unit,
+    toggleStates: Map<String, Boolean?> = emptyMap(),
+    onToggle: (NormalCommand) -> Unit = {},
     splitterState: SplitPaneState,
 ) {
     VerticalPaneLayout(
@@ -106,6 +110,8 @@ private fun CommandScreen(
                     onExecute = onExecute,
                     onToggleFavorite = onToggleFavorite,
                     layoutMode = layoutMode,
+                    toggleStates = toggleStates,
+                    onToggle = onToggle,
                     modifier =
                         Modifier
                             .weight(1f)

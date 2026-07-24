@@ -446,6 +446,24 @@ object Language : StringResources {
         get() = getCurrentResources().tooltipHome
     override val tooltipRecents: String
         get() = getCurrentResources().tooltipRecents
+    override val tooltipWirelessAdb: String
+        get() = getCurrentResources().tooltipWirelessAdb
+
+    // Wireless ADB Dialog
+    override val wirelessAdbTitle: String
+        get() = getCurrentResources().wirelessAdbTitle
+    override val wirelessAdbHost: String
+        get() = getCurrentResources().wirelessAdbHost
+    override val wirelessAdbPort: String
+        get() = getCurrentResources().wirelessAdbPort
+    override val wirelessAdbPairingCode: String
+        get() = getCurrentResources().wirelessAdbPairingCode
+    override val wirelessAdbConnect: String
+        get() = getCurrentResources().wirelessAdbConnect
+    override val wirelessAdbPair: String
+        get() = getCurrentResources().wirelessAdbPair
+    override val wirelessAdbDisconnect: String
+        get() = getCurrentResources().wirelessAdbDisconnect
 
     // NavigationRail tooltips
     override val tooltipCommand: String
@@ -614,6 +632,20 @@ object Language : StringResources {
         get() = getCurrentResources().scrcpyNewDisplayTargetDeviceFormat
     override val scrcpyNewDisplayLaunchOptions: String
         get() = getCurrentResources().scrcpyNewDisplayLaunchOptions
+
+    // Log screen
+    override val tooltipLog: String
+        get() = getCurrentResources().tooltipLog
+    override val logStart: String
+        get() = getCurrentResources().logStart
+    override val logStop: String
+        get() = getCurrentResources().logStop
+    override val logClear: String
+        get() = getCurrentResources().logClear
+    override val logFilter: String
+        get() = getCurrentResources().logFilter
+    override val logSaved: String
+        get() = getCurrentResources().logSaved
 
     override val commandCategoryAll: String
         get() = getCurrentResources().commandCategoryAll

@@ -232,6 +232,16 @@ object JapaneseResources : StringResources {
     override val tooltipBack: String = "戻る"
     override val tooltipHome: String = "ホーム"
     override val tooltipRecents: String = "最近のアプリ"
+    override val tooltipWirelessAdb: String = "ワイヤレスADB"
+
+    // Wireless ADB Dialog
+    override val wirelessAdbTitle: String = "ワイヤレスADB"
+    override val wirelessAdbHost: String = "IPアドレス"
+    override val wirelessAdbPort: String = "ポート"
+    override val wirelessAdbPairingCode: String = "ペアリングコード"
+    override val wirelessAdbConnect: String = "接続"
+    override val wirelessAdbPair: String = "ペアリング"
+    override val wirelessAdbDisconnect: String = "切断"
 
     // NavigationRail tooltips
     override val tooltipCommand: String = "コマンド"
@@ -326,6 +336,14 @@ object JapaneseResources : StringResources {
     override val scrcpyNewDisplayTitleFormat: String = "%s の仮想ディスプレイ"
     override val scrcpyNewDisplayTargetDeviceFormat: String = "対象端末: %s"
     override val scrcpyNewDisplayLaunchOptions: String = "起動オプション"
+
+    // Log screen
+    override val tooltipLog: String = "ログ"
+    override val logStart: String = "ログ開始"
+    override val logStop: String = "停止して保存"
+    override val logClear: String = "クリア"
+    override val logFilter: String = "フィルター (例: *:E)"
+    override val logSaved: String = "保存先:"
 
     override val commandCategoryAll: String = "すべて"
     override val commandCategoryCommunication: String = "通信"

@@ -16,4 +16,24 @@ sealed class TopAction : PulseAction {
     data object LaunchScrcpy : TopAction()
 
     data object Refresh : TopAction()
+
+    data object OpenWirelessAdb : TopAction()
+
+    data object CloseWirelessAdb : TopAction()
+
+    data class ConnectWirelessAdb(
+        val host: String,
+        val port: Int,
+    ) : TopAction()
+
+    data class PairWirelessAdb(
+        val host: String,
+        val port: Int,
+        val code: String,
+    ) : TopAction()
+
+    data class DisconnectWirelessAdb(
+        val host: String,
+        val port: Int,
+    ) : TopAction()
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import jp.kaleidot725.adbpad.domain.model.command.NormalCommand
+import jp.kaleidot725.adbpad.domain.model.command.ToggleCommandDef
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.ui.screen.command.model.CommandLayoutMode
 
@@ -32,10 +33,14 @@ fun CommandList(
     onExecute: (NormalCommand) -> Unit,
     onToggleFavorite: (NormalCommand) -> Unit,
     layoutMode: CommandLayoutMode,
+    toggleStates: Map<String, Boolean?> = emptyMap(),
+    onToggle: (NormalCommand) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val filteredCommands = commands.filter { it.favoriteKey !in ToggleCommandDef.OFF_KEYS }
+
     Box(modifier = modifier) {
-        if (commands.isNotEmpty()) {
+        if (filteredCommands.isNotEmpty()) {
             when (layoutMode) {
                 CommandLayoutMode.CARD -> {
                     LazyVerticalGrid(
@@ -44,15 +49,20 @@ fun CommandList(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(16.dp),
                     ) {
-                        items(commands) { command ->
+                        items(filteredCommands) { command ->
+                            val toggleDef = ToggleCommandDef.ON_KEY_MAP[command.favoriteKey]
+                            val isToggle = toggleDef != null
                             CommandItemCard(
-                                title = command.title,
+                                title = if (isToggle) command.title.substringBeforeLast(": ") else command.title,
                                 detail = command.details,
                                 isRunning = command.isRunning,
                                 isFavorite = command.isFavorite,
                                 onToggleFavorite = { onToggleFavorite(command) },
                                 canExecute = canExecute,
                                 onExecute = { onExecute(command) },
+                                isToggle = isToggle,
+                                toggleState = toggleStates[command.favoriteKey],
+                                onToggle = { onToggle(command) },
                                 modifier = Modifier.height(175.dp).fillMaxWidth().padding(2.dp),
                             )
                         }
@@ -63,15 +73,20 @@ fun CommandList(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(16.dp),
                     ) {
-                        items(commands) { command ->
+                        items(filteredCommands) { command ->
+                            val toggleDef = ToggleCommandDef.ON_KEY_MAP[command.favoriteKey]
+                            val isToggle = toggleDef != null
                             CommandItemList(
-                                title = command.title,
+                                title = if (isToggle) command.title.substringBeforeLast(": ") else command.title,
                                 detail = command.details,
                                 isRunning = command.isRunning,
                                 isFavorite = command.isFavorite,
                                 onToggleFavorite = { onToggleFavorite(command) },
                                 canExecute = canExecute,
                                 onExecute = { onExecute(command) },
+                                isToggle = isToggle,
+                                toggleState = toggleStates[command.favoriteKey],
+                                onToggle = { onToggle(command) },
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
