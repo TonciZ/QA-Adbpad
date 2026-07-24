@@ -230,6 +230,16 @@ interface StringResources {
     val tooltipBack: String
     val tooltipHome: String
     val tooltipRecents: String
+    val tooltipWirelessAdb: String
+
+    // Wireless ADB Dialog
+    val wirelessAdbTitle: String
+    val wirelessAdbHost: String
+    val wirelessAdbPort: String
+    val wirelessAdbPairingCode: String
+    val wirelessAdbConnect: String
+    val wirelessAdbPair: String
+    val wirelessAdbDisconnect: String
 
     // NavigationRail tooltips
     val tooltipCommand: String
@@ -323,6 +333,14 @@ interface StringResources {
     val scrcpyNewDisplayTitleFormat: String
     val scrcpyNewDisplayTargetDeviceFormat: String
     val scrcpyNewDisplayLaunchOptions: String
+
+    // Log screen
+    val tooltipLog: String
+    val logStart: String
+    val logStop: String
+    val logClear: String
+    val logFilter: String
+    val logSaved: String
 
     val commandCategoryAll: String
     val commandCategoryCommunication: String

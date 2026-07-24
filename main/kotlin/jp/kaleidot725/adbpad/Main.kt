@@ -16,6 +16,8 @@ import jp.kaleidot725.adbpad.ui.screen.app.AppStateHolder
 import jp.kaleidot725.adbpad.ui.screen.command.CommandStateHolder
 import jp.kaleidot725.adbpad.ui.screen.device.DeviceSettingsScreen
 import jp.kaleidot725.adbpad.ui.screen.device.DeviceSettingsStateHolder
+import jp.kaleidot725.adbpad.ui.screen.log.LogScreen
+import jp.kaleidot725.adbpad.ui.screen.log.LogStateHolder
 import jp.kaleidot725.adbpad.ui.screen.device.state.DeviceSettingsAction
 import jp.kaleidot725.adbpad.ui.screen.main.MainScreen
 import jp.kaleidot725.adbpad.ui.screen.main.MainStateHolder
@@ -54,6 +56,8 @@ fun main() {
             by remember { mutableStateOf(GlobalContext.get().get<AppStateHolder>()) }
         val topStateHolder: TopStateHolder
             by remember { mutableStateOf(GlobalContext.get().get<TopStateHolder>()) }
+        val logStateHolder: LogStateHolder
+            by remember { mutableStateOf(GlobalContext.get().get<LogStateHolder>()) }
         val deviceSettingsStateHolder: DeviceSettingsStateHolder
             by remember { mutableStateOf(GlobalContext.get().get<DeviceSettingsStateHolder>()) }
         val settingStateHolder: SettingStateHolder
@@ -70,6 +74,7 @@ fun main() {
                             scrcpyNewDisplayStateHolder,
                             appStateHolder,
                             topStateHolder,
+                            logStateHolder,
                             deviceSettingsStateHolder,
                             settingStateHolder,
                         ),
@@ -157,6 +162,17 @@ fun main() {
                                     onAction = onAction,
                                     splitterState = splitterState,
                                     rightSplitterState = rightSplitterState,
+                                )
+                            },
+                        )
+                    },
+                    logContent = {
+                        PulseContent(
+                            store = logStateHolder,
+                            content = { state, onAction ->
+                                LogScreen(
+                                    state = state,
+                                    onAction = onAction,
                                 )
                             },
                         )

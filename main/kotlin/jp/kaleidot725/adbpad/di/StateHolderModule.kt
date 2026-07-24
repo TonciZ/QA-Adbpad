@@ -3,6 +3,7 @@ package jp.kaleidot725.adbpad.di
 import jp.kaleidot725.adbpad.ui.screen.app.AppStateHolder
 import jp.kaleidot725.adbpad.ui.screen.command.CommandStateHolder
 import jp.kaleidot725.adbpad.ui.screen.device.DeviceSettingsStateHolder
+import jp.kaleidot725.adbpad.ui.screen.log.LogStateHolder
 import jp.kaleidot725.adbpad.ui.screen.main.MainStateHolder
 import jp.kaleidot725.adbpad.ui.screen.newdisplay.ScrcpyNewDisplayStateHolder
 import jp.kaleidot725.adbpad.ui.screen.screenshot.ScreenshotStateHolder
@@ -20,6 +21,7 @@ val stateHolderModule =
                 executeCommandUseCase = get(),
                 getSelectedDeviceFlowUseCase = get(),
                 normalCommandOutputRepository = get(),
+                normalCommandRepository = get(),
             )
         }
 
@@ -82,6 +84,16 @@ val stateHolderModule =
                 selectDeviceUseCase = get(),
                 executeDeviceControlCommandUseCase = get(),
                 launchScrcpyUseCase = get(),
+                connectDeviceUseCase = get(),
+                pairDeviceUseCase = get(),
+                disconnectDeviceUseCase = get(),
+            )
+        }
+
+        factory {
+            LogStateHolder(
+                getSelectedDeviceFlowUseCase = get(),
+                logCaptureRepository = get(),
             )
         }
 

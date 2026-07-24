@@ -233,6 +233,16 @@ object EnglishResources : StringResources {
     override val tooltipBack: String = "Back"
     override val tooltipHome: String = "Home"
     override val tooltipRecents: String = "Recents"
+    override val tooltipWirelessAdb: String = "Wireless ADB"
+
+    // Wireless ADB Dialog
+    override val wirelessAdbTitle: String = "Wireless ADB"
+    override val wirelessAdbHost: String = "IP Address"
+    override val wirelessAdbPort: String = "Port"
+    override val wirelessAdbPairingCode: String = "Pairing Code"
+    override val wirelessAdbConnect: String = "Connect"
+    override val wirelessAdbPair: String = "Pair"
+    override val wirelessAdbDisconnect: String = "Disconnect"
 
     // NavigationRail tooltips
     override val tooltipCommand: String = "Command"
@@ -327,6 +337,14 @@ object EnglishResources : StringResources {
     override val scrcpyNewDisplayTitleFormat: String = "%s virtual display"
     override val scrcpyNewDisplayTargetDeviceFormat: String = "Target device: %s"
     override val scrcpyNewDisplayLaunchOptions: String = "Launch Options"
+
+    // Log screen
+    override val tooltipLog: String = "Log"
+    override val logStart: String = "Start Logs"
+    override val logStop: String = "Stop & Save"
+    override val logClear: String = "Clear"
+    override val logFilter: String = "Filter (e.g. *:E)"
+    override val logSaved: String = "Saved to:"
 
     override val commandCategoryAll: String = "All"
     override val commandCategoryCommunication: String = "Communication"

@@ -233,6 +233,16 @@ object TurkishResources : StringResources {
     override val tooltipBack: String = "Geri"
     override val tooltipHome: String = "Ana Ekran"
     override val tooltipRecents: String = "Son Uygulamalar"
+    override val tooltipWirelessAdb: String = "Kablosuz ADB"
+
+    // Wireless ADB Dialog
+    override val wirelessAdbTitle: String = "Kablosuz ADB"
+    override val wirelessAdbHost: String = "IP Adresi"
+    override val wirelessAdbPort: String = "Port"
+    override val wirelessAdbPairingCode: String = "Eşleştirme Kodu"
+    override val wirelessAdbConnect: String = "Bağlan"
+    override val wirelessAdbPair: String = "Eşleştir"
+    override val wirelessAdbDisconnect: String = "Bağlantıyı Kes"
 
     // NavigationRail tooltips
     override val tooltipCommand: String = "Komut"
@@ -327,6 +337,14 @@ object TurkishResources : StringResources {
     override val scrcpyNewDisplayTitleFormat: String = "%s sanal ekranı"
     override val scrcpyNewDisplayTargetDeviceFormat: String = "Hedef cihaz: %s"
     override val scrcpyNewDisplayLaunchOptions: String = "Başlatma Seçenekleri"
+
+    // Log screen
+    override val tooltipLog: String = "Günlük"
+    override val logStart: String = "Günlüğü Başlat"
+    override val logStop: String = "Durdur ve Kaydet"
+    override val logClear: String = "Temizle"
+    override val logFilter: String = "Filtre (ör. *:E)"
+    override val logSaved: String = "Kaydedildi:"
 
     override val commandCategoryAll: String = "Hepsi"
     override val commandCategoryCommunication: String = "İletişim"

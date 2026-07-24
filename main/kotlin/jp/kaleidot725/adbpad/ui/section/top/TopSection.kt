@@ -51,6 +51,7 @@ import com.composables.icons.lucide.Power
 import com.composables.icons.lucide.RefreshCcw
 import com.composables.icons.lucide.ScreenShare
 import com.composables.icons.lucide.Settings2
+import com.composables.icons.lucide.Wifi
 import com.composables.icons.lucide.Square
 import com.composables.icons.lucide.Triangle
 import jp.kaleidot725.adbpad.domain.model.command.DeviceControlCommand
@@ -61,6 +62,7 @@ import jp.kaleidot725.adbpad.ui.common.resource.UserColor
 import jp.kaleidot725.adbpad.ui.common.resource.clickableBackground
 import jp.kaleidot725.adbpad.ui.component.button.CommandIconButton
 import jp.kaleidot725.adbpad.ui.section.top.component.DropDownDeviceMenu
+import jp.kaleidot725.adbpad.ui.section.top.component.WirelessAdbDialog
 import jp.kaleidot725.adbpad.ui.section.top.state.TopAction
 import jp.kaleidot725.adbpad.ui.section.top.state.TopState
 
@@ -72,6 +74,17 @@ fun TopSection(
     onOpenDeviceSettings: (Device) -> Unit,
     onToggleNavigationRail: () -> Unit,
 ) {
+    if (topState.showWirelessAdbDialog) {
+        WirelessAdbDialog(
+            status = topState.wirelessAdbStatus,
+            loading = topState.wirelessAdbLoading,
+            onConnect = { host, port -> onTopAction(TopAction.ConnectWirelessAdb(host, port)) },
+            onPair = { host, port, code -> onTopAction(TopAction.PairWirelessAdb(host, port, code)) },
+            onDisconnect = { host, port -> onTopAction(TopAction.DisconnectWirelessAdb(host, port)) },
+            onDismiss = { onTopAction(TopAction.CloseWirelessAdb) },
+        )
+    }
+
     Box(
         modifier = Modifier.fillMaxWidth().height(50.dp),
     ) {
@@ -118,6 +131,12 @@ fun TopSection(
                         topState.selectedDevice?.let { onOpenDeviceSettings(it) }
                     },
                     enabled = topState.selectedDevice != null,
+                )
+
+                TopSectionIconButton(
+                    tooltip = Language.tooltipWirelessAdb,
+                    icon = Lucide.Wifi,
+                    onClick = { onTopAction(TopAction.OpenWirelessAdb) },
                 )
             }
 

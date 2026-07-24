@@ -17,5 +17,9 @@ sealed class CommandAction : PulseAction {
         val category: NormalCommandCategory,
     ) : CommandAction()
 
+    data class ToggleSwitch(
+        val command: NormalCommand,
+    ) : CommandAction()
+
     data object ToggleLayoutMode : CommandAction()
 }
