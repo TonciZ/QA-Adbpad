@@ -4,8 +4,9 @@
 devices - screenshots silently failed and scrcpy mirroring crashed or froze the TV. Log capture
 and one-click toggle commands were added as QA quality-of-life on top of that.
 
-Fork of [kaleidot725/AdbPad](https://github.com/kaleidot725/adbpad), renamed to distinguish it
-from upstream since the changes below are Android-TV-focused and not upstreamed.
+Fork of [AdbPad](https://github.com/kaleidot725/adbpad) by [kaleidot725](https://github.com/kaleidot725),
+renamed to distinguish it from upstream since the changes below are Android-TV-focused and not
+upstreamed.
 
 ## Why this fork exists
 

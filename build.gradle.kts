@@ -69,11 +69,11 @@ compose.desktop {
         }
 
         nativeDistributions {
-            packageName = "AdbPad"
-            packageVersion = "3.9.0"
-            description = "Android Debug Bridge GUI Application for easier device management"
-            copyright = "© 2025 kaleidot725. All rights reserved."
-            vendor = "kaleidot725"
+            packageName = "QA-Adbpad"
+            packageVersion = "1.0.0"
+            description = "Android Debug Bridge GUI Application for QA testing, including Android TV"
+            copyright = "Copyright (c) 2026 TonciZ. Based on AdbPad (c) 2025 kaleidot725."
+            vendor = "TonciZ"
 
             modules("jdk.management")
             modules("jdk.unsupported")
@@ -100,7 +100,7 @@ compose.desktop {
                 shortcut = true
                 menu = true
                 dirChooser = true
-                upgradeUuid = "C7C2E2ED-0A7D-4E8F-B2FC-9F5A1E2D3C4B"
+                upgradeUuid = "EB250A9E-5DA4-461F-8DB9-3BD5369B14AD"
             }
 
             linux {
