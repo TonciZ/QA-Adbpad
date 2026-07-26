@@ -48,10 +48,6 @@ object ChineseResources : StringResources {
     override val textCommandUnTitle: String = "取消文本标题命令"
     override val textCommandTextPlaceholder: String = "输入要发送的文本"
 
-    override val screenshotTakeByCurrentTheme = "按当前主题截图"
-    override val screenshotTakeByDarkTheme = "按深色主题截图"
-    override val screenshotTakeByLightTheme = "按浅色主题截图"
-    override val screenshotTakeByBothTheme = "按两种主题截图"
 
     override val textCommandOptionNewLine: String = "用换行键发送"
     override val textCommandOptionTab: String = "用制表符键发送"

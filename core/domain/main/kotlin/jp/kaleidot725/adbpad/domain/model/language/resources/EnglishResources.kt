@@ -48,10 +48,6 @@ object EnglishResources : StringResources {
     override val textCommandUnTitle: String = "untitle text command"
     override val textCommandTextPlaceholder: String = "Enter text to send"
 
-    override val screenshotTakeByCurrentTheme = "Take by current theme"
-    override val screenshotTakeByDarkTheme = "Take by dark theme"
-    override val screenshotTakeByLightTheme = "Take by light theme"
-    override val screenshotTakeByBothTheme = "Take by both theme"
 
     override val textCommandOptionNewLine: String = "Send with newline"
     override val textCommandOptionTab: String = "Send with tab"

@@ -3,17 +3,23 @@ package jp.kaleidot725.adbpad.ui.screen.screenshot.component
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
-import jp.kaleidot725.adbpad.domain.model.command.ScreenshotCommand
+import com.composables.icons.lucide.Camera
+import com.composables.icons.lucide.Lucide
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.sort.SortType
 import jp.kaleidot725.adbpad.ui.component.dropbox.SearchSortDropBox
 import jp.kaleidot725.adbpad.ui.component.text.DefaultTextField
-import java.util.UUID
 
 @Composable
 fun ScreenshotHeader(
@@ -21,12 +27,9 @@ fun ScreenshotHeader(
     sortType: SortType,
     onUpdateSortType: (SortType) -> Unit,
     onUpdateSearchText: (String) -> Unit,
-    selectedCommand: ScreenshotCommand,
-    onSelectCommand: (ScreenshotCommand) -> Unit,
-    commands: List<ScreenshotCommand>,
     canCapture: Boolean,
     isCapturing: Boolean,
-    onTakeScreenshot: (ScreenshotCommand) -> Unit,
+    onTakeScreenshot: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -46,14 +49,30 @@ fun ScreenshotHeader(
             modifier = Modifier.weight(1.0f),
         )
 
-        ScreenshotDropDownButton(
-            selectedCommand = selectedCommand,
-            onSelectCommand = onSelectCommand,
-            commands = commands,
-            canCapture = canCapture,
-            isCapturing = isCapturing,
-            onTakeScreenshot = onTakeScreenshot,
-        )
+        IconButton(
+            onClick = onTakeScreenshot,
+            enabled = canCapture && !isCapturing,
+            modifier =
+                Modifier
+                    .padding(vertical = 4.dp, horizontal = 4.dp)
+                    .size(32.dp)
+                    .alpha(if (canCapture) 1f else 0.38f),
+        ) {
+            if (isCapturing) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+            } else {
+                Icon(
+                    imageVector = Lucide.Camera,
+                    contentDescription = "capture screenshot",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
     }
 }
 
@@ -65,9 +84,6 @@ private fun Preview() {
         sortType = SortType.SORT_BY_NAME_ASC,
         onUpdateSortType = {},
         onUpdateSearchText = {},
-        selectedCommand = ScreenshotCommand.Both,
-        onSelectCommand = {},
-        commands = listOf(ScreenshotCommand.Current),
         canCapture = false,
         isCapturing = false,
         onTakeScreenshot = {},

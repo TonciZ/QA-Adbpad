@@ -1,7 +1,6 @@
 package jp.kaleidot725.adbpad.ui.screen.screenshot.state
 
 import jp.kaleidot725.pulse.mvi.PulseAction
-import jp.kaleidot725.adbpad.domain.model.command.ScreenshotCommand
 import jp.kaleidot725.adbpad.domain.model.screenshot.Screenshot
 import jp.kaleidot725.adbpad.domain.model.sort.SortType
 
@@ -14,13 +13,7 @@ sealed class ScreenshotAction : PulseAction {
         val sortType: SortType,
     ) : ScreenshotAction()
 
-    data class SelectScreenshotCommand(
-        val command: ScreenshotCommand,
-    ) : ScreenshotAction()
-
-    data class TakeScreenshot(
-        val command: ScreenshotCommand,
-    ) : ScreenshotAction()
+    data object TakeScreenshot : ScreenshotAction()
 
     data object OpenDirectory : ScreenshotAction()
 
