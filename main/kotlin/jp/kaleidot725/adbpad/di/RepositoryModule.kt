@@ -56,7 +56,7 @@ val repositoryModule =
             TextCommandRepositoryImpl()
         }
         single<ScreenshotCommandRepository> {
-            ScreenshotCommandRepositoryImpl()
+            ScreenshotCommandRepositoryImpl(settingRepository = get())
         }
         factory<SettingRepository> {
             SettingRepositoryImpl()

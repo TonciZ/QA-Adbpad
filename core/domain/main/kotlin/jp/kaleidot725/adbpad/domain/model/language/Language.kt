@@ -39,6 +39,8 @@ object Language : StringResources {
         get() = getCurrentResources().send
     override val cancel: String
         get() = getCurrentResources().cancel
+    override val close: String
+        get() = getCurrentResources().close
     override val open: String
         get() = getCurrentResources().open
     override val edit: String

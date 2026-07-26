@@ -1,6 +1,8 @@
-# <img align="center" width=40 src="https://github.com/kaleidot725/AdbPad/assets/23740796/ab3b08b2-1267-488c-9b14-927325751232"> AdbPad
+# <img align="center" width=40 src="https://github.com/kaleidot725/AdbPad/assets/23740796/ab3b08b2-1267-488c-9b14-927325751232"> QA-Adbpad
 
-AdbPad is a GUI tool designed to streamline Android app testing using ADB.
+QA-Adbpad is a GUI tool designed to streamline Android app testing using ADB, forked from
+[kaleidot725/AdbPad](https://github.com/kaleidot725/adbpad) with fixes and features for testing
+against Android TV devices. See [CHANGES.md](CHANGES.md) for what changed from upstream and why.
 It is available for both Windows and macOS.
 
 <img width="1732" height="1072" alt="image" src="https://github.com/user-attachments/assets/086a1a56-50a0-4330-ad7f-c40cb4f39ba7" />
@@ -31,6 +33,7 @@ brew install --cask adbpad
 
 > [!IMPORTANT]
 > **For macOS users:** Since the app is not signed with an Apple Developer account, you may encounter a security warning stating that the developer cannot be verified. To open the app:
+>
 > 1. Right-click (or Control-click) the AdbPad icon and select **Open**.
 > 2. In the dialog that appears, click **Open** again.
 > 3. Alternatively, go to **System Settings > Privacy & Security** and click **Open Anyway**.

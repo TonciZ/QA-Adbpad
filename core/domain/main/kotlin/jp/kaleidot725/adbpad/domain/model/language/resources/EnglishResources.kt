@@ -1,7 +1,7 @@
 package jp.kaleidot725.adbpad.domain.model.language.resources
 
 object EnglishResources : StringResources {
-    override val windowTitle = "AdbPad"
+    override val windowTitle = "QA-Adbpad"
 
     override val notFoundDevice = "Not found device"
     override val notFoundCommand = "Not found command"
@@ -19,6 +19,7 @@ object EnglishResources : StringResources {
     override val tab = "Tab"
     override val send = "Send"
     override val cancel = "Cancel"
+    override val close = "Close"
     override val open = "Open"
     override val edit = "Edit"
     override val copy = "Copy"

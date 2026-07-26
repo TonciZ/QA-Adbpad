@@ -1,27 +1,19 @@
 package jp.kaleidot725.adbpad.domain.repository
 
-import com.malinskiy.adam.AndroidDebugBridgeClientFactory
-import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
-import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
-import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
-import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
-import com.malinskiy.adam.request.sync.PullRequest
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.os.OSContext
 import jp.kaleidot725.adbpad.domain.model.screenshot.Screenshot
 import jp.kaleidot725.adbpad.domain.model.sort.SortType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.io.File
 import java.util.Date
-import javax.imageio.ImageIO
 
-class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
-    private val adb = AndroidDebugBridgeClientFactory().build()
-
+class ScreenshotCommandRepositoryImpl(
+    private val settingRepository: SettingRepository,
+) : ScreenshotCommandRepository {
     init {
         createDirectory()
     }
@@ -32,11 +24,11 @@ class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
         onComplete: suspend (Screenshot) -> Unit,
         onFailed: suspend () -> Unit,
     ) {
-        val date = Date()
         withContext(Dispatchers.IO) {
             onStart()
-            val result = capture(device, getFileResult(date.time))
-            if (result) onComplete(Screenshot(getFileResult(date.time))) else onFailed()
+            val file = getFileResult(Date().time)
+            val result = capture(device, file)
+            if (result) onComplete(Screenshot(file)) else onFailed()
         }
     }
 
@@ -84,43 +76,30 @@ class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
         }
     }
 
+    // ponytail: shell out to the real adb binary instead of the adam library's reimplementation
+    // of the sync/framebuffer protocol - adam silently no-ops on some OEM (Android TV) daemons
+    // that misreport protocol feature support. `adb exec-out` is what works everywhere.
     private suspend fun capture(
         device: Device,
         file: File,
-    ): Boolean {
-        return try {
+    ): Boolean =
+        try {
             withTimeout(CAPTURE_TIMEOUT) {
-                val adapter = RawImageScreenCaptureAdapter()
-                val image = adb.execute(request = ScreenCaptureRequest(adapter), serial = device.serial).toBufferedImage()
-                ImageIO.write(image, EXTENSION_NAME, file)
+                val adbPath = settingRepository.getSdkPath().adbDirectory.ifBlank { "adb" }
+                val process =
+                    ProcessBuilder(adbPath, "-s", device.serial, "exec-out", "screencap", "-p")
+                        .start()
+                file.outputStream().use { out -> process.inputStream.copyTo(out) }
+                process.waitFor() == 0 && file.exists() && file.length() > 0
             }
         } catch (e: TimeoutCancellationException) {
-            captureFallback(device, file)
-        }
-    }
-
-    private suspend fun captureFallback(
-        device: Device,
-        file: File,
-    ): Boolean {
-        return try {
-            withTimeout(CAPTURE_TIMEOUT) {
-                val remotePath = "/data/local/tmp/adbpad_screenshot.png"
-                val result = adb.execute(ShellCommandRequest("screencap -p $remotePath"), device.serial)
-                if (result.exitCode != 0) return@withTimeout false
-                val supportedFeatures = adb.execute(FetchDeviceFeaturesRequest(device.serial), device.serial)
-                val pulled = adb.execute(PullRequest(remotePath, file, supportedFeatures), device.serial)
-                adb.execute(ShellCommandRequest("rm -f $remotePath"), device.serial)
-                pulled && file.exists() && file.length() > 0
-            }
+            false
         } catch (e: Exception) {
             false
         }
-    }
 
     companion object {
         private const val FILE_NAME_RESULT = "Screenshot"
-        private const val EXTENSION_NAME = "png"
         private const val CAPTURE_TIMEOUT = 10_000L
 
         private fun createDirectory() {
