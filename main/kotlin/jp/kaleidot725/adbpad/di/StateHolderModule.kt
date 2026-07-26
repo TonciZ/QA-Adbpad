@@ -86,6 +86,8 @@ val stateHolderModule =
                 connectDeviceUseCase = get(),
                 pairDeviceUseCase = get(),
                 disconnectDeviceUseCase = get(),
+                checkDeviceLivenessUseCase = get(),
+                restartDeviceUseCase = get(),
             )
         }
 

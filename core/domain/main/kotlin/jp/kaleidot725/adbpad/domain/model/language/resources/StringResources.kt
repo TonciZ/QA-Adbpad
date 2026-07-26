@@ -228,6 +228,8 @@ interface StringResources {
     val tooltipHome: String
     val tooltipRecents: String
     val tooltipWirelessAdb: String
+    val tooltipCheckDeviceLiveness: String
+    val tooltipRestartDevice: String
 
     // Wireless ADB Dialog
     val wirelessAdbTitle: String

@@ -45,10 +45,12 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.Circle
+import com.composables.icons.lucide.HeartPulse
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Menu
 import com.composables.icons.lucide.Power
 import com.composables.icons.lucide.RefreshCcw
+import com.composables.icons.lucide.RotateCw
 import com.composables.icons.lucide.ScreenShare
 import com.composables.icons.lucide.Settings2
 import com.composables.icons.lucide.Wifi
@@ -56,11 +58,13 @@ import com.composables.icons.lucide.Square
 import com.composables.icons.lucide.Triangle
 import jp.kaleidot725.adbpad.domain.model.command.DeviceControlCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
+import jp.kaleidot725.adbpad.domain.model.device.DeviceLiveness
 import jp.kaleidot725.adbpad.domain.model.device.DeviceState
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.ui.common.resource.UserColor
 import jp.kaleidot725.adbpad.ui.common.resource.clickableBackground
 import jp.kaleidot725.adbpad.ui.component.button.CommandIconButton
+import jp.kaleidot725.adbpad.ui.section.top.component.DeviceStatusDot
 import jp.kaleidot725.adbpad.ui.section.top.component.DropDownDeviceMenu
 import jp.kaleidot725.adbpad.ui.section.top.component.WirelessAdbDialog
 import jp.kaleidot725.adbpad.ui.section.top.state.TopAction
@@ -137,6 +141,27 @@ fun TopSection(
                     tooltip = Language.tooltipWirelessAdb,
                     icon = Lucide.Wifi,
                     onClick = { onTopAction(TopAction.OpenWirelessAdb) },
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                DeviceStatusDot(
+                    state = topState.selectedDevice?.state ?: DeviceState.OFFLINE,
+                    liveness = topState.deviceLiveness,
+                )
+
+                TopSectionIconButton(
+                    tooltip = Language.tooltipCheckDeviceLiveness,
+                    icon = Lucide.HeartPulse,
+                    onClick = { onTopAction(TopAction.CheckDeviceLiveness) },
+                    enabled = topState.selectedDevice != null,
+                )
+
+                TopSectionIconButton(
+                    tooltip = Language.tooltipRestartDevice,
+                    icon = Lucide.RotateCw,
+                    onClick = { onTopAction(TopAction.RestartDevice) },
+                    enabled = topState.selectedDevice != null,
                 )
             }
 

@@ -15,6 +15,10 @@ sealed class TopAction : PulseAction {
 
     data object LaunchScrcpy : TopAction()
 
+    data object CheckDeviceLiveness : TopAction()
+
+    data object RestartDevice : TopAction()
+
     data object Refresh : TopAction()
 
     data object OpenWirelessAdb : TopAction()

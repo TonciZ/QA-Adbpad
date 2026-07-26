@@ -2,11 +2,14 @@ package jp.kaleidot725.adbpad.ui.section.top
 
 import jp.kaleidot725.adbpad.domain.model.command.DeviceControlCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
+import jp.kaleidot725.adbpad.domain.model.device.DeviceLiveness
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteDeviceControlCommandUseCase
+import jp.kaleidot725.adbpad.domain.usecase.device.CheckDeviceLivenessUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.ConnectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.DisconnectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.GetSelectedDeviceFlowUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.PairDeviceUseCase
+import jp.kaleidot725.adbpad.domain.usecase.device.RestartDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.SelectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.UpdateDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.LaunchScrcpyUseCase
@@ -30,6 +33,8 @@ class TopStateHolder(
     private val connectDeviceUseCase: ConnectDeviceUseCase,
     private val pairDeviceUseCase: PairDeviceUseCase,
     private val disconnectDeviceUseCase: DisconnectDeviceUseCase,
+    private val checkDeviceLivenessUseCase: CheckDeviceLivenessUseCase,
+    private val restartDeviceUseCase: RestartDeviceUseCase,
 ) : PulseStore<TopState, TopAction, TopSideEffect, AppBroadCast, AppUnicast>(TopState()) {
     private var deviceJob: Job? = null
     private var selectedDeviceJob: Job? = null
@@ -44,6 +49,8 @@ class TopStateHolder(
                 is TopAction.ExecuteCommand -> executeCommand(uiAction.command)
                 is TopAction.SelectDevice -> selectDevice(uiAction.device)
                 TopAction.LaunchScrcpy -> launchScrcpy()
+                TopAction.CheckDeviceLiveness -> checkDeviceLiveness()
+                TopAction.RestartDevice -> restartDevice()
                 TopAction.Refresh -> unicast(AppUnicast.Refresh)
                 TopAction.OpenWirelessAdb -> update { copy(showWirelessAdbDialog = true, wirelessAdbStatus = "") }
                 TopAction.CloseWirelessAdb -> update { copy(showWirelessAdbDialog = false, wirelessAdbStatus = "", wirelessAdbLoading = false) }
@@ -125,9 +132,33 @@ class TopStateHolder(
         selectedDeviceJob?.cancel()
         selectedDeviceJob =
             coroutineScope.launch {
-                getSelectedDeviceFlowUseCase().collect {
-                    update { this.copy(selectedDevice = it) }
+                getSelectedDeviceFlowUseCase().collect { device ->
+                    update { copy(selectedDevice = device, deviceLiveness = DeviceLiveness.UNKNOWN) }
+                    if (device != null) checkDeviceLiveness()
                 }
             }
+    }
+
+    private suspend fun checkDeviceLiveness() {
+        val device = currentState.selectedDevice ?: return
+        update { copy(deviceLiveness = DeviceLiveness.CHECKING) }
+        val liveness = checkDeviceLivenessUseCase(device)
+        if (currentState.selectedDevice == device) {
+            update { copy(deviceLiveness = liveness) }
+        }
+    }
+
+    private suspend fun restartDevice() {
+        val device = currentState.selectedDevice ?: return
+        restartDeviceUseCase(device)
+        update { copy(deviceLiveness = DeviceLiveness.CHECKING) }
+        delay(RESTART_RECHECK_DELAY)
+        if (currentState.selectedDevice == device) {
+            checkDeviceLiveness()
+        }
+    }
+
+    companion object {
+        private const val RESTART_RECHECK_DELAY = 15_000L
     }
 }

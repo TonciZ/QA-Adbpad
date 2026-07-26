@@ -231,6 +231,8 @@ object EnglishResources : StringResources {
     override val tooltipHome: String = "Home"
     override val tooltipRecents: String = "Recents"
     override val tooltipWirelessAdb: String = "Wireless ADB"
+    override val tooltipCheckDeviceLiveness: String = "Check if device is responding"
+    override val tooltipRestartDevice: String = "Restart device (adb reboot)"
 
     // Wireless ADB Dialog
     override val wirelessAdbTitle: String = "Wireless ADB"
