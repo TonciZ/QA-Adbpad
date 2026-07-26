@@ -1,51 +1,45 @@
 # <img align="center" width=40 src="https://github.com/kaleidot725/AdbPad/assets/23740796/ab3b08b2-1267-488c-9b14-927325751232"> QA-Adbpad
 
 QA-Adbpad is a GUI tool designed to streamline Android app testing using ADB, forked from
-[kaleidot725/AdbPad](https://github.com/kaleidot725/adbpad) with fixes and features for testing
-against Android TV devices. See [CHANGES.md](CHANGES.md) for what changed from upstream and why.
-It is available for both Windows and macOS.
+[AdbPad](https://github.com/kaleidot725/adbpad) by [kaleidot725](https://github.com/kaleidot725)
+with fixes and features for testing against Android TV devices. See [CHANGES.md](CHANGES.md) for
+what changed from upstream and why.
 
-<img width="1732" height="1072" alt="image" src="https://github.com/user-attachments/assets/086a1a56-50a0-4330-ad7f-c40cb4f39ba7" />
+> [!NOTE]
+> This fork has been built and tested on Windows only. The macOS/Linux build targets from
+> upstream are still configured but unverified here - see [CHANGES.md](CHANGES.md) if you want to
+> pick that up.
+
+<img width="1543" alt="QA-Adbpad command screen with one-click toggle switches for Wi-Fi, Bluetooth, Airplane mode, and other device settings" src="docs/qa-adbpad-toggles.png" />
 
 # ✨ Features
 
-- **Device Management**: View a list of connected Android devices.
+- **Device Management**: View a list of connected Android devices, including Android TV.
 - **ADB Command Execution**: Run ADB shell commands effortlessly.
+- **Toggle Commands**: One-click switches for On/Off device settings (Wi-Fi, Bluetooth, Airplane
+  mode, Dark theme, and more) that reflect the device's actual current state.
 - **Text Input**: Send text input to your Android device.
-- **Screenshots**: Capture screenshots for each theme.
-- **Virtual Display**: Create virtual displays to test on large-screen environments.
-
-https://github.com/user-attachments/assets/71feae28-9d19-4dfc-9424-97ce7d0e2146
+- **Screenshots**: Capture a screenshot with one click, verified working on Android TV.
+- **Wireless ADB**: Connect and pair over Wi-Fi without a terminal.
+- **Log Capture**: Start/stop/save `logcat` output tied to a test session.
+- **Virtual Display**: Create virtual displays to test on large-screen environments (requires
+  Android 14+ on the device).
 
 # ⬇️ Installation
 
-## Via Homebrew (macOS)
-
-```bash
-brew tap kaleidot725/app
-brew install --cask adbpad
-```
-
-## Manual Installation
-
-1. Download the latest installer from the [Releases page](https://github.com/kaleidot725/AdbPad/releases/).
+1. Download the latest installer from the [Releases page](https://github.com/TonciZ/QA-Adbpad/releases/).
 2. Launch the application and configure the ADB path in the **Settings**.
 
-> [!IMPORTANT]
-> **For macOS users:** Since the app is not signed with an Apple Developer account, you may encounter a security warning stating that the developer cannot be verified. To open the app:
->
-> 1. Right-click (or Control-click) the AdbPad icon and select **Open**.
-> 2. In the dialog that appears, click **Open** again.
-> 3. Alternatively, go to **System Settings > Privacy & Security** and click **Open Anyway**.
-
-https://github.com/user-attachments/assets/473a860a-fd54-4f29-9d5f-8f4d6edfaaf7
-
 # 🎫 License
+
+Forked from [AdbPad](https://github.com/kaleidot725/adbpad), originally MIT licensed. This fork
+remains under the same license.
 
 ```
 MIT License
 
-Copyright (c) [2025] [Yusuke Katsuragawa]
+Copyright (c) 2025 Yusuke Katsuragawa
+Modifications Copyright (c) 2026 TonciZ
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
