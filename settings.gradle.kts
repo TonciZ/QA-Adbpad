@@ -19,7 +19,7 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-rootProject.name = "adbpad"
+rootProject.name = "qa-adbpad"
 include(":core:util")
 include(":core:data")
 include(":core:domain")

@@ -26,7 +26,9 @@ data class ScrcpyOptions(
     val audioCodec: AudioCodec? = null,
     val audioSource: AudioSource? = null,
     val audioBuffer: Int? = null,
-    val noAudio: Boolean = false,
+    // ponytail: default off - audio capture needs Android 11+ and crashes scrcpy outright
+    // on older phones and most Android TV boxes.
+    val noAudio: Boolean = true,
     // Display options (matching ScrcpyCommand)
     val displayId: Int? = null,
     val windowTitle: String? = null,

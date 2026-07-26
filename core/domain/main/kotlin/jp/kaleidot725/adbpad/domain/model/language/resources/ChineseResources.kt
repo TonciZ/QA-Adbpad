@@ -1,7 +1,7 @@
 package jp.kaleidot725.adbpad.domain.model.language.resources
 
 object ChineseResources : StringResources {
-    override val windowTitle = "AdbPad"
+    override val windowTitle = "QA-Adbpad"
 
     override val notFoundDevice = "未找到设备"
     override val notFoundCommand = "未找到命令"
@@ -19,6 +19,7 @@ object ChineseResources : StringResources {
     override val tab = "标签"
     override val send = "发送"
     override val cancel = "取消"
+    override val close = "关闭"
     override val open = "打开"
     override val edit = "编辑"
     override val copy = "复制"

@@ -88,13 +88,13 @@ fun WirelessAdbDialog(
                 )
             }
 
+            val portNum = port.toIntOrNull() ?: 5555
+            val hostValid = host.isNotBlank()
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                val portNum = port.toIntOrNull() ?: 5555
-                val hostValid = host.isNotBlank()
-
                 Button(
                     onClick = { onConnect(host, portNum) },
                     enabled = hostValid && !loading,
@@ -110,21 +110,21 @@ fun WirelessAdbDialog(
                 ) {
                     Text(Language.wirelessAdbPair)
                 }
+            }
 
-                OutlinedButton(
-                    onClick = { onDisconnect(host, portNum) },
-                    enabled = hostValid && !loading,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(Language.wirelessAdbDisconnect)
-                }
+            OutlinedButton(
+                onClick = { onDisconnect(host, portNum) },
+                enabled = hostValid && !loading,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(Language.wirelessAdbDisconnect)
             }
 
             OutlinedButton(
                 onClick = onDismiss,
                 modifier = Modifier.align(Alignment.End),
             ) {
-                Text(Language.cancel)
+                Text(Language.close)
             }
         }
     }

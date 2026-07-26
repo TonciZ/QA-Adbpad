@@ -21,6 +21,12 @@ class LaunchScrcpyUseCase(
         val adbSettings = settingRepository.getSdkPath()
         val adbPath = adbSettings.adbDirectory
 
+        // ponytail: kill any orphaned scrcpy-server left on the device from a previous
+        // session that didn't shut down cleanly (e.g. client force-killed) - a stale
+        // server still holding the display/encoder can hang a weak Android TV SoC when
+        // a second capture session starts on top of it.
+        killStaleScrcpyServer(adbPath.ifBlank { "adb" }, device.serial)
+
         val deviceSettings = deviceSettingsRepository.getDeviceSettings(device)
         val scrcpyOptions = deviceSettings.scrcpyOptions
 
@@ -84,6 +90,16 @@ class LaunchScrcpyUseCase(
             is ScrcpyResult.Error -> {
                 false
             }
+        }
+    }
+
+    private fun killStaleScrcpyServer(adbPath: String, serial: String) {
+        try {
+            ProcessBuilder(adbPath, "-s", serial, "shell", "pkill", "-f", "app_process.*scrcpy")
+                .start()
+                .waitFor()
+        } catch (_: Exception) {
+            // best-effort cleanup, ignore if the device doesn't have pkill or nothing to kill
         }
     }
 }

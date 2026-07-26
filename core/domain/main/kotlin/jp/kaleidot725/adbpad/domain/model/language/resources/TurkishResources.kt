@@ -1,7 +1,7 @@
 package jp.kaleidot725.adbpad.domain.model.language.resources
 
 object TurkishResources : StringResources {
-    override val windowTitle = "AdbPad"
+    override val windowTitle = "QA-Adbpad"
 
     override val notFoundDevice = "Cihaz bulunamadı"
     override val notFoundCommand = "Komut bulunamadı"
@@ -19,6 +19,7 @@ object TurkishResources : StringResources {
     override val tab = "Sekme"
     override val send = "Gönder"
     override val cancel = "İptal"
+    override val close = "Kapat"
     override val open = "Aç"
     override val edit = "Düzenle"
     override val copy = "Kopyala"

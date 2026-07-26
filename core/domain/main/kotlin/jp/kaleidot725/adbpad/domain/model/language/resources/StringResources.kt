@@ -18,6 +18,7 @@ interface StringResources {
     val tab: String
     val send: String
     val cancel: String
+    val close: String
     val open: String
     val edit: String
     val copy: String
