@@ -47,10 +47,6 @@ object JapaneseResources : StringResources {
 
     override val textCommandUnTitle: String = "untitle text command"
     override val textCommandTextPlaceholder: String = "送信するテキストを入力"
-    override val screenshotTakeByCurrentTheme = "現在のテーマで撮影する"
-    override val screenshotTakeByDarkTheme = "ダークテーマで撮影する"
-    override val screenshotTakeByLightTheme = "ライトテーマで撮影する"
-    override val screenshotTakeByBothTheme = "両方のテーマで撮影する"
 
     override val textCommandOptionNewLine: String = "送信する(改行キー)"
     override val textCommandOptionTab: String = "送信する(タブキー)"

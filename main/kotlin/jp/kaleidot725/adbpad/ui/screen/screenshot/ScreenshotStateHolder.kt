@@ -1,14 +1,12 @@
 package jp.kaleidot725.adbpad.ui.screen.screenshot
 
 import jp.kaleidot725.adbpad.core.utils.ClipBoardUtils
-import jp.kaleidot725.adbpad.domain.model.command.ScreenshotCommand
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.os.OSContext
 import jp.kaleidot725.adbpad.domain.model.screenshot.Screenshot
 import jp.kaleidot725.adbpad.domain.model.sort.SortType
 import jp.kaleidot725.adbpad.domain.repository.ScreenshotCommandRepository
 import jp.kaleidot725.adbpad.domain.usecase.device.GetSelectedDeviceFlowUseCase
-import jp.kaleidot725.adbpad.domain.usecase.screenshot.GetScreenshotCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.screenshot.RenameScreenshotUseCase
 import jp.kaleidot725.adbpad.domain.usecase.screenshot.TakeScreenshotUseCase
 import jp.kaleidot725.adbpad.ui.container.AppBroadCast
@@ -26,21 +24,12 @@ import java.io.File
 
 class ScreenshotStateHolder(
     private val takeScreenshotUseCase: TakeScreenshotUseCase,
-    private val getScreenshotCommandUseCase: GetScreenshotCommandUseCase,
     private val getSelectedDeviceFlowUseCase: GetSelectedDeviceFlowUseCase,
     private val screenshotCommandRepository: ScreenshotCommandRepository,
     private val renameScreenshotUseCase: RenameScreenshotUseCase,
 ) : PulseStore<ScreenshotState, ScreenshotAction, ScreenshotSideEffect, AppBroadCast, AppUnicast>(initialUiState = ScreenshotState()) {
     override fun onSetup() {
         coroutineScope.launch {
-            val commands = getScreenshotCommandUseCase()
-            update {
-                copy(
-                    selectedCommand = commands.first(),
-                    commands = commands,
-                )
-            }
-
             initPreviews()
         }
 
@@ -54,7 +43,7 @@ class ScreenshotStateHolder(
     override fun onAction(uiAction: ScreenshotAction) {
         coroutineScope.launch {
             when (uiAction) {
-                is ScreenshotAction.TakeScreenshot -> takeScreenShot(uiAction.command)
+                ScreenshotAction.TakeScreenshot -> takeScreenShot()
                 ScreenshotAction.OpenDirectory -> openDirectory()
                 ScreenshotAction.CopyScreenshotToClipboard -> copyScreenShotToClipboard()
                 ScreenshotAction.DeleteScreenshotToClipboard -> deleteScreenShotToClipboard()
@@ -65,7 +54,6 @@ class ScreenshotStateHolder(
                 ScreenshotAction.NextScreenshot -> nextScreenshot()
                 ScreenshotAction.PreviousScreenshot -> previousScreenshot()
                 is ScreenshotAction.UpdateSearchText -> updateSearchText(uiAction.text)
-                is ScreenshotAction.SelectScreenshotCommand -> selectScreenshotCommand(uiAction.command)
                 is ScreenshotAction.UpdateSortType -> updateSortType(uiAction.sortType)
                 ScreenshotAction.DismissError -> update { copy(errorMessage = null) }
             }
@@ -75,17 +63,7 @@ class ScreenshotStateHolder(
     override fun onReceive(broadcast: AppBroadCast) {
         when (broadcast) {
             AppBroadCast.Refresh -> {
-                coroutineScope.launch {
-                    val commands = getScreenshotCommandUseCase()
-                    update {
-                        copy(
-                            selectedCommand = commands.first(),
-                            commands = commands,
-                        )
-                    }
-
-                    initPreviews()
-                }
+                coroutineScope.launch { initPreviews() }
             }
         }
     }
@@ -174,33 +152,17 @@ class ScreenshotStateHolder(
         }
     }
 
-    private suspend fun takeScreenShot(command: ScreenshotCommand) {
+    private suspend fun takeScreenShot() {
         val selectedDevice = state.value.selectedDevice ?: return
         takeScreenshotUseCase(
             device = selectedDevice,
-            command = command,
             onStart = {
-                val commands = getScreenshotCommandUseCase()
-                update {
-                    copy(
-                        commands = commands,
-                        preview = Screenshot.EMPTY,
-                        isCapturing = true,
-                    )
-                }
+                update { copy(preview = Screenshot.EMPTY, isCapturing = true) }
             },
             onFailed = {
-                val commands = getScreenshotCommandUseCase()
-                update {
-                    copy(
-                        commands = commands,
-                        preview = Screenshot.EMPTY,
-                        isCapturing = false,
-                    )
-                }
+                update { copy(preview = Screenshot.EMPTY, isCapturing = false) }
             },
             onComplete = {
-                val commands = getScreenshotCommandUseCase()
                 val screenshots =
                     screenshotCommandRepository.getScreenshots(
                         currentState.searchText,
@@ -208,7 +170,6 @@ class ScreenshotStateHolder(
                     )
                 update {
                     copy(
-                        commands = commands,
                         preview = it,
                         previews = screenshots,
                         isCapturing = false,
@@ -310,14 +271,6 @@ class ScreenshotStateHolder(
             this.copy(
                 previews = screenshots,
                 preview = screenshot,
-            )
-        }
-    }
-
-    private fun selectScreenshotCommand(command: ScreenshotCommand) {
-        update {
-            this.copy(
-                selectedCommand = command,
             )
         }
     }

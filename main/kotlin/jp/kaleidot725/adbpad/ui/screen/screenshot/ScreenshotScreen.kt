@@ -13,7 +13,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import jp.kaleidot725.adbpad.domain.model.command.ScreenshotCommand
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.screenshot.Screenshot
 import jp.kaleidot725.adbpad.domain.model.sort.SortType
@@ -45,8 +44,6 @@ fun ScreenshotScreen(
         screenshots = state.previews,
         canCapture = state.canExecute,
         isCapturing = state.isCapturing,
-        selectCommand = state.selectedCommand,
-        commands = state.commands,
         searchText = state.searchText,
         sortType = state.sortType,
         onOpenDirectory = {
@@ -64,8 +61,8 @@ fun ScreenshotScreen(
         onDeleteSpecificScreenshot = { screenshot ->
             onAction(ScreenshotAction.DeleteScreenshot(screenshot))
         },
-        onTakeScreenshot = { screenshot ->
-            onAction(ScreenshotAction.TakeScreenshot(screenshot))
+        onTakeScreenshot = {
+            onAction(ScreenshotAction.TakeScreenshot)
         },
         onSelectScreenshot = { screenshot ->
             onAction(ScreenshotAction.SelectScreenshot(screenshot))
@@ -78,9 +75,6 @@ fun ScreenshotScreen(
         },
         onUpdateSearchText = {
             onAction(ScreenshotAction.UpdateSearchText(it))
-        },
-        onSelectCommand = {
-            onAction(ScreenshotAction.SelectScreenshotCommand(it))
         },
         onUpdateSortType = {
             onAction(ScreenshotAction.UpdateSortType(it))
@@ -102,8 +96,6 @@ private fun ScreenshotScreen(
     screenshots: List<Screenshot>,
     canCapture: Boolean,
     isCapturing: Boolean,
-    selectCommand: ScreenshotCommand,
-    commands: List<ScreenshotCommand>,
     searchText: String,
     sortType: SortType,
     onOpenDirectory: () -> Unit,
@@ -111,8 +103,7 @@ private fun ScreenshotScreen(
     onCopyScreenshot: () -> Unit,
     onDeleteScreenshot: () -> Unit,
     onDeleteSpecificScreenshot: (Screenshot) -> Unit,
-    onSelectCommand: (ScreenshotCommand) -> Unit,
-    onTakeScreenshot: (ScreenshotCommand) -> Unit,
+    onTakeScreenshot: () -> Unit,
     onSelectScreenshot: (Screenshot) -> Unit,
     onNextScreenshot: () -> Unit,
     onPreviousScreenshot: () -> Unit,
@@ -132,9 +123,6 @@ private fun ScreenshotScreen(
                     sortType = sortType,
                     onUpdateSortType = onUpdateSortType,
                     onUpdateSearchText = onUpdateSearchText,
-                    selectedCommand = selectCommand,
-                    onSelectCommand = onSelectCommand,
-                    commands = commands,
                     canCapture = canCapture,
                     isCapturing = isCapturing,
                     onTakeScreenshot = onTakeScreenshot,
@@ -205,8 +193,6 @@ private fun ScreenshotScreen_Preview() {
         screenshots = emptyList(),
         canCapture = true,
         isCapturing = false,
-        selectCommand = ScreenshotCommand.Both,
-        commands = emptyList(),
         searchText = "",
         sortType = SortType.SORT_BY_NAME_ASC,
         onOpenDirectory = {},
@@ -219,7 +205,6 @@ private fun ScreenshotScreen_Preview() {
         onNextScreenshot = {},
         onPreviousScreenshot = {},
         onUpdateSearchText = {},
-        onSelectCommand = {},
         onUpdateSortType = {},
         onRenameScreenshot = { _, _ -> },
         errorMessage = null,

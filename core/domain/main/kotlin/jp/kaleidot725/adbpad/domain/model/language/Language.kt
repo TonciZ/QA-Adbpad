@@ -93,14 +93,6 @@ object Language : StringResources {
         get() = getCurrentResources().textCommandUnTitle
     override val textCommandTextPlaceholder: String
         get() = getCurrentResources().textCommandTextPlaceholder
-    override val screenshotTakeByCurrentTheme: String
-        get() = getCurrentResources().screenshotTakeByCurrentTheme
-    override val screenshotTakeByDarkTheme: String
-        get() = getCurrentResources().screenshotTakeByDarkTheme
-    override val screenshotTakeByLightTheme: String
-        get() = getCurrentResources().screenshotTakeByLightTheme
-    override val screenshotTakeByBothTheme: String
-        get() = getCurrentResources().screenshotTakeByBothTheme
     override val commandStartEventFormat: String
         get() = getCurrentResources().commandStartEventFormat
     override val commandEndEventFormat: String

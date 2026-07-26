@@ -48,10 +48,6 @@ object TurkishResources : StringResources {
     override val textCommandUnTitle: String = "başlıksız metin komutu"
     override val textCommandTextPlaceholder: String = "Gönderilecek metni gir"
 
-    override val screenshotTakeByCurrentTheme = "Mevcut tema ile al"
-    override val screenshotTakeByDarkTheme = "Koyu tema ile al"
-    override val screenshotTakeByLightTheme = "Açık tema ile al"
-    override val screenshotTakeByBothTheme = "Her iki tema ile al"
 
     override val textCommandOptionNewLine: String = "Yeni satır tuşu ile gönder"
     override val textCommandOptionTab: String = "Sekme tuşu ile gönder"

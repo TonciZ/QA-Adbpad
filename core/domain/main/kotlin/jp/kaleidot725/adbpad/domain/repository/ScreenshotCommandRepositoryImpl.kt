@@ -1,11 +1,11 @@
 package jp.kaleidot725.adbpad.domain.repository
 
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
+import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
-import jp.kaleidot725.adbpad.domain.model.command.NormalCommand
-import jp.kaleidot725.adbpad.domain.model.command.ScreenshotCommand
+import com.malinskiy.adam.request.sync.PullRequest
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.os.OSContext
 import jp.kaleidot725.adbpad.domain.model.screenshot.Screenshot
@@ -15,31 +15,19 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import java.awt.image.BufferedImage
 import java.io.File
-import java.io.IOException
 import java.util.Date
 import javax.imageio.ImageIO
-import kotlin.math.max
 
 class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
-    private val adbClient = AndroidDebugBridgeClientFactory().build()
+    private val adb = AndroidDebugBridgeClientFactory().build()
 
     init {
         createDirectory()
     }
 
-    override fun getCommands(): List<ScreenshotCommand> =
-        listOf(
-            ScreenshotCommand.Both,
-            ScreenshotCommand.Current,
-            ScreenshotCommand.Light,
-            ScreenshotCommand.Dark,
-        )
-
     override suspend fun captureScreenshot(
         device: Device,
-        command: ScreenshotCommand,
         onStart: suspend () -> Unit,
         onComplete: suspend (Screenshot) -> Unit,
         onFailed: suspend () -> Unit,
@@ -47,18 +35,7 @@ class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
         val date = Date()
         withContext(Dispatchers.IO) {
             onStart()
-
-            val result =
-                when (command) {
-                    is ScreenshotCommand.Both -> sendBothCommand(device, date)
-                    is ScreenshotCommand.Light -> sendLightCommand(device, date)
-                    is ScreenshotCommand.Dark -> sendDarkCommand(device, date)
-                    is ScreenshotCommand.Current -> sendCurrentCommand(device, date)
-                    else -> false
-                }
-
-            delay(300)
-
+            val result = capture(device, getFileResult(date.time))
             if (result) onComplete(Screenshot(getFileResult(date.time))) else onFailed()
         }
     }
@@ -107,65 +84,12 @@ class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
         }
     }
 
-    private suspend fun sendBothCommand(
-        device: Device,
-        date: Date,
-    ): Boolean {
-        if (!sendCommand(device, NormalCommand.DarkThemeOn())) {
-            return false
-        }
-
-        if (!capture(device, getFileA())) {
-            return false
-        }
-
-        if (!sendCommand(device, NormalCommand.DarkThemeOff())) {
-            return false
-        }
-
-        if (!capture(device, getFileB())) {
-            return false
-        }
-
-        return concat(getFileA(), getFileB(), getFileResult(date.time))
-    }
-
-    private suspend fun sendDarkCommand(
-        device: Device,
-        date: Date,
-    ): Boolean {
-        if (!sendCommand(device, NormalCommand.DarkThemeOn())) {
-            return false
-        }
-
-        return capture(device, getFileResult(date.time))
-    }
-
-    private suspend fun sendLightCommand(
-        device: Device,
-        date: Date,
-    ): Boolean {
-        if (!sendCommand(device, NormalCommand.DarkThemeOff())) {
-            return false
-        }
-
-        return capture(device, getFileResult(date.time))
-    }
-
-    private suspend fun sendCurrentCommand(
-        device: Device,
-        date: Date,
-    ): Boolean = capture(device, getFileResult(date.time))
-
     private suspend fun capture(
         device: Device,
         file: File,
-        delay: Long = DEFAULT_DELAY,
     ): Boolean {
-        delay(delay)
         return try {
             withTimeout(CAPTURE_TIMEOUT) {
-                val adb = AndroidDebugBridgeClientFactory().build()
                 val adapter = RawImageScreenCaptureAdapter()
                 val image = adb.execute(request = ScreenCaptureRequest(adapter), serial = device.serial).toBufferedImage()
                 ImageIO.write(image, EXTENSION_NAME, file)
@@ -181,18 +105,11 @@ class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
     ): Boolean {
         return try {
             withTimeout(CAPTURE_TIMEOUT) {
-                val adb = AndroidDebugBridgeClientFactory().build()
                 val remotePath = "/data/local/tmp/adbpad_screenshot.png"
                 val result = adb.execute(ShellCommandRequest("screencap -p $remotePath"), device.serial)
                 if (result.exitCode != 0) return@withTimeout false
-                val supportedFeatures = adb.execute(
-                    com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest(device.serial),
-                    device.serial,
-                )
-                val pulled = adb.execute(
-                    com.malinskiy.adam.request.sync.PullRequest(remotePath, file, supportedFeatures),
-                    device.serial,
-                )
+                val supportedFeatures = adb.execute(FetchDeviceFeaturesRequest(device.serial), device.serial)
+                val pulled = adb.execute(PullRequest(remotePath, file, supportedFeatures), device.serial)
                 adb.execute(ShellCommandRequest("rm -f $remotePath"), device.serial)
                 pulled && file.exists() && file.length() > 0
             }
@@ -201,59 +118,10 @@ class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
         }
     }
 
-    private fun concat(
-        fileA: File,
-        fileB: File,
-        outputFile: File,
-    ): Boolean =
-        try {
-            val inputA = ImageIO.read(fileA)
-            val inputB = ImageIO.read(fileB)
-            val totalWidth = inputA.width + inputB.width
-            val maxHeight = max(inputA.height, inputB.height)
-            val output = BufferedImage(totalWidth, maxHeight, BufferedImage.TYPE_INT_ARGB)
-
-            output.graphics.drawImage(inputA, 0, 0, null)
-            output.graphics.drawImage(inputB, inputA.width, 0, null)
-            ImageIO.write(output, "PNG", outputFile)
-
-            fileA.delete()
-            fileB.delete()
-
-            true
-        } catch (e: IOException) {
-            false
-        }
-
-    private suspend fun sendCommand(
-        device: Device,
-        command: NormalCommand,
-    ): Boolean {
-        return try {
-            withTimeout(COMMAND_TIMEOUT) {
-                withContext(Dispatchers.IO) {
-                    command.requests.forEach { request ->
-                        val result = adbClient.execute(request, device.serial)
-                        if (result.exitCode != 0) {
-                            return@withContext false
-                        }
-                    }
-                    return@withContext true
-                }
-            }
-        } catch (e: TimeoutCancellationException) {
-            false
-        }
-    }
-
     companion object {
-        private const val FILE_NAME_A = "screenshotA.png"
-        private const val FILE_NAME_B = "screenshotB.png"
         private const val FILE_NAME_RESULT = "Screenshot"
         private const val EXTENSION_NAME = "png"
-        private const val DEFAULT_DELAY = 500L
         private const val CAPTURE_TIMEOUT = 10_000L
-        private const val COMMAND_TIMEOUT = 5_000L
 
         private fun createDirectory() {
             getDirectory().mkdir()
@@ -262,16 +130,6 @@ class ScreenshotCommandRepositoryImpl : ScreenshotCommandRepository {
         private fun getDirectory(): File {
             val osContext = OSContext.resolveOSContext()
             return File(osContext.screenshotDirectory)
-        }
-
-        private fun getFileA(): File {
-            val osContext = OSContext.resolveOSContext()
-            return File(osContext.screenshotDirectory + FILE_NAME_A)
-        }
-
-        private fun getFileB(): File {
-            val osContext = OSContext.resolveOSContext()
-            return File(osContext.screenshotDirectory + FILE_NAME_B)
         }
 
         private fun getFileResult(time: Long): File {

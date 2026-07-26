@@ -46,10 +46,6 @@ interface StringResources {
 
     val textCommandUnTitle: String
     val textCommandTextPlaceholder: String
-    val screenshotTakeByCurrentTheme: String
-    val screenshotTakeByDarkTheme: String
-    val screenshotTakeByLightTheme: String
-    val screenshotTakeByBothTheme: String
 
     val commandStartEventFormat: String
     val commandEndEventFormat: String
