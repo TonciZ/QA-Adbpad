@@ -442,6 +442,10 @@ object Language : StringResources {
         get() = getCurrentResources().tooltipRecents
     override val tooltipWirelessAdb: String
         get() = getCurrentResources().tooltipWirelessAdb
+    override val tooltipCheckDeviceLiveness: String
+        get() = getCurrentResources().tooltipCheckDeviceLiveness
+    override val tooltipRestartDevice: String
+        get() = getCurrentResources().tooltipRestartDevice
 
     // Wireless ADB Dialog
     override val wirelessAdbTitle: String

@@ -230,6 +230,8 @@ object JapaneseResources : StringResources {
     override val tooltipHome: String = "ホーム"
     override val tooltipRecents: String = "最近のアプリ"
     override val tooltipWirelessAdb: String = "ワイヤレスADB"
+    override val tooltipCheckDeviceLiveness: String = "デバイスの応答を確認"
+    override val tooltipRestartDevice: String = "デバイスを再起動 (adb reboot)"
 
     // Wireless ADB Dialog
     override val wirelessAdbTitle: String = "ワイヤレスADB"

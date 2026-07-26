@@ -15,6 +15,8 @@ import jp.kaleidot725.adbpad.domain.usecase.device.ConnectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.DisconnectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.GetSelectedDeviceFlowUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.PairDeviceUseCase
+import jp.kaleidot725.adbpad.domain.usecase.device.CheckDeviceLivenessUseCase
+import jp.kaleidot725.adbpad.domain.usecase.device.RestartDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.SelectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.UpdateDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.language.GetLanguageUseCase
@@ -64,6 +66,12 @@ val domainModule =
         }
         factory {
             SelectDeviceUseCase(get())
+        }
+        factory {
+            CheckDeviceLivenessUseCase(get())
+        }
+        factory {
+            RestartDeviceUseCase(get())
         }
         factory {
             AddTextCommandUseCase(get())

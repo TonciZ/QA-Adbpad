@@ -231,6 +231,8 @@ object ChineseResources : StringResources {
     override val tooltipHome: String = "主页"
     override val tooltipRecents: String = "最近任务"
     override val tooltipWirelessAdb: String = "无线ADB"
+    override val tooltipCheckDeviceLiveness: String = "检查设备是否响应"
+    override val tooltipRestartDevice: String = "重启设备 (adb reboot)"
 
     // Wireless ADB Dialog
     override val wirelessAdbTitle: String = "无线ADB"

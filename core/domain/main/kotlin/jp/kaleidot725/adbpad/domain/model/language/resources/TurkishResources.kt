@@ -231,6 +231,8 @@ object TurkishResources : StringResources {
     override val tooltipHome: String = "Ana Ekran"
     override val tooltipRecents: String = "Son Uygulamalar"
     override val tooltipWirelessAdb: String = "Kablosuz ADB"
+    override val tooltipCheckDeviceLiveness: String = "Cihazin yanit verip vermedigini kontrol et"
+    override val tooltipRestartDevice: String = "Cihazi yeniden baslat (adb reboot)"
 
     // Wireless ADB Dialog
     override val wirelessAdbTitle: String = "Kablosuz ADB"
