@@ -328,6 +328,14 @@ object JapaneseResources : StringResources {
     // Setting Categories
     override val categoryAppearance: String = "外観"
     override val categorySDK: String = "SDK"
+    override val categoryUpdates: String = "アップデート"
+    override val settingCurrentVersionFormat: String = "現在のバージョン: %s"
+    override val settingCheckForUpdates: String = "アップデートを確認"
+    override val settingCheckingForUpdate: String = "確認中..."
+    override val settingUpToDateFormat: String = "最新バージョンです (%s)"
+    override val settingUpdateAvailableFormat: String = "新しいバージョンがあります: %s"
+    override val settingDownloadAndInstallFormat: String = "%s をダウンロードしてインストール"
+    override val settingUpdateDownloadFailed: String = "ダウンロードに失敗しました - もう一度お試しください"
 
     // Device Setting Categories
     override val categoryDevice: String = "デバイス"

@@ -3,6 +3,8 @@ package jp.kaleidot725.adbpad.ui.screen.setting.state
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.setting.AccentColor
 import jp.kaleidot725.adbpad.domain.model.setting.Appearance
+import jp.kaleidot725.adbpad.domain.model.update.AppVersion
+import jp.kaleidot725.adbpad.domain.model.update.UpdateInfo
 import jp.kaleidot725.adbpad.ui.screen.setting.model.ScrcpyTierFieldsInput
 import jp.kaleidot725.adbpad.ui.screen.setting.model.SettingCategory
 import jp.kaleidot725.pulse.mvi.PulseState
@@ -10,6 +12,11 @@ import jp.kaleidot725.pulse.mvi.PulseState
 data class SettingState(
     val initialized: Boolean = false,
     val selectedCategory: SettingCategory = SettingCategory.APPEARANCE,
+    val appVersion: String = AppVersion.CURRENT,
+    val isCheckingForUpdate: Boolean = false,
+    val updateCheckMessage: String = "",
+    val availableUpdate: UpdateInfo? = null,
+    val isInstallingUpdate: Boolean = false,
     val languages: List<Language.Type> = Language.Type.entries,
     val selectedLanguage: Language.Type = Language.Type.ENGLISH,
     val appearance: Appearance = Appearance.DARK,

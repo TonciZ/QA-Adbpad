@@ -328,6 +328,14 @@ object EnglishResources : StringResources {
     // Setting Categories
     override val categoryAppearance: String = "Appearance"
     override val categorySDK: String = "SDK"
+    override val categoryUpdates: String = "Updates"
+    override val settingCurrentVersionFormat: String = "Current version: %s"
+    override val settingCheckForUpdates: String = "Check for Updates"
+    override val settingCheckingForUpdate: String = "Checking for updates..."
+    override val settingUpToDateFormat: String = "You're up to date (%s)"
+    override val settingUpdateAvailableFormat: String = "Update available: %s"
+    override val settingDownloadAndInstallFormat: String = "Download & Install %s"
+    override val settingUpdateDownloadFailed: String = "Download failed - try again"
 
     // Device Setting Categories
     override val categoryDevice: String = "Device"

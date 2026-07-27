@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.awt.FileDialog
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -74,14 +75,25 @@ class LogCaptureRepositoryImpl(
 
         if (capturedLines.isEmpty()) return null
 
+        val content = capturedLines.joinToString("\n")
+        capturedLines.clear()
+
+        // ponytail: was a fixed OSContext path before - now asks where to save every time,
+        // like any normal "Save As" dialog, defaulting to the same folder as a starting point.
         val osContext = OSContext.resolveOSContext()
         val logDir = File(osContext.directory + "logs/")
         logDir.mkdirs()
 
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
-        val file = File(logDir, "logcat_$timestamp.txt")
-        file.writeText(capturedLines.joinToString("\n"))
-        capturedLines.clear()
+        val dialog = FileDialog(null as java.awt.Frame?, "Save Log As", FileDialog.SAVE)
+        dialog.directory = logDir.absolutePath
+        dialog.file = "logcat_$timestamp.txt"
+        dialog.isVisible = true
+
+        val chosenDir = dialog.directory ?: return null
+        val chosenFile = dialog.file ?: return null
+        val file = File(chosenDir, chosenFile)
+        file.writeText(content)
         return file
     }
 }

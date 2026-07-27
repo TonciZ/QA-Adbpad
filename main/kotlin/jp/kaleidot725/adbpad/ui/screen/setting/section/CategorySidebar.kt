@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -87,6 +88,7 @@ private fun CategoryItem(
                 when (category) {
                     SettingCategory.APPEARANCE -> Icons.Default.Palette
                     SettingCategory.SDK -> Icons.Default.Settings
+                    SettingCategory.UPDATES -> Icons.Default.Update
                 },
             contentDescription = category.displayName,
             tint = textColor,

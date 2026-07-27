@@ -75,6 +75,8 @@ val stateHolderModule =
                 saveAccentColorUseCase = get(),
                 getScrcpyTierPresetsUseCase = get(),
                 saveScrcpyTierPresetsUseCase = get(),
+                checkForUpdateUseCase = get(),
+                downloadAndInstallUpdateUseCase = get(),
             )
         }
 
