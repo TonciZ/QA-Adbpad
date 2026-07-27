@@ -1,5 +1,6 @@
 package jp.kaleidot725.adbpad.data.local
 
+import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierPresets
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.setting.AccentColor
 import jp.kaleidot725.adbpad.domain.model.setting.Appearance
@@ -41,5 +42,6 @@ object SettingFileCreator {
         val windowSize: WindowSize = WindowSize.DEFAULT,
         val scrcpySettings: ScrcpySettings = ScrcpySettings(),
         val accentColor: AccentColor = AccentColor.BLUE,
+        val scrcpyTierPresets: ScrcpyTierPresets = ScrcpyTierPresets(),
     )
 }

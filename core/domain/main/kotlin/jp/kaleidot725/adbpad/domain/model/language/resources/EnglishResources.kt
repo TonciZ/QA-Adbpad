@@ -213,6 +213,17 @@ object EnglishResources : StringResources {
 
     override val settingScrcpyHeader = "Scrcpy"
     override val settingScrcpyBinaryPathTitle = "Binary Path"
+    override val settingScrcpyTierPresetsHeader = "Scrcpy Quality Presets"
+    override val settingScrcpyTierLow = "Low-end"
+    override val settingScrcpyTierMedium = "Mid-range"
+    override val settingScrcpyTierHigh = "High-end"
+    override val settingScrcpyTierMaxSize = "Max size"
+    override val settingScrcpyTierMaxSizeNative = "Native"
+    override val settingScrcpyTierBitRate = "Bit rate"
+    override val settingScrcpyTierFps = "Max FPS"
+    override val scrcpyTierDialogTitle = "Mirror quality"
+    override val scrcpyTierDialogSubtitle = "Pick a preset matching the device's hardware to avoid overloading a weak encoder."
+    override val scrcpyTierDialogSkip = "Use saved device settings"
 
     override val adbErrorTitle = "Adb Error"
     override val adbErrorMessage = "Can't start adb server, Please change adb setting."

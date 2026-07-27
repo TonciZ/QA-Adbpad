@@ -66,6 +66,7 @@ import jp.kaleidot725.adbpad.ui.common.resource.clickableBackground
 import jp.kaleidot725.adbpad.ui.component.button.CommandIconButton
 import jp.kaleidot725.adbpad.ui.section.top.component.DeviceStatusDot
 import jp.kaleidot725.adbpad.ui.section.top.component.DropDownDeviceMenu
+import jp.kaleidot725.adbpad.ui.section.top.component.ScrcpyTierDialog
 import jp.kaleidot725.adbpad.ui.section.top.component.WirelessAdbDialog
 import jp.kaleidot725.adbpad.ui.section.top.state.TopAction
 import jp.kaleidot725.adbpad.ui.section.top.state.TopState
@@ -86,6 +87,18 @@ fun TopSection(
             onPair = { host, port, code -> onTopAction(TopAction.PairWirelessAdb(host, port, code)) },
             onDisconnect = { host, port -> onTopAction(TopAction.DisconnectWirelessAdb(host, port)) },
             onDismiss = { onTopAction(TopAction.CloseWirelessAdb) },
+        )
+    }
+
+    if (topState.showScrcpyTierDialog) {
+        ScrcpyTierDialog(
+            presets = topState.scrcpyTierPresets,
+            onSelectTier = { onTopAction(TopAction.LaunchScrcpyWithTier(it)) },
+            onSkip = {
+                onTopAction(TopAction.CloseScrcpyTierDialog)
+                onTopAction(TopAction.LaunchScrcpy)
+            },
+            onDismiss = { onTopAction(TopAction.CloseScrcpyTierDialog) },
         )
     }
 
@@ -125,7 +138,7 @@ fun TopSection(
                 TopSectionIconButton(
                     tooltip = Language.tooltipScrcpy,
                     icon = Lucide.ScreenShare,
-                    onClick = { onTopAction(TopAction.LaunchScrcpy) },
+                    onClick = { onTopAction(TopAction.OpenScrcpyTierDialog) },
                 )
 
                 TopSectionIconButton(

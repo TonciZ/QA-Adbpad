@@ -213,6 +213,17 @@ object TurkishResources : StringResources {
 
     override val settingScrcpyHeader = "Scrcpy"
     override val settingScrcpyBinaryPathTitle = "Yürütülebilir Dosya Yolu"
+    override val settingScrcpyTierPresetsHeader = "Scrcpy Kalite On Ayarlari"
+    override val settingScrcpyTierLow = "Dusuk seviye"
+    override val settingScrcpyTierMedium = "Orta seviye"
+    override val settingScrcpyTierHigh = "Yuksek seviye"
+    override val settingScrcpyTierMaxSize = "Maks boyut"
+    override val settingScrcpyTierMaxSizeNative = "Yerel"
+    override val settingScrcpyTierBitRate = "Bit hizi"
+    override val settingScrcpyTierFps = "Maks FPS"
+    override val scrcpyTierDialogTitle = "Yansitma kalitesi"
+    override val scrcpyTierDialogSubtitle = "Zayif bir kodlayiciyi asiri yuklememek icin cihazin donanimina uygun bir on ayar secin."
+    override val scrcpyTierDialogSkip = "Kayitli cihaz ayarlarini kullan"
 
     override val adbErrorTitle = "Adb Hatası"
     override val adbErrorMessage = "Adb sunucusu başlatılamıyor, lütfen adb ayarlarını değiştirin."

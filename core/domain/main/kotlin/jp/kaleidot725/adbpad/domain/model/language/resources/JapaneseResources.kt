@@ -215,6 +215,17 @@ object JapaneseResources : StringResources {
 
     override val settingScrcpyHeader = "Scrcpy"
     override val settingScrcpyBinaryPathTitle = "バイナリパス"
+    override val settingScrcpyTierPresetsHeader = "Scrcpy 画質プリセット"
+    override val settingScrcpyTierLow = "低スペック"
+    override val settingScrcpyTierMedium = "中スペック"
+    override val settingScrcpyTierHigh = "高スペック"
+    override val settingScrcpyTierMaxSize = "最大サイズ"
+    override val settingScrcpyTierMaxSizeNative = "ネイティブ"
+    override val settingScrcpyTierBitRate = "ビットレート"
+    override val settingScrcpyTierFps = "最大FPS"
+    override val scrcpyTierDialogTitle = "ミラー品質"
+    override val scrcpyTierDialogSubtitle = "デバイスのハードウェアに合ったプリセットを選び、非力なエンコーダーへの負荷を避けます。"
+    override val scrcpyTierDialogSkip = "保存済みのデバイス設定を使う"
 
     override val adbErrorTitle = "ADBエラー"
     override val adbErrorMessage = "ADBサーバーを開始できませんでした、ADBの設定を変更してください"
