@@ -4,6 +4,7 @@ import jp.kaleidot725.pulse.mvi.PulseState
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.setting.AccentColor
 import jp.kaleidot725.adbpad.domain.model.setting.Appearance
+import jp.kaleidot725.adbpad.ui.screen.setting.model.ScrcpyTierFieldsInput
 import jp.kaleidot725.adbpad.ui.screen.setting.model.SettingCategory
 
 data class SettingState(
@@ -16,15 +17,19 @@ data class SettingState(
     val adbDirectoryPath: String = "",
     val adbPortNumber: String = "",
     val scrcpyBinaryPath: String = "",
+    val lowTierPreset: ScrcpyTierFieldsInput = ScrcpyTierFieldsInput(),
+    val mediumTierPreset: ScrcpyTierFieldsInput = ScrcpyTierFieldsInput(),
+    val highTierPreset: ScrcpyTierFieldsInput = ScrcpyTierFieldsInput(),
     val isSaving: Boolean = false,
 ) : PulseState {
     val isValidAdbDirectoryPath: Boolean = adbDirectoryPath.isNotEmpty()
     val isValidAdbPortNumber: Boolean = adbPortNumber.toIntOrNull() != null
     val isValidScrcpyBinaryPath: Boolean = true
+    val isValidTierPresets: Boolean = lowTierPreset.isValid && mediumTierPreset.isValid && highTierPreset.isValid
 
     val canSave: Boolean
         get() {
-            return isValidAdbDirectoryPath && isValidAdbPortNumber && isValidScrcpyBinaryPath && !isSaving
+            return isValidAdbDirectoryPath && isValidAdbPortNumber && isValidScrcpyBinaryPath && isValidTierPresets && !isSaving
         }
 
     val canCancel: Boolean

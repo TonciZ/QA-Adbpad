@@ -1,10 +1,17 @@
 package jp.kaleidot725.adbpad.ui.screen.setting.state
 
 import jp.kaleidot725.pulse.mvi.PulseAction
+import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierLevel
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.setting.AccentColor
 import jp.kaleidot725.adbpad.domain.model.setting.Appearance
 import jp.kaleidot725.adbpad.ui.screen.setting.model.SettingCategory
+
+enum class ScrcpyTierField {
+    MAX_SIZE,
+    VIDEO_BIT_RATE,
+    MAX_FPS,
+}
 
 sealed class SettingAction : PulseAction {
     data object Save : SettingAction()
@@ -37,5 +44,11 @@ sealed class SettingAction : PulseAction {
 
     data class UpdateAccentColor(
         val value: AccentColor,
+    ) : SettingAction()
+
+    data class UpdateScrcpyTierPresetField(
+        val level: ScrcpyTierLevel,
+        val field: ScrcpyTierField,
+        val value: String,
     ) : SettingAction()
 }

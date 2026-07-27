@@ -3,6 +3,7 @@ package jp.kaleidot725.adbpad.ui.section.top
 import jp.kaleidot725.adbpad.domain.model.command.DeviceControlCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.device.DeviceLiveness
+import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierLevel
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteDeviceControlCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.CheckDeviceLivenessUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.ConnectDeviceUseCase
@@ -12,6 +13,7 @@ import jp.kaleidot725.adbpad.domain.usecase.device.PairDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.RestartDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.SelectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.UpdateDevicesUseCase
+import jp.kaleidot725.adbpad.domain.usecase.scrcpy.GetScrcpyTierPresetsUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.LaunchScrcpyUseCase
 import jp.kaleidot725.adbpad.ui.container.AppBroadCast
 import jp.kaleidot725.adbpad.ui.container.AppUnicast
@@ -35,12 +37,17 @@ class TopStateHolder(
     private val disconnectDeviceUseCase: DisconnectDeviceUseCase,
     private val checkDeviceLivenessUseCase: CheckDeviceLivenessUseCase,
     private val restartDeviceUseCase: RestartDeviceUseCase,
+    private val getScrcpyTierPresetsUseCase: GetScrcpyTierPresetsUseCase,
 ) : PulseStore<TopState, TopAction, TopSideEffect, AppBroadCast, AppUnicast>(TopState()) {
     private var deviceJob: Job? = null
     private var selectedDeviceJob: Job? = null
 
     override fun onSetup() {
         collectDevices()
+        coroutineScope.launch {
+            val presets = getScrcpyTierPresetsUseCase()
+            update { copy(scrcpyTierPresets = presets) }
+        }
     }
 
     override fun onAction(uiAction: TopAction) {
@@ -49,6 +56,9 @@ class TopStateHolder(
                 is TopAction.ExecuteCommand -> executeCommand(uiAction.command)
                 is TopAction.SelectDevice -> selectDevice(uiAction.device)
                 TopAction.LaunchScrcpy -> launchScrcpy()
+                TopAction.OpenScrcpyTierDialog -> update { copy(showScrcpyTierDialog = true) }
+                TopAction.CloseScrcpyTierDialog -> update { copy(showScrcpyTierDialog = false) }
+                is TopAction.LaunchScrcpyWithTier -> launchScrcpyWithTier(uiAction.level)
                 TopAction.CheckDeviceLiveness -> checkDeviceLiveness()
                 TopAction.RestartDevice -> restartDevice()
                 TopAction.Refresh -> unicast(AppUnicast.Refresh)
@@ -83,6 +93,16 @@ class TopStateHolder(
         val device = currentState.selectedDevice ?: return
         try {
             launchScrcpyUseCase(device)
+        } catch (e: Exception) {
+            println("Failed to launch Scrcpy: ${e.message}")
+        }
+    }
+
+    private suspend fun launchScrcpyWithTier(level: ScrcpyTierLevel) {
+        val device = currentState.selectedDevice ?: return
+        update { copy(showScrcpyTierDialog = false) }
+        try {
+            launchScrcpyUseCase(device, currentState.scrcpyTierPresets.get(level))
         } catch (e: Exception) {
             println("Failed to launch Scrcpy: ${e.message}")
         }

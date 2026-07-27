@@ -1,5 +1,7 @@
 package jp.kaleidot725.adbpad.ui.screen.setting
 
+import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierLevel
+import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierPresets
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.setting.AccentColor
 import jp.kaleidot725.adbpad.domain.model.setting.Appearance
@@ -11,11 +13,15 @@ import jp.kaleidot725.adbpad.domain.usecase.appearance.SaveAppearanceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.language.GetLanguageUseCase
 import jp.kaleidot725.adbpad.domain.usecase.language.SaveLanguageUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.GetScrcpySettingsUseCase
+import jp.kaleidot725.adbpad.domain.usecase.scrcpy.GetScrcpyTierPresetsUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.SaveScrcpySettingsUseCase
+import jp.kaleidot725.adbpad.domain.usecase.scrcpy.SaveScrcpyTierPresetsUseCase
 import jp.kaleidot725.adbpad.domain.usecase.sdkpath.GetSdkPathUseCase
 import jp.kaleidot725.adbpad.domain.usecase.sdkpath.SaveSdkPathUseCase
 import jp.kaleidot725.adbpad.ui.container.AppBroadCast
 import jp.kaleidot725.adbpad.ui.container.AppUnicast
+import jp.kaleidot725.adbpad.ui.screen.setting.model.ScrcpyTierFieldsInput
+import jp.kaleidot725.adbpad.ui.screen.setting.state.ScrcpyTierField
 import jp.kaleidot725.adbpad.ui.screen.setting.state.SettingAction
 import jp.kaleidot725.adbpad.ui.screen.setting.state.SettingState
 import jp.kaleidot725.pulse.mvi.PulseStore
@@ -33,6 +39,8 @@ class SettingStateHolder(
     private val restartAdbUseCase: RestartAdbUseCase,
     private val getAccentColorUseCase: GetAccentColorUseCase,
     private val saveAccentColorUseCase: SaveAccentColorUseCase,
+    private val getScrcpyTierPresetsUseCase: GetScrcpyTierPresetsUseCase,
+    private val saveScrcpyTierPresetsUseCase: SaveScrcpyTierPresetsUseCase,
 ) : PulseStore<SettingState, SettingAction, Nothing, AppBroadCast, AppUnicast>(initialUiState = SettingState()) {
     private var oldAdbDirectoryPath: String = ""
     private var oldAdbPortNumber: Int = 0
@@ -44,6 +52,7 @@ class SettingStateHolder(
             val accentColor = getAccentColorUseCase()
             val sdkPath = getSdkPathUseCase()
             val scrcpySettings = getScrcpySettingsUseCase()
+            val tierPresets = getScrcpyTierPresetsUseCase()
             val adbDirectoryPath = sdkPath.adbDirectory
             val adbPortNumber = sdkPath.adbServerPort.toString()
             val scrcpyBinaryPath = scrcpySettings.binaryPath
@@ -59,6 +68,9 @@ class SettingStateHolder(
                     adbDirectoryPath = adbDirectoryPath,
                     adbPortNumber = adbPortNumber,
                     scrcpyBinaryPath = scrcpyBinaryPath,
+                    lowTierPreset = ScrcpyTierFieldsInput.from(tierPresets.low),
+                    mediumTierPreset = ScrcpyTierFieldsInput.from(tierPresets.medium),
+                    highTierPreset = ScrcpyTierFieldsInput.from(tierPresets.high),
                     initialized = true,
                 )
             }
@@ -77,6 +89,8 @@ class SettingStateHolder(
                 is SettingAction.UpdateAppearance -> updateAppearance(uiAction.value)
                 is SettingAction.UpdateLanguage -> updateLanguage(uiAction.value)
                 is SettingAction.UpdateAccentColor -> updateAccentColor(uiAction.value)
+                is SettingAction.UpdateScrcpyTierPresetField ->
+                    updateScrcpyTierPresetField(uiAction.level, uiAction.field, uiAction.value)
             }
         }
     }
@@ -94,6 +108,13 @@ class SettingStateHolder(
         saveAccentColorUseCase(currentState.accentColor)
         saveSdkPathUseCase(currentState.adbDirectoryPath, currentState.adbPortNumber.toIntOrNull())
         saveScrcpySettingsUseCase(currentState.scrcpyBinaryPath)
+        saveScrcpyTierPresetsUseCase(
+            ScrcpyTierPresets(
+                low = currentState.lowTierPreset.toPreset(),
+                medium = currentState.mediumTierPreset.toPreset(),
+                high = currentState.highTierPreset.toPreset(),
+            ),
+        )
         restartAdbUseCase(oldAdbDirectory = oldAdbDirectoryPath, oldServerPort = oldAdbPortNumber)
         unicast(AppUnicast.Refresh)
         update { this.copy(isSaving = false) }
@@ -125,6 +146,32 @@ class SettingStateHolder(
 
     private fun updateAccentColor(value: AccentColor) {
         update { this.copy(accentColor = value) }
+    }
+
+    private fun updateScrcpyTierPresetField(
+        level: ScrcpyTierLevel,
+        field: ScrcpyTierField,
+        value: String,
+    ) {
+        update {
+            val current =
+                when (level) {
+                    ScrcpyTierLevel.LOW -> lowTierPreset
+                    ScrcpyTierLevel.MEDIUM -> mediumTierPreset
+                    ScrcpyTierLevel.HIGH -> highTierPreset
+                }
+            val updated =
+                when (field) {
+                    ScrcpyTierField.MAX_SIZE -> current.copy(maxSize = value)
+                    ScrcpyTierField.VIDEO_BIT_RATE -> current.copy(videoBitRate = value)
+                    ScrcpyTierField.MAX_FPS -> current.copy(maxFps = value)
+                }
+            when (level) {
+                ScrcpyTierLevel.LOW -> copy(lowTierPreset = updated)
+                ScrcpyTierLevel.MEDIUM -> copy(mediumTierPreset = updated)
+                ScrcpyTierLevel.HIGH -> copy(highTierPreset = updated)
+            }
+        }
     }
 
     private fun selectCategory(category: jp.kaleidot725.adbpad.ui.screen.setting.model.SettingCategory) {

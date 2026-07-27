@@ -33,6 +33,8 @@ import jp.kaleidot725.adbpad.domain.usecase.screenshot.RenameScreenshotUseCase
 import jp.kaleidot725.adbpad.domain.usecase.screenshot.TakeScreenshotUseCase
 import jp.kaleidot725.adbpad.domain.usecase.sdkpath.GetSdkPathUseCase
 import jp.kaleidot725.adbpad.domain.usecase.sdkpath.SaveSdkPathUseCase
+import jp.kaleidot725.adbpad.domain.usecase.scrcpy.GetScrcpyTierPresetsUseCase
+import jp.kaleidot725.adbpad.domain.usecase.scrcpy.SaveScrcpyTierPresetsUseCase
 import jp.kaleidot725.adbpad.domain.usecase.text.AddTextCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.text.ExecuteTextCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.text.GetTextCommandUseCase
@@ -99,6 +101,12 @@ val domainModule =
         }
         factory {
             SaveSdkPathUseCase(get())
+        }
+        factory {
+            GetScrcpyTierPresetsUseCase(get())
+        }
+        factory {
+            SaveScrcpyTierPresetsUseCase(get())
         }
         factory {
             GetScrcpySettingsUseCase(get())

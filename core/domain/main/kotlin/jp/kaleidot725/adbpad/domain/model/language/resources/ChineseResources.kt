@@ -213,6 +213,17 @@ object ChineseResources : StringResources {
 
     override val settingScrcpyHeader = "Scrcpy"
     override val settingScrcpyBinaryPathTitle = "二进制路径"
+    override val settingScrcpyTierPresetsHeader = "Scrcpy 画质预设"
+    override val settingScrcpyTierLow = "低端设备"
+    override val settingScrcpyTierMedium = "中端设备"
+    override val settingScrcpyTierHigh = "高端设备"
+    override val settingScrcpyTierMaxSize = "最大尺寸"
+    override val settingScrcpyTierMaxSizeNative = "原生"
+    override val settingScrcpyTierBitRate = "比特率"
+    override val settingScrcpyTierFps = "最大帧率"
+    override val scrcpyTierDialogTitle = "镜像画质"
+    override val scrcpyTierDialogSubtitle = "选择与设备硬件匹配的预设，避免让性能较弱的编码器过载。"
+    override val scrcpyTierDialogSkip = "使用已保存的设备设置"
 
     override val adbErrorTitle = "ADB 错误"
     override val adbErrorMessage = "无法启动 ADB 服务，请更改 ADB 设置。"

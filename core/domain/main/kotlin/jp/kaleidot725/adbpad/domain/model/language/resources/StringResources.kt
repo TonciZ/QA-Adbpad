@@ -202,6 +202,17 @@ interface StringResources {
 
     val settingScrcpyHeader: String
     val settingScrcpyBinaryPathTitle: String
+    val settingScrcpyTierPresetsHeader: String
+    val settingScrcpyTierLow: String
+    val settingScrcpyTierMedium: String
+    val settingScrcpyTierHigh: String
+    val settingScrcpyTierMaxSize: String
+    val settingScrcpyTierMaxSizeNative: String
+    val settingScrcpyTierBitRate: String
+    val settingScrcpyTierFps: String
+    val scrcpyTierDialogTitle: String
+    val scrcpyTierDialogSubtitle: String
+    val scrcpyTierDialogSkip: String
 
     val adbErrorTitle: String
     val adbErrorMessage: String

@@ -73,6 +73,8 @@ val stateHolderModule =
                 restartAdbUseCase = get(),
                 getAccentColorUseCase = get(),
                 saveAccentColorUseCase = get(),
+                getScrcpyTierPresetsUseCase = get(),
+                saveScrcpyTierPresetsUseCase = get(),
             )
         }
 
@@ -88,6 +90,7 @@ val stateHolderModule =
                 disconnectDeviceUseCase = get(),
                 checkDeviceLivenessUseCase = get(),
                 restartDeviceUseCase = get(),
+                getScrcpyTierPresetsUseCase = get(),
             )
         }
 

@@ -1,6 +1,7 @@
 package jp.kaleidot725.adbpad.data.repository
 
 import jp.kaleidot725.adbpad.data.local.SettingFileCreator
+import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierPresets
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.setting.AccentColor
 import jp.kaleidot725.adbpad.domain.model.setting.Appearance
@@ -99,6 +100,21 @@ class SettingRepositoryImpl : SettingRepository {
         return withContext(Dispatchers.IO) {
             val setting = SettingFileCreator.load()
             return@withContext setting.accentColor
+        }
+    }
+
+    override suspend fun updateScrcpyTierPresets(presets: ScrcpyTierPresets): Boolean {
+        return withContext(Dispatchers.IO) {
+            val oldSetting = SettingFileCreator.load()
+            val newSetting = oldSetting.copy(scrcpyTierPresets = presets)
+            return@withContext SettingFileCreator.save(newSetting)
+        }
+    }
+
+    override suspend fun getScrcpyTierPresets(): ScrcpyTierPresets {
+        return withContext(Dispatchers.IO) {
+            val setting = SettingFileCreator.load()
+            return@withContext setting.scrcpyTierPresets
         }
     }
 }

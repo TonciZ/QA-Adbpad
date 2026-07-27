@@ -1,5 +1,6 @@
 package jp.kaleidot725.adbpad.domain.repository
 
+import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierPresets
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.setting.AccentColor
 import jp.kaleidot725.adbpad.domain.model.setting.Appearance
@@ -31,4 +32,8 @@ interface SettingRepository {
     suspend fun updateAccentColor(accentColor: AccentColor): Boolean
 
     suspend fun getAccentColor(): AccentColor
+
+    suspend fun updateScrcpyTierPresets(presets: ScrcpyTierPresets): Boolean
+
+    suspend fun getScrcpyTierPresets(): ScrcpyTierPresets
 }

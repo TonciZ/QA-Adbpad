@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierLevel
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.ui.common.resource.UserColor
 import jp.kaleidot725.adbpad.ui.component.button.FloatingDialog
@@ -28,6 +29,7 @@ import jp.kaleidot725.adbpad.ui.screen.setting.model.SettingCategory
 import jp.kaleidot725.adbpad.ui.screen.setting.section.AppearanceSettingsPane
 import jp.kaleidot725.adbpad.ui.screen.setting.section.CategorySidebar
 import jp.kaleidot725.adbpad.ui.screen.setting.section.SdkPathSettingsPane
+import jp.kaleidot725.adbpad.ui.screen.setting.state.ScrcpyTierField
 import jp.kaleidot725.adbpad.ui.screen.setting.state.SettingAction
 import jp.kaleidot725.adbpad.ui.screen.setting.state.SettingState
 
@@ -108,6 +110,12 @@ fun SettingScreen(
                                 scrcpyBinaryPath = state.scrcpyBinaryPath,
                                 onChangeScrcpyBinaryPath = { onAction(SettingAction.UpdateScrcpyBinaryPath(it)) },
                                 isValidScrcpyBinaryPath = state.isValidScrcpyBinaryPath,
+                                lowTierPreset = state.lowTierPreset,
+                                mediumTierPreset = state.mediumTierPreset,
+                                highTierPreset = state.highTierPreset,
+                                onChangeTierPresetField = { level, field, value ->
+                                    onAction(SettingAction.UpdateScrcpyTierPresetField(level, field, value))
+                                },
                                 modifier = Modifier.fillMaxSize(),
                             )
                         }

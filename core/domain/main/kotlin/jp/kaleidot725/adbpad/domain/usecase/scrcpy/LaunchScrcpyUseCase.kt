@@ -1,6 +1,8 @@
 package jp.kaleidot725.adbpad.domain.usecase.scrcpy
 
 import jp.kaleidot725.adbpad.domain.model.device.Device
+import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierPreset
+import jp.kaleidot725.adbpad.domain.repository.AdbBinary
 import jp.kaleidot725.adbpad.domain.repository.DeviceSettingsRepository
 import jp.kaleidot725.adbpad.domain.repository.ScrcpyProcessRepository
 import jp.kaleidot725.adbpad.domain.repository.SettingRepository
@@ -12,7 +14,7 @@ class LaunchScrcpyUseCase(
     private val scrcpyProcessRepository: ScrcpyProcessRepository,
     private val deviceSettingsRepository: DeviceSettingsRepository,
 ) {
-    suspend operator fun invoke(device: Device): Boolean {
+    suspend operator fun invoke(device: Device, tierPreset: ScrcpyTierPreset? = null): Boolean {
         scrcpyProcessRepository.getProcess(device.serial)?.terminate()
 
         val scrcpySettings = settingRepository.getScrcpySettings()
@@ -25,10 +27,10 @@ class LaunchScrcpyUseCase(
         // session that didn't shut down cleanly (e.g. client force-killed) - a stale
         // server still holding the display/encoder can hang a weak Android TV SoC when
         // a second capture session starts on top of it.
-        killStaleScrcpyServer(adbPath.ifBlank { "adb" }, device.serial)
+        killStaleScrcpyServer(device.serial)
 
         val deviceSettings = deviceSettingsRepository.getDeviceSettings(device)
-        val scrcpyOptions = deviceSettings.scrcpyOptions
+        val scrcpyOptions = tierPreset?.applyTo(deviceSettings.scrcpyOptions) ?: deviceSettings.scrcpyOptions
 
         val displayName = deviceSettings.customName ?: device.name
         val client = ScrcpyClient.create(binaryPath = scrcpyPath, adbPath = adbPath)
@@ -93,9 +95,9 @@ class LaunchScrcpyUseCase(
         }
     }
 
-    private fun killStaleScrcpyServer(adbPath: String, serial: String) {
+    private suspend fun killStaleScrcpyServer(serial: String) {
         try {
-            ProcessBuilder(adbPath, "-s", serial, "shell", "pkill", "-f", "app_process.*scrcpy")
+            AdbBinary.processBuilder(settingRepository, "-s", serial, "shell", "pkill", "-f", "app_process.*scrcpy")
                 .start()
                 .waitFor()
         } catch (_: Exception) {

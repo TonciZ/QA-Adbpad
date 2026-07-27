@@ -392,6 +392,28 @@ object Language : StringResources {
         get() = getCurrentResources().settingScrcpyHeader
     override val settingScrcpyBinaryPathTitle: String
         get() = getCurrentResources().settingScrcpyBinaryPathTitle
+    override val settingScrcpyTierPresetsHeader: String
+        get() = getCurrentResources().settingScrcpyTierPresetsHeader
+    override val settingScrcpyTierLow: String
+        get() = getCurrentResources().settingScrcpyTierLow
+    override val settingScrcpyTierMedium: String
+        get() = getCurrentResources().settingScrcpyTierMedium
+    override val settingScrcpyTierHigh: String
+        get() = getCurrentResources().settingScrcpyTierHigh
+    override val settingScrcpyTierMaxSize: String
+        get() = getCurrentResources().settingScrcpyTierMaxSize
+    override val settingScrcpyTierMaxSizeNative: String
+        get() = getCurrentResources().settingScrcpyTierMaxSizeNative
+    override val settingScrcpyTierBitRate: String
+        get() = getCurrentResources().settingScrcpyTierBitRate
+    override val settingScrcpyTierFps: String
+        get() = getCurrentResources().settingScrcpyTierFps
+    override val scrcpyTierDialogTitle: String
+        get() = getCurrentResources().scrcpyTierDialogTitle
+    override val scrcpyTierDialogSubtitle: String
+        get() = getCurrentResources().scrcpyTierDialogSubtitle
+    override val scrcpyTierDialogSkip: String
+        get() = getCurrentResources().scrcpyTierDialogSkip
 
     override val settingAndroidSdkHeader: String
         get() = getCurrentResources().settingAndroidSdkHeader
