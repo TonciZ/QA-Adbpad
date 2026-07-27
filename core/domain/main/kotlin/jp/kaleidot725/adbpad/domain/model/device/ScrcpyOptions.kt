@@ -20,6 +20,7 @@ data class ScrcpyOptions(
     val maxSize: Int? = null,
     val videoCodec: VideoCodec? = null,
     val videoSource: VideoSource? = null,
+    val videoEncoder: String? = null,
     val noVideo: Boolean = false,
     // Audio options (matching ScrcpyCommand)
     val audioBitRate: Int? = null,

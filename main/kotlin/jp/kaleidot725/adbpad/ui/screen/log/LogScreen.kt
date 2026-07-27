@@ -87,9 +87,11 @@ fun LogScreen(
 
             LazyColumn(
                 state = listState,
-                modifier = Modifier.fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.small)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.small)
+                        .padding(8.dp),
             ) {
                 items(state.lines) { line ->
                     Text(

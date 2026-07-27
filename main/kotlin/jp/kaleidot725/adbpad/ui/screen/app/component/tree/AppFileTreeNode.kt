@@ -1,7 +1,7 @@
 package jp.kaleidot725.adbpad.ui.screen.app.component.tree
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ContextMenuItem
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -83,8 +83,7 @@ internal fun AppFileTreeNode(
                                     onPreviewNode(entry)
                                 }
                             },
-                        )
-                        .padding(start = (depth * 16).dp, top = 4.dp, end = 4.dp, bottom = 4.dp),
+                        ).padding(start = (depth * 16).dp, top = 4.dp, end = 4.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
@@ -135,14 +134,16 @@ internal fun AppFileTreeNode(
 
         if (isExpanded) {
             when {
-                errorMessage != null -> AppFileTreeMessageRow(
-                    message = errorMessage.ifBlank { Language.appFileTreeEmpty },
-                    depth = depth + 1,
-                )
-                childEntries.isEmpty() && !isLoading -> AppFileTreeMessageRow(
-                    message = Language.appFileTreeEmpty,
-                    depth = depth + 1,
-                )
+                errorMessage != null ->
+                    AppFileTreeMessageRow(
+                        message = errorMessage.ifBlank { Language.appFileTreeEmpty },
+                        depth = depth + 1,
+                    )
+                childEntries.isEmpty() && !isLoading ->
+                    AppFileTreeMessageRow(
+                        message = Language.appFileTreeEmpty,
+                        depth = depth + 1,
+                    )
                 else -> {
                     childEntries.forEach { child ->
                         AppFileTreeNode(

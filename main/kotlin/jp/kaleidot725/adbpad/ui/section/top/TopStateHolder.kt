@@ -4,6 +4,7 @@ import jp.kaleidot725.adbpad.domain.model.command.DeviceControlCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.device.DeviceLiveness
 import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierLevel
+import jp.kaleidot725.adbpad.domain.repository.DeviceSettingsRepository
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteDeviceControlCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.CheckDeviceLivenessUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.ConnectDeviceUseCase
@@ -15,6 +16,7 @@ import jp.kaleidot725.adbpad.domain.usecase.device.SelectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.UpdateDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.GetScrcpyTierPresetsUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.LaunchScrcpyUseCase
+import jp.kaleidot725.adbpad.domain.usecase.scrcpy.ProfileDeviceUseCase
 import jp.kaleidot725.adbpad.ui.container.AppBroadCast
 import jp.kaleidot725.adbpad.ui.container.AppUnicast
 import jp.kaleidot725.adbpad.ui.section.top.state.TopAction
@@ -38,6 +40,8 @@ class TopStateHolder(
     private val checkDeviceLivenessUseCase: CheckDeviceLivenessUseCase,
     private val restartDeviceUseCase: RestartDeviceUseCase,
     private val getScrcpyTierPresetsUseCase: GetScrcpyTierPresetsUseCase,
+    private val profileDeviceUseCase: ProfileDeviceUseCase,
+    private val deviceSettingsRepository: DeviceSettingsRepository,
 ) : PulseStore<TopState, TopAction, TopSideEffect, AppBroadCast, AppUnicast>(TopState()) {
     private var deviceJob: Job? = null
     private var selectedDeviceJob: Job? = null
@@ -59,11 +63,20 @@ class TopStateHolder(
                 TopAction.OpenScrcpyTierDialog -> update { copy(showScrcpyTierDialog = true) }
                 TopAction.CloseScrcpyTierDialog -> update { copy(showScrcpyTierDialog = false) }
                 is TopAction.LaunchScrcpyWithTier -> launchScrcpyWithTier(uiAction.level)
+                TopAction.ScanDeviceProfile -> scanDeviceProfile()
+                TopAction.LaunchScrcpyWithProfile -> launchScrcpyWithProfile()
                 TopAction.CheckDeviceLiveness -> checkDeviceLiveness()
                 TopAction.RestartDevice -> restartDevice()
                 TopAction.Refresh -> unicast(AppUnicast.Refresh)
                 TopAction.OpenWirelessAdb -> update { copy(showWirelessAdbDialog = true, wirelessAdbStatus = "") }
-                TopAction.CloseWirelessAdb -> update { copy(showWirelessAdbDialog = false, wirelessAdbStatus = "", wirelessAdbLoading = false) }
+                TopAction.CloseWirelessAdb ->
+                    update {
+                        copy(
+                            showWirelessAdbDialog = false,
+                            wirelessAdbStatus = "",
+                            wirelessAdbLoading = false,
+                        )
+                    }
                 is TopAction.ConnectWirelessAdb -> connectWirelessAdb(uiAction.host, uiAction.port)
                 is TopAction.PairWirelessAdb -> pairWirelessAdb(uiAction.host, uiAction.port, uiAction.code)
                 is TopAction.DisconnectWirelessAdb -> disconnectWirelessAdb(uiAction.host, uiAction.port)
@@ -92,7 +105,7 @@ class TopStateHolder(
     private suspend fun launchScrcpy() {
         val device = currentState.selectedDevice ?: return
         try {
-            launchScrcpyUseCase(device)
+            if (!launchScrcpyUseCase(device)) println("Failed to launch Scrcpy for ${device.serial}")
         } catch (e: Exception) {
             println("Failed to launch Scrcpy: ${e.message}")
         }
@@ -102,13 +115,45 @@ class TopStateHolder(
         val device = currentState.selectedDevice ?: return
         update { copy(showScrcpyTierDialog = false) }
         try {
-            launchScrcpyUseCase(device, currentState.scrcpyTierPresets.get(level))
+            if (!launchScrcpyUseCase(device, currentState.scrcpyTierPresets.get(level))) {
+                println("Failed to launch Scrcpy for ${device.serial}")
+            }
         } catch (e: Exception) {
             println("Failed to launch Scrcpy: ${e.message}")
         }
     }
 
-    private suspend fun connectWirelessAdb(host: String, port: Int) {
+    private suspend fun scanDeviceProfile() {
+        val device = currentState.selectedDevice ?: return
+        update { copy(isProfilingDevice = true, profilingStatus = "Starting scan...") }
+        try {
+            val profile = profileDeviceUseCase(device) { status -> update { copy(profilingStatus = status) } }
+            // ponytail: keep the specific onProgress message (e.g. "no encoder survived connect")
+            // instead of clobbering it with a generic string - that's the actual diagnostic.
+            update { copy(deviceProfile = profile, isProfilingDevice = false) }
+        } catch (e: Exception) {
+            println("Failed to profile device ${device.serial}: ${e.message}")
+            update { copy(isProfilingDevice = false, profilingStatus = "Scan failed: ${e.message}") }
+        }
+    }
+
+    private suspend fun launchScrcpyWithProfile() {
+        val device = currentState.selectedDevice ?: return
+        val profile = currentState.deviceProfile ?: return
+        update { copy(showScrcpyTierDialog = false) }
+        try {
+            if (!launchScrcpyUseCase(device, profile.toTierPreset())) {
+                println("Failed to launch Scrcpy for ${device.serial}")
+            }
+        } catch (e: Exception) {
+            println("Failed to launch Scrcpy: ${e.message}")
+        }
+    }
+
+    private suspend fun connectWirelessAdb(
+        host: String,
+        port: Int,
+    ) {
         update { copy(wirelessAdbLoading = true, wirelessAdbStatus = "") }
         try {
             val result = connectDeviceUseCase(host, port)
@@ -118,7 +163,11 @@ class TopStateHolder(
         }
     }
 
-    private suspend fun pairWirelessAdb(host: String, port: Int, code: String) {
+    private suspend fun pairWirelessAdb(
+        host: String,
+        port: Int,
+        code: String,
+    ) {
         update { copy(wirelessAdbLoading = true, wirelessAdbStatus = "") }
         try {
             val result = pairDeviceUseCase(host, port, code)
@@ -128,7 +177,10 @@ class TopStateHolder(
         }
     }
 
-    private suspend fun disconnectWirelessAdb(host: String, port: Int) {
+    private suspend fun disconnectWirelessAdb(
+        host: String,
+        port: Int,
+    ) {
         update { copy(wirelessAdbLoading = true, wirelessAdbStatus = "") }
         try {
             val result = disconnectDeviceUseCase(host, port)
@@ -153,8 +205,19 @@ class TopStateHolder(
         selectedDeviceJob =
             coroutineScope.launch {
                 getSelectedDeviceFlowUseCase().collect { device ->
-                    update { copy(selectedDevice = device, deviceLiveness = DeviceLiveness.UNKNOWN) }
-                    if (device != null) checkDeviceLiveness()
+                    update {
+                        copy(
+                            selectedDevice = device,
+                            deviceLiveness = DeviceLiveness.UNKNOWN,
+                            deviceProfile = null,
+                            profilingStatus = "",
+                        )
+                    }
+                    if (device != null) {
+                        checkDeviceLiveness()
+                        val profile = deviceSettingsRepository.getDeviceSettings(device).scrcpyProfile
+                        if (currentState.selectedDevice == device) update { copy(deviceProfile = profile) }
+                    }
                 }
             }
     }

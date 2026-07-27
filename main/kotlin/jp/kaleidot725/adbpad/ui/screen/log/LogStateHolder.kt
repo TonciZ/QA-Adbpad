@@ -56,16 +56,17 @@ class LogStateHolder(
         logCaptureRepository.startCapture(device, currentState.filter)
 
         logCollectorJob?.cancel()
-        logCollectorJob = coroutineScope.launch {
-            logCaptureRepository.logLines.collect { line ->
-                update {
-                    val newLines = lines + line
-                    // ponytail: cap at 10k lines, drop oldest if over
-                    val trimmed = if (newLines.size > 10_000) newLines.drop(newLines.size - 10_000) else newLines
-                    copy(lines = trimmed)
+        logCollectorJob =
+            coroutineScope.launch {
+                logCaptureRepository.logLines.collect { line ->
+                    update {
+                        val newLines = lines + line
+                        // ponytail: cap at 10k lines, drop oldest if over
+                        val trimmed = if (newLines.size > 10_000) newLines.drop(newLines.size - 10_000) else newLines
+                        copy(lines = trimmed)
+                    }
                 }
             }
-        }
     }
 
     private fun stopCapture() {

@@ -1,6 +1,5 @@
 package jp.kaleidot725.adbpad.domain.model.device
 
-import jp.kaleidot725.scrcpykt.option.VideoCodec
 import kotlinx.serialization.Serializable
 
 enum class ScrcpyTierLevel {
@@ -20,7 +19,6 @@ data class ScrcpyTierPreset(
             maxSize = maxSize,
             videoBitRate = videoBitRate,
             maxFps = maxFps,
-            videoCodec = VideoCodec.H264,
         )
 }
 
@@ -37,7 +35,10 @@ data class ScrcpyTierPresets(
             ScrcpyTierLevel.HIGH -> high
         }
 
-    fun with(level: ScrcpyTierLevel, preset: ScrcpyTierPreset): ScrcpyTierPresets =
+    fun with(
+        level: ScrcpyTierLevel,
+        preset: ScrcpyTierPreset,
+    ): ScrcpyTierPresets =
         when (level) {
             ScrcpyTierLevel.LOW -> copy(low = preset)
             ScrcpyTierLevel.MEDIUM -> copy(medium = preset)

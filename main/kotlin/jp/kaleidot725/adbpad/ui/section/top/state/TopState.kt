@@ -1,9 +1,10 @@
 package jp.kaleidot725.adbpad.ui.section.top.state
 
-import jp.kaleidot725.pulse.mvi.PulseState
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.device.DeviceLiveness
+import jp.kaleidot725.adbpad.domain.model.device.DeviceProfile
 import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierPresets
+import jp.kaleidot725.pulse.mvi.PulseState
 
 data class TopState(
     val devices: List<Device> = emptyList(),
@@ -14,4 +15,7 @@ data class TopState(
     val wirelessAdbLoading: Boolean = false,
     val showScrcpyTierDialog: Boolean = false,
     val scrcpyTierPresets: ScrcpyTierPresets = ScrcpyTierPresets(),
+    val deviceProfile: DeviceProfile? = null,
+    val isProfilingDevice: Boolean = false,
+    val profilingStatus: String = "",
 ) : PulseState

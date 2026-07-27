@@ -213,6 +213,10 @@ interface StringResources {
     val scrcpyTierDialogTitle: String
     val scrcpyTierDialogSubtitle: String
     val scrcpyTierDialogSkip: String
+    val scrcpyTierDialogScan: String
+    val scrcpyTierDialogScanning: String
+    val scrcpyTierCustomLabel: String
+    val scrcpyTierDialogSkipHint: String
 
     val adbErrorTitle: String
     val adbErrorMessage: String

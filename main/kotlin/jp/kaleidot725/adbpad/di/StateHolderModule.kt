@@ -91,6 +91,8 @@ val stateHolderModule =
                 checkDeviceLivenessUseCase = get(),
                 restartDeviceUseCase = get(),
                 getScrcpyTierPresetsUseCase = get(),
+                profileDeviceUseCase = get(),
+                deviceSettingsRepository = get(),
             )
         }
 

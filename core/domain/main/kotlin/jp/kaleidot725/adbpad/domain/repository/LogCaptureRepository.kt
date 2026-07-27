@@ -8,6 +8,11 @@ import java.io.File
 interface LogCaptureRepository {
     val isCapturing: StateFlow<Boolean>
     val logLines: Flow<String>
-    fun startCapture(device: Device, filter: String = "")
+
+    fun startCapture(
+        device: Device,
+        filter: String = "",
+    )
+
     fun stopCapture(): File?
 }

@@ -86,7 +86,8 @@ class ScreenshotCommandRepositoryImpl(
         try {
             withTimeout(CAPTURE_TIMEOUT) {
                 val process =
-                    AdbBinary.processBuilder(settingRepository, "-s", device.serial, "exec-out", "screencap", "-p")
+                    AdbBinary
+                        .processBuilder(settingRepository, "-s", device.serial, "exec-out", "screencap", "-p")
                         .start()
                 file.outputStream().use { out -> process.inputStream.copyTo(out) }
                 process.waitFor() == 0 && file.exists() && file.length() > 0

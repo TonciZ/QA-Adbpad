@@ -1,9 +1,9 @@
 package jp.kaleidot725.adbpad.ui.section.top.state
 
-import jp.kaleidot725.pulse.mvi.PulseAction
 import jp.kaleidot725.adbpad.domain.model.command.DeviceControlCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierLevel
+import jp.kaleidot725.pulse.mvi.PulseAction
 
 sealed class TopAction : PulseAction {
     data class SelectDevice(
@@ -23,6 +23,10 @@ sealed class TopAction : PulseAction {
     data class LaunchScrcpyWithTier(
         val level: ScrcpyTierLevel,
     ) : TopAction()
+
+    data object ScanDeviceProfile : TopAction()
+
+    data object LaunchScrcpyWithProfile : TopAction()
 
     data object CheckDeviceLiveness : TopAction()
 

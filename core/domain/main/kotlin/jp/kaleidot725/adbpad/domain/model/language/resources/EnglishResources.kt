@@ -49,7 +49,6 @@ object EnglishResources : StringResources {
     override val textCommandUnTitle: String = "untitle text command"
     override val textCommandTextPlaceholder: String = "Enter text to send"
 
-
     override val textCommandOptionNewLine: String = "Send with newline"
     override val textCommandOptionTab: String = "Send with tab"
     override val textCommandLineBreakSection: String = "Line Break Options"
@@ -224,6 +223,10 @@ object EnglishResources : StringResources {
     override val scrcpyTierDialogTitle = "Mirror quality"
     override val scrcpyTierDialogSubtitle = "Pick a preset matching the device's hardware to avoid overloading a weak encoder."
     override val scrcpyTierDialogSkip = "Use saved device settings"
+    override val scrcpyTierDialogScan = "Scan device for a working profile"
+    override val scrcpyTierDialogScanning = "Scanning device..."
+    override val scrcpyTierCustomLabel = "Custom (profiled)"
+    override val scrcpyTierDialogSkipHint = "Launches with this device's saved settings, without applying any preset above."
 
     override val adbErrorTitle = "Adb Error"
     override val adbErrorMessage = "Can't start adb server, Please change adb setting."

@@ -414,6 +414,14 @@ object Language : StringResources {
         get() = getCurrentResources().scrcpyTierDialogSubtitle
     override val scrcpyTierDialogSkip: String
         get() = getCurrentResources().scrcpyTierDialogSkip
+    override val scrcpyTierDialogScan: String
+        get() = getCurrentResources().scrcpyTierDialogScan
+    override val scrcpyTierDialogScanning: String
+        get() = getCurrentResources().scrcpyTierDialogScanning
+    override val scrcpyTierCustomLabel: String
+        get() = getCurrentResources().scrcpyTierCustomLabel
+    override val scrcpyTierDialogSkipHint: String
+        get() = getCurrentResources().scrcpyTierDialogSkipHint
 
     override val settingAndroidSdkHeader: String
         get() = getCurrentResources().settingAndroidSdkHeader

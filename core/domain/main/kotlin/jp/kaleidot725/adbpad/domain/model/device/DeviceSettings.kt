@@ -7,4 +7,5 @@ data class DeviceSettings(
     val deviceId: String,
     val customName: String? = null,
     val scrcpyOptions: ScrcpyOptions = ScrcpyOptions(),
+    val scrcpyProfile: DeviceProfile? = null,
 )

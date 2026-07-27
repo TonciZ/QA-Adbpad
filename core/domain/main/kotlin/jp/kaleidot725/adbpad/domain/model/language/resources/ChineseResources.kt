@@ -49,7 +49,6 @@ object ChineseResources : StringResources {
     override val textCommandUnTitle: String = "取消文本标题命令"
     override val textCommandTextPlaceholder: String = "输入要发送的文本"
 
-
     override val textCommandOptionNewLine: String = "用换行键发送"
     override val textCommandOptionTab: String = "用制表符键发送"
     override val textCommandLineBreakSection: String = "换行选项"
@@ -224,6 +223,10 @@ object ChineseResources : StringResources {
     override val scrcpyTierDialogTitle = "镜像画质"
     override val scrcpyTierDialogSubtitle = "选择与设备硬件匹配的预设，避免让性能较弱的编码器过载。"
     override val scrcpyTierDialogSkip = "使用已保存的设备设置"
+    override val scrcpyTierDialogScan = "扫描设备以获取可用配置"
+    override val scrcpyTierDialogScanning = "正在扫描设备..."
+    override val scrcpyTierCustomLabel = "自定义（已分析）"
+    override val scrcpyTierDialogSkipHint = "使用该设备已保存的设置启动，不套用上面的任何预设。"
 
     override val adbErrorTitle = "ADB 错误"
     override val adbErrorMessage = "无法启动 ADB 服务，请更改 ADB 设置。"
