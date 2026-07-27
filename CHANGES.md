@@ -111,6 +111,96 @@ to stop it hanging indefinitely on Android TV. That fallback is what exposed the
 silent-failure bug described in #1, which is why capture was rewritten to bypass adam entirely
 rather than patching the fallback further.
 
+### 8. Device liveness check + real-reboot restart button
+
+**Why:** `adb devices` only reports whether the ADB link is up, not whether the device is actually
+responsive - a device can report `device` while completely frozen, which is exactly what happened
+with the Android TV box under test.
+
+Added an active liveness probe (`adb shell echo` with a 5s timeout) that runs automatically on
+device selection and on demand via a heart-pulse button, plus a restart button that shells out to
+a real `adb reboot` (not the existing soft power keyevent, which goes through the same UI input
+pipe that's frozen when a device hangs). A status dot next to the two buttons shows red (adb link
+down), gray (checking/unknown), green (responsive), or yellow (connected but unresponsive).
+
+### 9. Systemic ADB server port mismatch fix
+
+**Problem:** The app's own ADB server ran on a non-standard port (30000) that only
+`StartAdbUseCase` knew about; every other ADB-consuming code path (the adam client repos, and raw
+`adb` CLI shellouts) defaulted to the standard 5037, so they silently couldn't reach the app's own
+server unless something else happened to have a server running on 5037.
+
+**Fix:** Default server port changed 30000 → 5037 (standard, also required because scrcpy has no
+API to pass a custom ADB server port). Added an `AdbBinary` helper so every raw `adb` CLI shellout
+uses the configured port consistently. The adam-based repos (Device, DeviceConnection,
+DeviceControlCommand, NormalCommand) now build their client per-call from the configured port
+instead of a hardcoded default.
+
+### 10. Scrcpy quality tier picker (new)
+
+**Why:** Scrcpy freezing on weaker Android TV boxes was partly caused by uncapped/near-native
+video defaults overloading a weak encoder.
+
+Added a Low/Mid/High mirror-quality dialog shown on every scrcpy launch, so the right defaults get
+picked per device instead of always maxing out. Presets are persisted via `SettingRepository` and
+editable in Settings > SDK > Scrcpy Quality Presets. `LaunchScrcpyUseCase` accepts an optional tier
+override, with a "Use saved device settings" skip on the dialog.
+
+### 11. Scrcpy auto-profiler for problem encoders (new)
+
+**Problem:** Even with the tier picker, one specific Android TV box (Amlogic SoC) still froze on
+every scrcpy connect while its physical screen was on - reproduced 3/3 times regardless of
+bitrate/resolution/profile tuning.
+
+**Root cause:** The vendor's hardware h264 encoder (`OMX.amlogic.video.encoder.avc`) can't handle
+an immediate connection right after `adb connect`/app launch - it needs the connection paced
+(settle delay, then a readiness ping, before the mirror session opens). Confirmed with raw
+`scrcpy` CLI testing outside the app: paced connects succeeded 4/4 at a moderate bitrate ceiling;
+unpaced connects froze the TV every time regardless of bitrate/profile tuning.
+
+**Fix:** Added a device scan (Settings dialog "Scan device for a working profile") that probes the
+device's available h264 encoders (hw first, then sw fallback, parsed from `scrcpy
+--list-encoders`) with a paced connection, then ramps the bitrate up and backs off one notch from
+the highest surviving step. The resulting profile (encoder + safe bitrate/fps + settle delay) is
+saved per device and surfaced as a "Custom (profiled)" tier. Every scrcpy launch now also flushes
+on-device stale state (kills any leftover `scrcpy-server` process, clears `adb reverse`/`forward`
+tunnels) before connecting, since a killed session can leave the next connection's control channel
+wedged even though `adb` itself stays responsive.
+
+See: `core/domain/main/kotlin/jp/kaleidot725/adbpad/domain/usecase/scrcpy/ProfileDeviceUseCase.kt`,
+`core/domain/main/kotlin/jp/kaleidot725/adbpad/domain/usecase/scrcpy/LaunchScrcpyUseCase.kt`
+
+### 12. Windows device-settings persistence bug fix
+
+**Problem:** Per-device settings (custom name, scrcpy options, the new profiler output) never
+actually persisted to disk for any wireless-adb device on Windows - saves silently failed every
+time.
+
+**Root cause:** The settings filename was built directly from the device serial
+(`device_<serial>.json`). A wireless-adb serial looks like `192.168.1.227:5555` - the `:` is a
+legal adb serial character but an illegal Windows filename character, so every write threw
+`IOException` (caught, silently returned `false`).
+
+**Fix:** Sanitize the device ID before it's used in any filename.
+
+### 13. Check for Updates (new)
+
+**Why:** No way to know a new version existed short of manually checking GitHub.
+
+Added a Settings > Updates pane that checks the latest GitHub release tag against the running
+version, and if newer, downloads the matching installer asset and launches it (`msiexec` on
+Windows, `open` on Mac), then quits so the installer can replace files cleanly. Not a silent
+in-place patch - jpackage-built installers have no binary-diff/patch mechanism - but it removes the
+manual find-download-run steps.
+
+### 14. Log save-location picker
+
+**Why:** Log capture always wrote to the fixed app-data `logs/` folder with no way to choose where
+a specific capture landed.
+
+`LogCaptureRepository.stopCapture()` now opens a native "Save As" dialog every time capture stops
+(defaulting to the old folder + a timestamped filename) instead of writing there unconditionally.
+
 ### Also
 
 - `org.gradle.toolchains.foojay-resolver-convention` bumped `0.10.0` → `1.0.0` - the old version
