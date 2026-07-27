@@ -326,6 +326,14 @@ interface StringResources {
     // Setting Categories
     val categoryAppearance: String
     val categorySDK: String
+    val categoryUpdates: String
+    val settingCurrentVersionFormat: String
+    val settingCheckForUpdates: String
+    val settingCheckingForUpdate: String
+    val settingUpToDateFormat: String
+    val settingUpdateAvailableFormat: String
+    val settingDownloadAndInstallFormat: String
+    val settingUpdateDownloadFailed: String
 
     // Device Setting Categories
     val categoryDevice: String

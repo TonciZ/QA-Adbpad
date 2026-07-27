@@ -5,6 +5,7 @@ import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierPresets
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.setting.AccentColor
 import jp.kaleidot725.adbpad.domain.model.setting.Appearance
+import jp.kaleidot725.adbpad.domain.model.update.AppVersion
 import jp.kaleidot725.adbpad.domain.usecase.adb.RestartAdbUseCase
 import jp.kaleidot725.adbpad.domain.usecase.appearance.GetAccentColorUseCase
 import jp.kaleidot725.adbpad.domain.usecase.appearance.GetAppearanceUseCase
@@ -18,6 +19,8 @@ import jp.kaleidot725.adbpad.domain.usecase.scrcpy.SaveScrcpySettingsUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.SaveScrcpyTierPresetsUseCase
 import jp.kaleidot725.adbpad.domain.usecase.sdkpath.GetSdkPathUseCase
 import jp.kaleidot725.adbpad.domain.usecase.sdkpath.SaveSdkPathUseCase
+import jp.kaleidot725.adbpad.domain.usecase.update.CheckForUpdateUseCase
+import jp.kaleidot725.adbpad.domain.usecase.update.DownloadAndInstallUpdateUseCase
 import jp.kaleidot725.adbpad.ui.container.AppBroadCast
 import jp.kaleidot725.adbpad.ui.container.AppUnicast
 import jp.kaleidot725.adbpad.ui.screen.setting.model.ScrcpyTierFieldsInput
@@ -41,6 +44,8 @@ class SettingStateHolder(
     private val saveAccentColorUseCase: SaveAccentColorUseCase,
     private val getScrcpyTierPresetsUseCase: GetScrcpyTierPresetsUseCase,
     private val saveScrcpyTierPresetsUseCase: SaveScrcpyTierPresetsUseCase,
+    private val checkForUpdateUseCase: CheckForUpdateUseCase,
+    private val downloadAndInstallUpdateUseCase: DownloadAndInstallUpdateUseCase,
 ) : PulseStore<SettingState, SettingAction, Nothing, AppBroadCast, AppUnicast>(initialUiState = SettingState()) {
     private var oldAdbDirectoryPath: String = ""
     private var oldAdbPortNumber: Int = 0
@@ -91,6 +96,8 @@ class SettingStateHolder(
                 is SettingAction.UpdateAccentColor -> updateAccentColor(uiAction.value)
                 is SettingAction.UpdateScrcpyTierPresetField ->
                     updateScrcpyTierPresetField(uiAction.level, uiAction.field, uiAction.value)
+                SettingAction.CheckForUpdate -> checkForUpdate()
+                SettingAction.InstallUpdate -> installUpdate()
             }
         }
     }
@@ -176,5 +183,33 @@ class SettingStateHolder(
 
     private fun selectCategory(category: jp.kaleidot725.adbpad.ui.screen.setting.model.SettingCategory) {
         update { this.copy(selectedCategory = category) }
+    }
+
+    private suspend fun checkForUpdate() {
+        update { copy(isCheckingForUpdate = true, updateCheckMessage = "") }
+        val result = checkForUpdateUseCase()
+        update {
+            copy(
+                isCheckingForUpdate = false,
+                availableUpdate = result,
+                updateCheckMessage =
+                    if (result != null) {
+                        Language.settingUpdateAvailableFormat.format(result.version)
+                    } else {
+                        Language.settingUpToDateFormat.format(AppVersion.CURRENT)
+                    },
+            )
+        }
+    }
+
+    private suspend fun installUpdate() {
+        val update = currentState.availableUpdate ?: return
+        update { copy(isInstallingUpdate = true) }
+        val started = downloadAndInstallUpdateUseCase(update)
+        // ponytail: on success the use case calls exitProcess(0) itself - this only runs
+        // when the download/launch actually failed.
+        if (!started) {
+            update { copy(isInstallingUpdate = false, updateCheckMessage = Language.settingUpdateDownloadFailed) }
+        }
     }
 }

@@ -51,4 +51,8 @@ sealed class SettingAction : PulseAction {
         val field: ScrcpyTierField,
         val value: String,
     ) : SettingAction()
+
+    data object CheckForUpdate : SettingAction()
+
+    data object InstallUpdate : SettingAction()
 }

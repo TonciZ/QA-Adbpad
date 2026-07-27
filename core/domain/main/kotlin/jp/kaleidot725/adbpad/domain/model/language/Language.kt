@@ -623,6 +623,22 @@ object Language : StringResources {
         get() = getCurrentResources().categoryAppearance
     override val categorySDK: String
         get() = getCurrentResources().categorySDK
+    override val categoryUpdates: String
+        get() = getCurrentResources().categoryUpdates
+    override val settingCurrentVersionFormat: String
+        get() = getCurrentResources().settingCurrentVersionFormat
+    override val settingCheckForUpdates: String
+        get() = getCurrentResources().settingCheckForUpdates
+    override val settingCheckingForUpdate: String
+        get() = getCurrentResources().settingCheckingForUpdate
+    override val settingUpToDateFormat: String
+        get() = getCurrentResources().settingUpToDateFormat
+    override val settingUpdateAvailableFormat: String
+        get() = getCurrentResources().settingUpdateAvailableFormat
+    override val settingDownloadAndInstallFormat: String
+        get() = getCurrentResources().settingDownloadAndInstallFormat
+    override val settingUpdateDownloadFailed: String
+        get() = getCurrentResources().settingUpdateDownloadFailed
 
     // Device Setting Categories
     override val categoryDevice: String

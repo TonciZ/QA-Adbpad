@@ -28,6 +28,7 @@ import jp.kaleidot725.adbpad.ui.screen.setting.model.SettingCategory
 import jp.kaleidot725.adbpad.ui.screen.setting.section.AppearanceSettingsPane
 import jp.kaleidot725.adbpad.ui.screen.setting.section.CategorySidebar
 import jp.kaleidot725.adbpad.ui.screen.setting.section.SdkPathSettingsPane
+import jp.kaleidot725.adbpad.ui.screen.setting.section.UpdatesSettingsPane
 import jp.kaleidot725.adbpad.ui.screen.setting.state.SettingAction
 import jp.kaleidot725.adbpad.ui.screen.setting.state.SettingState
 
@@ -114,6 +115,18 @@ fun SettingScreen(
                                 onChangeTierPresetField = { level, field, value ->
                                     onAction(SettingAction.UpdateScrcpyTierPresetField(level, field, value))
                                 },
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
+                        SettingCategory.UPDATES -> {
+                            UpdatesSettingsPane(
+                                appVersion = state.appVersion,
+                                isCheckingForUpdate = state.isCheckingForUpdate,
+                                updateCheckMessage = state.updateCheckMessage,
+                                availableUpdate = state.availableUpdate,
+                                isInstallingUpdate = state.isInstallingUpdate,
+                                onCheckForUpdate = { onAction(SettingAction.CheckForUpdate) },
+                                onInstallUpdate = { onAction(SettingAction.InstallUpdate) },
                                 modifier = Modifier.fillMaxSize(),
                             )
                         }

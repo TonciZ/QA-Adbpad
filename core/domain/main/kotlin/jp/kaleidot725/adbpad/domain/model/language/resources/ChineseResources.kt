@@ -328,6 +328,14 @@ object ChineseResources : StringResources {
     // Setting Categories
     override val categoryAppearance: String = "外观"
     override val categorySDK: String = "SDK"
+    override val categoryUpdates: String = "更新"
+    override val settingCurrentVersionFormat: String = "当前版本：%s"
+    override val settingCheckForUpdates: String = "检查更新"
+    override val settingCheckingForUpdate: String = "正在检查更新..."
+    override val settingUpToDateFormat: String = "已是最新版本 (%s)"
+    override val settingUpdateAvailableFormat: String = "发现新版本：%s"
+    override val settingDownloadAndInstallFormat: String = "下载并安装 %s"
+    override val settingUpdateDownloadFailed: String = "下载失败，请重试"
 
     // Device Setting Categories
     override val categoryDevice: String = "设备"

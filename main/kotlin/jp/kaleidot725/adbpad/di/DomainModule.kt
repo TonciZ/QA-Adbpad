@@ -40,6 +40,8 @@ import jp.kaleidot725.adbpad.domain.usecase.text.AddTextCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.text.ExecuteTextCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.text.GetTextCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.theme.GetDarkModeFlowUseCase
+import jp.kaleidot725.adbpad.domain.usecase.update.CheckForUpdateUseCase
+import jp.kaleidot725.adbpad.domain.usecase.update.DownloadAndInstallUpdateUseCase
 import jp.kaleidot725.adbpad.domain.usecase.window.GetWindowSizeUseCase
 import jp.kaleidot725.adbpad.domain.usecase.window.SaveWindowSizeUseCase
 import org.koin.dsl.module
@@ -129,6 +131,12 @@ val domainModule =
         }
         factory {
             ProfileDeviceUseCase(get(), get())
+        }
+        factory {
+            CheckForUpdateUseCase()
+        }
+        factory {
+            DownloadAndInstallUpdateUseCase()
         }
         factory {
             LaunchScrcpyNewDisplayUseCase(get(), get())

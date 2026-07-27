@@ -328,6 +328,14 @@ object TurkishResources : StringResources {
     // Setting Categories
     override val categoryAppearance: String = "Görünüm"
     override val categorySDK: String = "SDK"
+    override val categoryUpdates: String = "Guncellemeler"
+    override val settingCurrentVersionFormat: String = "Mevcut surum: %s"
+    override val settingCheckForUpdates: String = "Guncellemeleri Kontrol Et"
+    override val settingCheckingForUpdate: String = "Kontrol ediliyor..."
+    override val settingUpToDateFormat: String = "Guncelsiniz (%s)"
+    override val settingUpdateAvailableFormat: String = "Yeni surum mevcut: %s"
+    override val settingDownloadAndInstallFormat: String = "%s Indir ve Kur"
+    override val settingUpdateDownloadFailed: String = "Indirme basarisiz - tekrar deneyin"
 
     // Device Setting Categories
     override val categoryDevice: String = "Cihaz"

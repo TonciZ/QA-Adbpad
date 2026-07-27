@@ -5,6 +5,7 @@ import jp.kaleidot725.adbpad.domain.model.language.Language
 enum class SettingCategory {
     APPEARANCE,
     SDK,
+    UPDATES,
     ;
 
     val displayName: String
@@ -12,5 +13,6 @@ enum class SettingCategory {
             when (this) {
                 APPEARANCE -> Language.categoryAppearance
                 SDK -> Language.categorySDK
+                UPDATES -> Language.categoryUpdates
             }
 }
