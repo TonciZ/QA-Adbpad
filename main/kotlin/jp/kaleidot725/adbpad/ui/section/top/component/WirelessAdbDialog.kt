@@ -81,10 +81,11 @@ fun WirelessAdbDialog(
                     text = status,
                     style = MaterialTheme.typography.bodySmall,
                     color =
-                        if (status.startsWith("Error"))
+                        if (status.startsWith("Error")) {
                             MaterialTheme.colorScheme.error
-                        else
-                            MaterialTheme.colorScheme.primary,
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        },
                 )
             }
 

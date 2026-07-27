@@ -49,7 +49,6 @@ object TurkishResources : StringResources {
     override val textCommandUnTitle: String = "başlıksız metin komutu"
     override val textCommandTextPlaceholder: String = "Gönderilecek metni gir"
 
-
     override val textCommandOptionNewLine: String = "Yeni satır tuşu ile gönder"
     override val textCommandOptionTab: String = "Sekme tuşu ile gönder"
     override val textCommandLineBreakSection: String = "Satır Sonu Seçenekleri"
@@ -224,6 +223,10 @@ object TurkishResources : StringResources {
     override val scrcpyTierDialogTitle = "Yansitma kalitesi"
     override val scrcpyTierDialogSubtitle = "Zayif bir kodlayiciyi asiri yuklememek icin cihazin donanimina uygun bir on ayar secin."
     override val scrcpyTierDialogSkip = "Kayitli cihaz ayarlarini kullan"
+    override val scrcpyTierDialogScan = "Calisan bir profil icin cihazi tara"
+    override val scrcpyTierDialogScanning = "Cihaz taraniyor..."
+    override val scrcpyTierCustomLabel = "Ozel (profilli)"
+    override val scrcpyTierDialogSkipHint = "Yukaridaki hicbir on ayari uygulamadan, bu cihazin kayitli ayarlariyla baslatir."
 
     override val adbErrorTitle = "Adb Hatası"
     override val adbErrorMessage = "Adb sunucusu başlatılamıyor, lütfen adb ayarlarını değiştirin."

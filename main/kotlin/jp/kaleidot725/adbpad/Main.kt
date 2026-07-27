@@ -8,7 +8,6 @@ import jp.kaleidot725.adbpad.di.domainModule
 import jp.kaleidot725.adbpad.di.repositoryModule
 import jp.kaleidot725.adbpad.di.stateHolderModule
 import jp.kaleidot725.adbpad.domain.model.setting.WindowSize
-import jp.kaleidot725.adbpad.ui.container.AppBroadCast
 import jp.kaleidot725.adbpad.ui.container.AppContainer
 import jp.kaleidot725.adbpad.ui.screen.CommandScreen
 import jp.kaleidot725.adbpad.ui.screen.app.AppScreen
@@ -16,9 +15,9 @@ import jp.kaleidot725.adbpad.ui.screen.app.AppStateHolder
 import jp.kaleidot725.adbpad.ui.screen.command.CommandStateHolder
 import jp.kaleidot725.adbpad.ui.screen.device.DeviceSettingsScreen
 import jp.kaleidot725.adbpad.ui.screen.device.DeviceSettingsStateHolder
+import jp.kaleidot725.adbpad.ui.screen.device.state.DeviceSettingsAction
 import jp.kaleidot725.adbpad.ui.screen.log.LogScreen
 import jp.kaleidot725.adbpad.ui.screen.log.LogStateHolder
-import jp.kaleidot725.adbpad.ui.screen.device.state.DeviceSettingsAction
 import jp.kaleidot725.adbpad.ui.screen.main.MainScreen
 import jp.kaleidot725.adbpad.ui.screen.main.MainStateHolder
 import jp.kaleidot725.adbpad.ui.screen.main.state.MainAction

@@ -17,9 +17,7 @@ import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.ui.component.indicator.RunningIndicator
 
 @Composable
-internal fun AppFileTreeLoadingRow(
-    modifier: Modifier = Modifier,
-) {
+internal fun AppFileTreeLoadingRow(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth().padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -42,4 +40,3 @@ internal fun AppFileTreeLoadingRow(
 private fun AppFileTreeLoadingRowPreview() {
     AppFileTreeLoadingRow(modifier = Modifier.width(280.dp).padding(16.dp))
 }
-

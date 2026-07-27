@@ -226,6 +226,10 @@ object JapaneseResources : StringResources {
     override val scrcpyTierDialogTitle = "ミラー品質"
     override val scrcpyTierDialogSubtitle = "デバイスのハードウェアに合ったプリセットを選び、非力なエンコーダーへの負荷を避けます。"
     override val scrcpyTierDialogSkip = "保存済みのデバイス設定を使う"
+    override val scrcpyTierDialogScan = "デバイスをスキャンしてプロファイルを作成"
+    override val scrcpyTierDialogScanning = "デバイスをスキャン中..."
+    override val scrcpyTierCustomLabel = "カスタム（診断済み）"
+    override val scrcpyTierDialogSkipHint = "上のプリセットを適用せず、このデバイスの保存済み設定で起動します。"
 
     override val adbErrorTitle = "ADBエラー"
     override val adbErrorMessage = "ADBサーバーを開始できませんでした、ADBの設定を変更してください"

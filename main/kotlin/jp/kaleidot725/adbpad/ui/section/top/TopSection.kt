@@ -26,7 +26,6 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -53,12 +51,11 @@ import com.composables.icons.lucide.RefreshCcw
 import com.composables.icons.lucide.RotateCw
 import com.composables.icons.lucide.ScreenShare
 import com.composables.icons.lucide.Settings2
-import com.composables.icons.lucide.Wifi
 import com.composables.icons.lucide.Square
 import com.composables.icons.lucide.Triangle
+import com.composables.icons.lucide.Wifi
 import jp.kaleidot725.adbpad.domain.model.command.DeviceControlCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
-import jp.kaleidot725.adbpad.domain.model.device.DeviceLiveness
 import jp.kaleidot725.adbpad.domain.model.device.DeviceState
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.ui.common.resource.UserColor
@@ -93,7 +90,12 @@ fun TopSection(
     if (topState.showScrcpyTierDialog) {
         ScrcpyTierDialog(
             presets = topState.scrcpyTierPresets,
+            deviceProfile = topState.deviceProfile,
+            isProfiling = topState.isProfilingDevice,
+            profilingStatus = topState.profilingStatus,
             onSelectTier = { onTopAction(TopAction.LaunchScrcpyWithTier(it)) },
+            onScanDevice = { onTopAction(TopAction.ScanDeviceProfile) },
+            onLaunchProfile = { onTopAction(TopAction.LaunchScrcpyWithProfile) },
             onSkip = {
                 onTopAction(TopAction.CloseScrcpyTierDialog)
                 onTopAction(TopAction.LaunchScrcpy)

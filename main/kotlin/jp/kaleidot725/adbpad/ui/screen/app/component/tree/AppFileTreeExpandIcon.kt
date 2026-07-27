@@ -41,4 +41,3 @@ private fun AppFileTreeExpandIconPreview() {
         modifier = Modifier.width(24.dp),
     )
 }
-

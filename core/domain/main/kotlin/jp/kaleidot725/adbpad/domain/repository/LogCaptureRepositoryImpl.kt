@@ -30,35 +30,39 @@ class LogCaptureRepositoryImpl(
     private val capturedLines = mutableListOf<String>()
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    override fun startCapture(device: Device, filter: String) {
+    override fun startCapture(
+        device: Device,
+        filter: String,
+    ) {
         if (_isCapturing.value) return
 
         capturedLines.clear()
         _isCapturing.value = true
 
-        readerJob = scope.launch {
-            try {
-                val extraArgs = mutableListOf("-s", device.serial, "logcat", "-v", "time")
-                if (filter.isNotBlank()) {
-                    extraArgs.addAll(filter.split(" "))
-                }
+        readerJob =
+            scope.launch {
+                try {
+                    val extraArgs = mutableListOf("-s", device.serial, "logcat", "-v", "time")
+                    if (filter.isNotBlank()) {
+                        extraArgs.addAll(filter.split(" "))
+                    }
 
-                val pb = AdbBinary.processBuilder(settingRepository, *extraArgs.toTypedArray())
-                pb.redirectErrorStream(true)
-                process = pb.start()
+                    val pb = AdbBinary.processBuilder(settingRepository, *extraArgs.toTypedArray())
+                    pb.redirectErrorStream(true)
+                    process = pb.start()
 
-                val reader = BufferedReader(InputStreamReader(process!!.inputStream))
-                var line: String?
-                while (reader.readLine().also { line = it } != null) {
-                    val l = line ?: continue
-                    capturedLines.add(l)
-                    _logLines.emit(l)
+                    val reader = BufferedReader(InputStreamReader(process!!.inputStream))
+                    var line: String?
+                    while (reader.readLine().also { line = it } != null) {
+                        val l = line ?: continue
+                        capturedLines.add(l)
+                        _logLines.emit(l)
+                    }
+                } catch (_: Exception) {
+                } finally {
+                    _isCapturing.value = false
                 }
-            } catch (_: Exception) {
-            } finally {
-                _isCapturing.value = false
             }
-        }
     }
 
     override fun stopCapture(): File? {

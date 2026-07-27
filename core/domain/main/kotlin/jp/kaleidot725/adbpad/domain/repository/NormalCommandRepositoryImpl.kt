@@ -75,17 +75,18 @@ class NormalCommandRepositoryImpl(
             NormalCommand.SetAutoTimeZone(
                 runningCommands.any { it is NormalCommand.SetAutoTimeZone },
             ),
-        ) + timeZoneCommandSpecs.map { spec ->
-            NormalCommand.SetTimeZone(
-                country = "${spec.flagEmoji} ${spec.country}",
-                timeZoneId = spec.timeZoneId,
-                utcOffset = spec.utcOffset,
-                isRunning =
-                    runningCommands.any {
-                        it is NormalCommand.SetTimeZone && it.timeZoneId == spec.timeZoneId
-                    },
-            )
-        }
+        ) +
+            timeZoneCommandSpecs.map { spec ->
+                NormalCommand.SetTimeZone(
+                    country = "${spec.flagEmoji} ${spec.country}",
+                    timeZoneId = spec.timeZoneId,
+                    utcOffset = spec.utcOffset,
+                    isRunning =
+                        runningCommands.any {
+                            it is NormalCommand.SetTimeZone && it.timeZoneId == spec.timeZoneId
+                        },
+                )
+            }
 
     override suspend fun queryShell(
         device: Device,
