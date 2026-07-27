@@ -10,7 +10,7 @@ class SaveSdkPathUseCase(
         adbDirectory: String,
         adbServerPort: Int?,
     ): Boolean {
-        val sdkPath = SdkPath(adbDirectory, adbServerPort ?: 30000)
+        val sdkPath = SdkPath(adbDirectory, adbServerPort ?: 5037)
         return settingRepository.updateSdkPath(sdkPath)
     }
 }

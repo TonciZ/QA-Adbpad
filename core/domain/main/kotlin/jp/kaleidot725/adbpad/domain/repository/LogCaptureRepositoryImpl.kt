@@ -38,15 +38,12 @@ class LogCaptureRepositoryImpl(
 
         readerJob = scope.launch {
             try {
-                val sdkPath = settingRepository.getSdkPath()
-                val adbPath = sdkPath.adbDirectory.ifBlank { "adb" }
-
-                val command = mutableListOf(adbPath, "-s", device.serial, "logcat", "-v", "time")
+                val extraArgs = mutableListOf("-s", device.serial, "logcat", "-v", "time")
                 if (filter.isNotBlank()) {
-                    command.addAll(filter.split(" "))
+                    extraArgs.addAll(filter.split(" "))
                 }
 
-                val pb = ProcessBuilder(command)
+                val pb = AdbBinary.processBuilder(settingRepository, *extraArgs.toTypedArray())
                 pb.redirectErrorStream(true)
                 process = pb.start()
 

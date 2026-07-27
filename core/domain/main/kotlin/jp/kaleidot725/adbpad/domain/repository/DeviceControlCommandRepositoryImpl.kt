@@ -6,8 +6,13 @@ import jp.kaleidot725.adbpad.domain.model.device.Device
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class DeviceControlCommandRepositoryImpl : DeviceControlCommandRepository {
-    private val adbClient = AndroidDebugBridgeClientFactory().build()
+class DeviceControlCommandRepositoryImpl(
+    private val settingRepository: SettingRepository,
+) : DeviceControlCommandRepository {
+    private suspend fun client() =
+        AndroidDebugBridgeClientFactory()
+            .apply { port = settingRepository.getSdkPath().adbServerPort }
+            .build()
 
     override suspend fun sendCommand(
         device: Device,
@@ -20,6 +25,7 @@ class DeviceControlCommandRepositoryImpl : DeviceControlCommandRepository {
             try {
                 onStart()
 
+                val adbClient = client()
                 command.requests.forEach { request ->
                     val result = adbClient.execute(request, device.serial)
                     if (result.exitCode != 0) {

@@ -10,8 +10,12 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 class DeviceRepositoryImpl(
     private val deviceSettingsRepository: DeviceSettingsRepository,
+    private val settingRepository: SettingRepository,
 ) : DeviceRepository {
-    private val adbClient = AndroidDebugBridgeClientFactory().build()
+    private suspend fun client() =
+        AndroidDebugBridgeClientFactory()
+            .apply { port = settingRepository.getSdkPath().adbServerPort }
+            .build()
 
     private var lastSelectedDevice: Device? = null
     private val selectedDevice: MutableSharedFlow<Device?> = MutableSharedFlow(replay = 1)
@@ -25,7 +29,7 @@ class DeviceRepositoryImpl(
     override fun getSelectedDeviceFlow(): Flow<Device?> = selectedDevice.asSharedFlow()
 
     override suspend fun updateDevices(): List<Device> {
-        val rawDevices = adbClient.execute(request = ListDevicesRequest())
+        val rawDevices = client().execute(request = ListDevicesRequest())
         val devices =
             rawDevices.map { rawDevice ->
                 // Create temporary device for settings lookup

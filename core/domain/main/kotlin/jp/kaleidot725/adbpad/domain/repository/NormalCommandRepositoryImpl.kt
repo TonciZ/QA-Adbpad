@@ -8,9 +8,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
-class NormalCommandRepositoryImpl : NormalCommandRepository {
+class NormalCommandRepositoryImpl(
+    private val settingRepository: SettingRepository,
+) : NormalCommandRepository {
     private val runningCommands: MutableSet<NormalCommand> = mutableSetOf()
-    private val adbClient = AndroidDebugBridgeClientFactory().build()
+
+    private suspend fun client() =
+        AndroidDebugBridgeClientFactory()
+            .apply { port = settingRepository.getSdkPath().adbServerPort }
+            .build()
 
     override fun getCommands(): List<NormalCommand> =
         listOf(
@@ -86,7 +92,7 @@ class NormalCommandRepositoryImpl : NormalCommandRepository {
         command: String,
     ): String =
         withContext(Dispatchers.IO) {
-            val result = adbClient.execute(ShellCommandRequest(command), device.serial)
+            val result = client().execute(ShellCommandRequest(command), device.serial)
             result.output.trim()
         }
 
@@ -108,6 +114,7 @@ class NormalCommandRepositoryImpl : NormalCommandRepository {
                 val formattedCommand =
                     command.commandStrings.joinToString("\n") { "$ adb shell $it" }
 
+                val adbClient = client()
                 command.requests.forEach { request ->
                     val result = adbClient.execute(request, device.serial)
 

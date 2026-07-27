@@ -15,11 +15,10 @@ class DeviceHealthRepositoryImpl(
     // is frozen at the UI layer.
     override suspend fun checkLiveness(device: Device): DeviceLiveness =
         withContext(Dispatchers.IO) {
-            val adbPath = settingRepository.getSdkPath().adbDirectory.ifBlank { "adb" }
             var process: Process? = null
             try {
                 withTimeout(LIVENESS_TIMEOUT) {
-                    process = ProcessBuilder(adbPath, "-s", device.serial, "shell", "echo", "ok").start()
+                    process = AdbBinary.processBuilder(settingRepository, "-s", device.serial, "shell", "echo", "ok").start()
                     val exitCode = process!!.waitFor()
                     if (exitCode == 0) DeviceLiveness.RESPONSIVE else DeviceLiveness.UNRESPONSIVE
                 }
@@ -33,9 +32,8 @@ class DeviceHealthRepositoryImpl(
 
     override suspend fun restart(device: Device) {
         withContext(Dispatchers.IO) {
-            val adbPath = settingRepository.getSdkPath().adbDirectory.ifBlank { "adb" }
             try {
-                ProcessBuilder(adbPath, "-s", device.serial, "reboot").start()
+                AdbBinary.processBuilder(settingRepository, "-s", device.serial, "reboot").start()
             } catch (e: Exception) {
                 // best-effort - nothing more we can do if the process can't even start
             }
