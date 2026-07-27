@@ -40,13 +40,13 @@ val repositoryModule =
         single { ScrcpyNewDisplayProfileFileCreator() }
         single<ScrcpyNewDisplayProfileRepository> { ScrcpyNewDisplayProfileRepositoryImpl(get()) }
         single<DeviceRepository> {
-            DeviceRepositoryImpl(get())
+            DeviceRepositoryImpl(deviceSettingsRepository = get(), settingRepository = get())
         }
         single<NormalCommandOutputRepository> {
             NormalCommandOutputRepositoryImpl()
         }
         single<NormalCommandRepository> {
-            NormalCommandRepositoryImpl()
+            NormalCommandRepositoryImpl(settingRepository = get())
         }
         single<InstalledAppRepository> {
             InstalledAppRepositoryImpl()
@@ -64,10 +64,10 @@ val repositoryModule =
             SettingRepositoryImpl()
         }
         factory<DeviceControlCommandRepository> {
-            DeviceControlCommandRepositoryImpl()
+            DeviceControlCommandRepositoryImpl(settingRepository = get())
         }
         single<DeviceConnectionRepository> {
-            DeviceConnectionRepositoryImpl()
+            DeviceConnectionRepositoryImpl(settingRepository = get())
         }
         single<LogCaptureRepository> {
             LogCaptureRepositoryImpl(get())
