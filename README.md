@@ -14,16 +14,24 @@ what changed from upstream and why.
 
 # ✨ Features
 
-- **Device Management**: View a list of connected Android devices, including Android TV.
+- **Device Management**: View a list of connected Android devices, including Android TV, with a
+  liveness check (is the device actually responsive, not just ADB-linked) and a real-reboot
+  restart button.
 - **ADB Command Execution**: Run ADB shell commands effortlessly.
 - **Toggle Commands**: One-click switches for On/Off device settings (Wi-Fi, Bluetooth, Airplane
   mode, Dark theme, and more) that reflect the device's actual current state.
 - **Text Input**: Send text input to your Android device.
 - **Screenshots**: Capture a screenshot with one click, verified working on Android TV.
 - **Wireless ADB**: Connect and pair over Wi-Fi without a terminal.
-- **Log Capture**: Start/stop/save `logcat` output tied to a test session.
+- **Scrcpy Mirroring**: Low/Mid/High quality tiers (editable presets), plus an auto-profiler that
+  scans a problem device's encoders and derives a working custom profile for hardware that
+  freezes on the fixed tiers.
+- **Log Capture**: Start/stop `logcat` capture tied to a test session, with a Save As prompt for
+  where to put each capture.
 - **Virtual Display**: Create virtual displays to test on large-screen environments (requires
   Android 14+ on the device).
+- **Check for Updates**: One click in Settings to check the latest GitHub release and launch its
+  installer.
 
 # ⬇️ Installation
 
