@@ -201,6 +201,21 @@ a specific capture landed.
 `LogCaptureRepository.stopCapture()` now opens a native "Save As" dialog every time capture stops
 (defaulting to the old folder + a timestamped filename) instead of writing there unconditionally.
 
+### 15. "Failed to launch JVM" on machines with an accessibility flag enabled
+
+**Problem:** The packaged app refused to start at all on some Windows machines, showing
+jpackage's generic "Failed to launch JVM" dialog - reproducible even on a clean uninstall +
+reinstall, so not an install-corruption issue.
+
+**Root cause:** On Windows machines with an accessibility/screen-reader flag enabled (Ease of
+Access), AWT tries to load `com.sun.java.accessibility.AccessBridge` at `Toolkit` init. The
+packaged runtime's module list (a custom, hand-picked set for a smaller installer) didn't include
+`jdk.accessibility`, so that class doesn't exist in the bundled JVM - `ClassNotFoundException` →
+uncaught `AWTError` → the process dies before any window appears, which jpackage's native launcher
+reports as the generic "Failed to launch JVM".
+
+**Fix:** Added `jdk.accessibility` to the packaged runtime's module list.
+
 ### Also
 
 - `org.gradle.toolchains.foojay-resolver-convention` bumped `0.10.0` → `1.0.0` - the old version
