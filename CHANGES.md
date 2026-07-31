@@ -249,6 +249,28 @@ in a coroutine-level `withTimeoutOrNull(15s)` and widened the use case's catch t
 so a stuck DNS resolver or a similar class-loading gap in the future degrades to "up to date"
 instead of hanging forever silently again.
 
+### 18. Fix process lingering in memory after the window was closed
+
+**Problem:** Closing the app's window left a `QA-Adbpad` process running in Task Manager,
+holding onto several GB of memory, until manually ended.
+
+**Root cause:** `ShutdownAppUseCase` only terminated spawned scrcpy child processes. It never
+forced the JVM itself to exit - Compose Desktop's `exitApplication()` just tears down windows and
+the composition, then waits for the JVM to exit naturally, which only happens once every thread
+in the process is a daemon thread. A networking dependency pulled in transitively (Netty/gRPC/
+Vert.x jars ship alongside the scrcpy library) leaves at least one non-daemon thread running, so
+the process never actually died on its own.
+
+**Verified out-of-app-first (methodology, not the actual fix location):** confirmed
+`java.net.http.HttpClient`'s own threads are daemon and exit cleanly on their own, ruling that
+dependency out before looking elsewhere. Verified the real fix live: launched the app, sent it a
+window-close signal (same as clicking the X button), and confirmed the process actually
+disappeared within seconds - it didn't before.
+
+**Fix:** Added an explicit `exitProcess(0)` at the end of `ShutdownAppUseCase`, after scrcpy
+cleanup, so the process is always force-terminated on close regardless of what any dependency's
+background threads are doing.
+
 ### Also
 
 - `org.gradle.toolchains.foojay-resolver-convention` bumped `0.10.0` → `1.0.0` - the old version
