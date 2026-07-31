@@ -11,9 +11,10 @@ data class ScreenshotState(
     val previews: List<Screenshot> = emptyList(),
     val selectedDevice: Device? = null,
     val isCapturing: Boolean = false,
-    val sortType: SortType = SortType.SORT_BY_NAME_ASC,
+    val sortType: SortType = SortType.SORT_BY_NAME_DESC,
     val errorMessage: String? = null,
     val renameResetKey: Int = 0,
+    val selectedForDeletion: Set<Screenshot> = emptySet(),
 ) : PulseState {
     val canExecute: Boolean = selectedDevice != null
 }

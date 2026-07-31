@@ -41,4 +41,12 @@ sealed class ScreenshotAction : PulseAction {
     data object PreviousScreenshot : ScreenshotAction()
 
     data object DismissError : ScreenshotAction()
+
+    data class ToggleScreenshotSelection(
+        val screenshot: Screenshot,
+    ) : ScreenshotAction()
+
+    data object ToggleSelectAllScreenshots : ScreenshotAction()
+
+    data object DeleteSelectedScreenshots : ScreenshotAction()
 }

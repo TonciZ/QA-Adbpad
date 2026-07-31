@@ -59,6 +59,16 @@ fun ScreenshotScreen(
         onDeleteSpecificScreenshot = { screenshot ->
             onAction(ScreenshotAction.DeleteScreenshot(screenshot))
         },
+        selectedForDeletion = state.selectedForDeletion,
+        onToggleScreenshotSelection = { screenshot ->
+            onAction(ScreenshotAction.ToggleScreenshotSelection(screenshot))
+        },
+        onToggleSelectAll = {
+            onAction(ScreenshotAction.ToggleSelectAllScreenshots)
+        },
+        onDeleteSelectedScreenshots = {
+            onAction(ScreenshotAction.DeleteSelectedScreenshots)
+        },
         onTakeScreenshot = {
             onAction(ScreenshotAction.TakeScreenshot)
         },
@@ -101,6 +111,10 @@ private fun ScreenshotScreen(
     onCopyScreenshot: () -> Unit,
     onDeleteScreenshot: () -> Unit,
     onDeleteSpecificScreenshot: (Screenshot) -> Unit,
+    selectedForDeletion: Set<Screenshot>,
+    onToggleScreenshotSelection: (Screenshot) -> Unit,
+    onToggleSelectAll: () -> Unit,
+    onDeleteSelectedScreenshots: () -> Unit,
     onTakeScreenshot: () -> Unit,
     onSelectScreenshot: (Screenshot) -> Unit,
     onNextScreenshot: () -> Unit,
@@ -124,6 +138,10 @@ private fun ScreenshotScreen(
                     canCapture = canCapture,
                     isCapturing = isCapturing,
                     onTakeScreenshot = onTakeScreenshot,
+                    totalCount = screenshots.size,
+                    selectedCount = selectedForDeletion.size,
+                    onToggleSelectAll = onToggleSelectAll,
+                    onDeleteSelected = onDeleteSelectedScreenshots,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                 )
 
@@ -132,8 +150,10 @@ private fun ScreenshotScreen(
                 ScreenshotExplorer(
                     selectedScreenshot = screenshot,
                     screenshots = screenshots,
+                    selectedForDeletion = selectedForDeletion,
                     onSelectScreenShot = onSelectScreenshot,
                     onDeleteScreenshot = onDeleteSpecificScreenshot,
+                    onToggleScreenshotSelection = onToggleScreenshotSelection,
                     onNextScreenshot = onNextScreenshot,
                     onPreviousScreenshot = onPreviousScreenshot,
                     modifier = Modifier.weight(1.0f).fillMaxWidth(),
@@ -201,6 +221,10 @@ private fun ScreenshotScreen_Preview() {
         onCopyScreenshot = {},
         onDeleteScreenshot = {},
         onDeleteSpecificScreenshot = {},
+        selectedForDeletion = emptySet(),
+        onToggleScreenshotSelection = {},
+        onToggleSelectAll = {},
+        onDeleteSelectedScreenshots = {},
         onTakeScreenshot = {},
         onSelectScreenshot = {},
         onNextScreenshot = {},

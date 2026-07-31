@@ -23,4 +23,6 @@ interface ScreenshotCommandRepository {
     ): Boolean
 
     suspend fun delete(screenshot: Screenshot)
+
+    suspend fun deleteAll(screenshots: List<Screenshot>)
 }

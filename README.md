@@ -21,7 +21,9 @@ what changed from upstream and why.
 - **Toggle Commands**: One-click switches for On/Off device settings (Wi-Fi, Bluetooth, Airplane
   mode, Dark theme, and more) that reflect the device's actual current state.
 - **Text Input**: Send text input to your Android device.
-- **Screenshots**: Capture a screenshot with one click, verified working on Android TV.
+- **Screenshots**: Capture a screenshot with one click, verified working on Android TV. Newest
+  captures appear on top, each row shows which device it came from, and you can multi-select and
+  bulk-delete screenshots.
 - **Wireless ADB**: Connect and pair over Wi-Fi without a terminal.
 - **Scrcpy Mirroring**: Low/Mid/High quality tiers (editable presets), plus an auto-profiler that
   scans a problem device's encoders and derives a working custom profile for hardware that
