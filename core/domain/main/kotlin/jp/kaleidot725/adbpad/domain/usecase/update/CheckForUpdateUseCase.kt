@@ -4,6 +4,7 @@ import jp.kaleidot725.adbpad.domain.model.update.AppVersion
 import jp.kaleidot725.adbpad.domain.model.update.UpdateInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -27,7 +28,13 @@ private data class GithubRelease(
 )
 
 class CheckForUpdateUseCase {
-    suspend operator fun invoke(): UpdateInfo? =
+    // ponytail: HttpRequest.timeout() only bounds waiting for the response - DNS resolution
+    // ahead of it runs on a blocking, non-cancellable thread and can hang indefinitely (e.g.
+    // behind a VPN with a broken resolver). Wrap the whole call in a coroutine-level timeout
+    // so the UI's "checking..." spinner can never hang forever.
+    suspend operator fun invoke(): UpdateInfo? = withTimeoutOrNull(REQUEST_TIMEOUT_MS) { checkForUpdate() }
+
+    private suspend fun checkForUpdate(): UpdateInfo? =
         withContext(Dispatchers.IO) {
             try {
                 val client = HttpClient.newHttpClient()
@@ -51,7 +58,11 @@ class CheckForUpdateUseCase {
                 val asset = release.assets.firstOrNull { it.name.endsWith(assetExt) } ?: return@withContext null
 
                 UpdateInfo(version = latestVersion, downloadUrl = asset.browserDownloadUrl, htmlUrl = release.htmlUrl)
-            } catch (_: Exception) {
+                // ponytail: catches Throwable, not just Exception - a missing JDK module (see
+                // NoClassDefFoundError note above) throws an Error, which a plain `catch
+                // (Exception)` lets through uncaught, killing this coroutine before the UI's
+                // "checking..." state ever resets.
+            } catch (_: Throwable) {
                 null
             }
         }
@@ -72,5 +83,6 @@ class CheckForUpdateUseCase {
 
     companion object {
         private const val REPO = "TonciZ/QA-Adbpad"
+        private const val REQUEST_TIMEOUT_MS = 15_000L
     }
 }
