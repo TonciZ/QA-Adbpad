@@ -230,6 +230,25 @@ which device it came from.
   devices), shown in the list as part of the row's detail line. Older screenshots captured before
   this change simply show no device label.
 
+### 17. Fix Check for Updates hanging forever
+
+**Problem:** Reported on 1.3.1 - the "Check for Updates" button could spin forever and never
+resolve.
+
+**Root cause:** Confirmed out-of-app before touching any code: the packaged runtime's hand-picked
+module list (`build.gradle.kts` `nativeDistributions.modules(...)`) never included `java.net.http`.
+Built a `jlink` image with the exact same module list and ran the check's `HttpClient` call
+against it - `HttpClient.newHttpClient()` threw `NoClassDefFoundError` immediately, every time.
+`NoClassDefFoundError` is an `Error`, not an `Exception`, so the use case's
+`catch (_: Exception)` never caught it - it killed the coroutine before it could ever reset the
+"checking..." UI state, leaving the spinner stuck permanently. Confirmed the fix the same way:
+rebuilt the `jlink` image with `java.net.http` added and the identical test succeeded.
+
+**Fix:** Added `modules("java.net.http")` to `nativeDistributions`. Also wrapped the whole check
+in a coroutine-level `withTimeoutOrNull(15s)` and widened the use case's catch to `Throwable`,
+so a stuck DNS resolver or a similar class-loading gap in the future degrades to "up to date"
+instead of hanging forever silently again.
+
 ### Also
 
 - `org.gradle.toolchains.foojay-resolver-convention` bumped `0.10.0` → `1.0.0` - the old version
