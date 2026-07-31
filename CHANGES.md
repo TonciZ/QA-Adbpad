@@ -216,6 +216,20 @@ reports as the generic "Failed to launch JVM".
 
 **Fix:** Added `jdk.accessibility` to the packaged runtime's module list.
 
+### 16. Screenshot tab: newest-first, bulk delete, device label
+
+**Why:** With multiple devices (phone, Android TV, Fire TV) captured into the same flat
+screenshot folder, the list was hard to manage - oldest-first ordering buried new captures at the
+bottom, there was no way to clear out a batch of screenshots at once, and nothing on a row said
+which device it came from.
+
+- Default sort flipped to newest-first (captured screenshots now appear at the top of the list).
+- Added multi-select checkboxes per row, a header "select all" checkbox, and a bulk-delete button
+  that appears once at least one screenshot is selected.
+- Each screenshot filename now embeds the capturing device's name (or serial/IP for unnamed
+  devices), shown in the list as part of the row's detail line. Older screenshots captured before
+  this change simply show no device label.
+
 ### Also
 
 - `org.gradle.toolchains.foojay-resolver-convention` bumped `0.10.0` → `1.0.0` - the old version

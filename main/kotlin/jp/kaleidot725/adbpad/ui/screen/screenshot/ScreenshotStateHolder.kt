@@ -56,6 +56,9 @@ class ScreenshotStateHolder(
                 is ScreenshotAction.UpdateSearchText -> updateSearchText(uiAction.text)
                 is ScreenshotAction.UpdateSortType -> updateSortType(uiAction.sortType)
                 ScreenshotAction.DismissError -> update { copy(errorMessage = null) }
+                is ScreenshotAction.ToggleScreenshotSelection -> toggleScreenshotSelection(uiAction.screenshot)
+                ScreenshotAction.ToggleSelectAllScreenshots -> toggleSelectAllScreenshots()
+                ScreenshotAction.DeleteSelectedScreenshots -> deleteSelectedScreenshots()
             }
         }
     }
@@ -137,6 +140,7 @@ class ScreenshotStateHolder(
             copy(
                 searchText = searchText,
                 previews = screenshots.filter { it.file?.name?.startsWith(searchText) ?: false },
+                selectedForDeletion = emptySet(),
             )
         }
     }
@@ -148,6 +152,56 @@ class ScreenshotStateHolder(
                 searchText = searchText,
                 sortType = sortType,
                 previews = screenshots.filter { it.file?.name?.startsWith(searchText) ?: false },
+                selectedForDeletion = emptySet(),
+            )
+        }
+    }
+
+    private fun toggleScreenshotSelection(screenshot: Screenshot) {
+        update {
+            val newSelection =
+                if (screenshot in selectedForDeletion) {
+                    selectedForDeletion - screenshot
+                } else {
+                    selectedForDeletion + screenshot
+                }
+            copy(selectedForDeletion = newSelection)
+        }
+    }
+
+    private fun toggleSelectAllScreenshots() {
+        update {
+            val newSelection =
+                if (previews.isNotEmpty() && selectedForDeletion.size == previews.size) {
+                    emptySet()
+                } else {
+                    previews.toSet()
+                }
+            copy(selectedForDeletion = newSelection)
+        }
+    }
+
+    private suspend fun deleteSelectedScreenshots() {
+        val toDelete = currentState.selectedForDeletion
+        if (toDelete.isEmpty()) return
+
+        screenshotCommandRepository.deleteAll(toDelete.toList())
+        val screenshots =
+            screenshotCommandRepository.getScreenshots(
+                currentState.searchText,
+                currentState.sortType,
+            )
+        val newPreview =
+            if (currentState.preview in toDelete) {
+                screenshots.firstOrNull() ?: Screenshot(null)
+            } else {
+                currentState.preview
+            }
+        update {
+            copy(
+                previews = screenshots,
+                preview = newPreview,
+                selectedForDeletion = emptySet(),
             )
         }
     }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -16,6 +17,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.Camera
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Trash2
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.sort.SortType
 import jp.kaleidot725.adbpad.ui.component.dropbox.SearchSortDropBox
@@ -30,6 +32,10 @@ fun ScreenshotHeader(
     canCapture: Boolean,
     isCapturing: Boolean,
     onTakeScreenshot: () -> Unit,
+    totalCount: Int,
+    selectedCount: Int,
+    onToggleSelectAll: () -> Unit,
+    onDeleteSelected: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -37,6 +43,12 @@ fun ScreenshotHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        Checkbox(
+            checked = totalCount > 0 && selectedCount == totalCount,
+            onCheckedChange = { onToggleSelectAll() },
+            enabled = totalCount > 0,
+        )
+
         SearchSortDropBox(
             selectedSortType = sortType,
             onSelectType = onUpdateSortType,
@@ -48,6 +60,23 @@ fun ScreenshotHeader(
             placeHolder = Language.search,
             modifier = Modifier.weight(1.0f),
         )
+
+        if (selectedCount > 0) {
+            IconButton(
+                onClick = onDeleteSelected,
+                modifier =
+                    Modifier
+                        .padding(vertical = 4.dp, horizontal = 4.dp)
+                        .size(32.dp),
+            ) {
+                Icon(
+                    imageVector = Lucide.Trash2,
+                    contentDescription = "delete selected screenshots",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
 
         IconButton(
             onClick = onTakeScreenshot,
@@ -87,5 +116,9 @@ private fun Preview() {
         canCapture = false,
         isCapturing = false,
         onTakeScreenshot = {},
+        totalCount = 0,
+        selectedCount = 0,
+        onToggleSelectAll = {},
+        onDeleteSelected = {},
     )
 }

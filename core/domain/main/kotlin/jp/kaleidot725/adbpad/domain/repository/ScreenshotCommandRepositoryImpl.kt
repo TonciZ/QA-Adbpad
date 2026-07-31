@@ -26,9 +26,10 @@ class ScreenshotCommandRepositoryImpl(
     ) {
         withContext(Dispatchers.IO) {
             onStart()
-            val file = getFileResult(Date().time)
+            val deviceLabel = sanitizeDeviceLabel(device.displayName)
+            val file = getFileResult(Date().time, deviceLabel)
             val result = capture(device, file)
-            if (result) onComplete(Screenshot(file)) else onFailed()
+            if (result) onComplete(Screenshot(file, deviceLabel)) else onFailed()
         }
     }
 
@@ -41,7 +42,7 @@ class ScreenshotCommandRepositoryImpl(
             val filteredFiles =
                 files
                     .filter { file -> file.isFile }
-                    .map { file -> Screenshot(file) }
+                    .map { file -> Screenshot(file, parseDeviceLabel(file.name)) }
                     .filter { (it.file?.name ?: "").startsWith(searchText) }
             when (sortType) {
                 SortType.SORT_BY_NAME_ASC -> {
@@ -73,6 +74,12 @@ class ScreenshotCommandRepositoryImpl(
     override suspend fun delete(screenshot: Screenshot) {
         withContext(Dispatchers.IO) {
             screenshot.file?.delete()
+        }
+    }
+
+    override suspend fun deleteAll(screenshots: List<Screenshot>) {
+        withContext(Dispatchers.IO) {
+            screenshots.forEach { it.file?.delete() }
         }
     }
 
@@ -111,10 +118,22 @@ class ScreenshotCommandRepositoryImpl(
             return File(osContext.screenshotDirectory)
         }
 
-        private fun getFileResult(time: Long): File {
+        private fun getFileResult(
+            time: Long,
+            deviceLabel: String,
+        ): File {
             val osContext = OSContext.resolveOSContext()
-            val fileName = "${FILE_NAME_RESULT}_$time.png"
+            val fileName = "${FILE_NAME_RESULT}_${time}_$deviceLabel.png"
             return File(osContext.screenshotDirectory + fileName)
+        }
+
+        // ponytail: device label is round-tripped through the filename, so a device name with
+        // symbols renders slightly mangled on re-list - acceptable, avoids a sidecar metadata file.
+        private fun sanitizeDeviceLabel(label: String): String = label.replace(Regex("[^A-Za-z0-9.-]"), "-")
+
+        private fun parseDeviceLabel(fileName: String): String? {
+            val parts = fileName.substringBeforeLast('.').split('_')
+            return if (parts.size >= 3) parts.drop(2).joinToString("_") else null
         }
     }
 }
