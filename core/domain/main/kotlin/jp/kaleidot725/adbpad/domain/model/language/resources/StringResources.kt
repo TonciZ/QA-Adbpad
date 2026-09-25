@@ -363,6 +363,11 @@ interface StringResources {
     val logStop: String
     val logClear: String
     val logFilter: String
+    val logSearch: String
+    val logMinLevel: String
+    val logAutoScroll: String
+    val logWrapLines: String
+    val logCopyVisible: String
     val logSaved: String
 
     val commandCategoryAll: String
