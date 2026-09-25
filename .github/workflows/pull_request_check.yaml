@@ -3,6 +3,13 @@ name: Pull request check
 on:
   pull_request
 
+# Danger posts its report (lint findings, "Big PR" warning) as PR comments,
+# which the default read-only GITHUB_TOKEN is not allowed to do.
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   check:
     name: Check pull request
