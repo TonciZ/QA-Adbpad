@@ -271,6 +271,43 @@ disappeared within seconds - it didn't before.
 cleanup, so the process is always force-terminated on close regardless of what any dependency's
 background threads are doing.
 
+### 19. Wireless ADB: remember the device and reconnect automatically
+
+**Problem:** The Wireless ADB dialog forgot the IP on every app start, so the same address had to
+be typed in each time.
+
+**Fix:** The last successfully connected host:port is saved in `config.json` and pre-filled in the
+dialog. A background loop reconnects it every 10 s whenever it is missing or offline (a stale
+"offline" entry is disconnected first, because adb answers "already connected" to it without
+retrying). An explicit Disconnect pauses the loop until the next Connect. The dialog also takes an
+optional device name, stored as the device's custom name, and the device selector shows the IP
+under the name in a smaller font.
+
+### 20. Text send: silent failures fixed, failure reason shown
+
+**Problem:** Sending text sometimes did nothing, with no error or log.
+
+**Root cause:** Several independent bugs:
+- Each line went to the device shell unquoted (`input text $text`), so spaces, quotes, `&`, `;`,
+  `|`, `$` and parentheses broke or truncated the command.
+- `input text` cannot type non-ASCII characters (e.g. č, ć, š, ž, đ) at all.
+- Windows `\r\n` line endings left a stray `\r` on every line.
+- The ADB client ignored the configured ADB server port.
+- Exceptions were not caught and the failure callback carried no reason.
+
+**Fix:** Lines are single-quoted with spaces encoded as `%s`, non-ASCII text is rejected up front
+with the offending characters listed, `\r` is stripped, the configured port is used, and errors
+(including Java exceptions printed with exit code 0) are caught. The result or failure reason is
+shown under the Send button.
+
+### 21. Logs: parsing, filtering, colors, scrolling
+
+logcat `-v time` lines are parsed into time, level, tag, PID and message. Added live search
+(tag, message or PID) and minimum-level chips that work during capture, level colors, optional
+line wrap, text selection, a scrollbar, auto-scroll that pauses when scrolling up and resumes at
+the bottom, and a Copy button for the visible lines. Incoming lines are buffered and published
+every 200 ms instead of copying the whole list per line, which could freeze the UI.
+
 ### Also
 
 - `org.gradle.toolchains.foojay-resolver-convention` bumped `0.10.0` → `1.0.0` - the old version
