@@ -251,6 +251,7 @@ interface StringResources {
     val wirelessAdbHost: String
     val wirelessAdbPort: String
     val wirelessAdbPairingCode: String
+    val wirelessAdbDeviceName: String
     val wirelessAdbConnect: String
     val wirelessAdbPair: String
     val wirelessAdbDisconnect: String

@@ -21,19 +21,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import jp.kaleidot725.adbpad.domain.model.language.Language
+import jp.kaleidot725.adbpad.domain.model.setting.WirelessAdbTarget
 import jp.kaleidot725.adbpad.ui.component.button.FloatingDialog
 
 @Composable
 fun WirelessAdbDialog(
     status: String,
     loading: Boolean,
-    onConnect: (String, Int) -> Unit,
+    initialTarget: WirelessAdbTarget,
+    initialName: String,
+    onConnect: (String, Int, String) -> Unit,
     onPair: (String, Int, String) -> Unit,
     onDisconnect: (String, Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var host by remember { mutableStateOf("") }
-    var port by remember { mutableStateOf("5555") }
+    var host by remember(initialTarget) { mutableStateOf(initialTarget.host) }
+    var port by remember(initialTarget) { mutableStateOf(initialTarget.port.toString()) }
+    var name by remember(initialName) { mutableStateOf(initialName) }
     var pairingCode by remember { mutableStateOf("") }
 
     FloatingDialog(onDismiss = onDismiss, modifier = Modifier.width(400.dp)) {
@@ -58,6 +62,14 @@ fun WirelessAdbDialog(
                 value = port,
                 onValueChange = { port = it },
                 label = { Text(Language.wirelessAdbPort) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text(Language.wirelessAdbDeviceName) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -89,7 +101,7 @@ fun WirelessAdbDialog(
                 )
             }
 
-            val portNum = port.toIntOrNull() ?: 5555
+            val portNum = port.toIntOrNull() ?: WirelessAdbTarget.DEFAULT_PORT
             val hostValid = host.isNotBlank()
 
             Row(
@@ -97,7 +109,7 @@ fun WirelessAdbDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Button(
-                    onClick = { onConnect(host, portNum) },
+                    onClick = { onConnect(host, portNum, name) },
                     enabled = hostValid && !loading,
                     modifier = Modifier.weight(1f),
                 ) {

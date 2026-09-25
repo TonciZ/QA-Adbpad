@@ -3,15 +3,19 @@ package jp.kaleidot725.adbpad.ui.section.top
 import jp.kaleidot725.adbpad.domain.model.command.DeviceControlCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.device.DeviceLiveness
+import jp.kaleidot725.adbpad.domain.model.device.DeviceState
 import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierLevel
+import jp.kaleidot725.adbpad.domain.model.setting.WirelessAdbTarget
 import jp.kaleidot725.adbpad.domain.repository.DeviceSettingsRepository
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteDeviceControlCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.CheckDeviceLivenessUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.ConnectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.DisconnectDeviceUseCase
+import jp.kaleidot725.adbpad.domain.usecase.device.GetLastWirelessAdbTargetUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.GetSelectedDeviceFlowUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.PairDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.RestartDeviceUseCase
+import jp.kaleidot725.adbpad.domain.usecase.device.SaveLastWirelessAdbTargetUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.SelectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.UpdateDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.GetScrcpyTierPresetsUseCase
@@ -42,12 +46,19 @@ class TopStateHolder(
     private val getScrcpyTierPresetsUseCase: GetScrcpyTierPresetsUseCase,
     private val profileDeviceUseCase: ProfileDeviceUseCase,
     private val deviceSettingsRepository: DeviceSettingsRepository,
+    private val getLastWirelessAdbTargetUseCase: GetLastWirelessAdbTargetUseCase,
+    private val saveLastWirelessAdbTargetUseCase: SaveLastWirelessAdbTargetUseCase,
 ) : PulseStore<TopState, TopAction, TopSideEffect, AppBroadCast, AppUnicast>(TopState()) {
     private var deviceJob: Job? = null
     private var selectedDeviceJob: Job? = null
+    private var autoConnectJob: Job? = null
+
+    // Cleared when the user explicitly disconnects, so we don't fight them by reconnecting.
+    private var autoConnectEnabled = true
 
     override fun onSetup() {
         collectDevices()
+        startAutoConnect()
         coroutineScope.launch {
             val presets = getScrcpyTierPresetsUseCase()
             update { copy(scrcpyTierPresets = presets) }
@@ -68,7 +79,7 @@ class TopStateHolder(
                 TopAction.CheckDeviceLiveness -> checkDeviceLiveness()
                 TopAction.RestartDevice -> restartDevice()
                 TopAction.Refresh -> unicast(AppUnicast.Refresh)
-                TopAction.OpenWirelessAdb -> update { copy(showWirelessAdbDialog = true, wirelessAdbStatus = "") }
+                TopAction.OpenWirelessAdb -> openWirelessAdb()
                 TopAction.CloseWirelessAdb ->
                     update {
                         copy(
@@ -77,7 +88,7 @@ class TopStateHolder(
                             wirelessAdbLoading = false,
                         )
                     }
-                is TopAction.ConnectWirelessAdb -> connectWirelessAdb(uiAction.host, uiAction.port)
+                is TopAction.ConnectWirelessAdb -> connectWirelessAdb(uiAction.host, uiAction.port, uiAction.name)
                 is TopAction.PairWirelessAdb -> pairWirelessAdb(uiAction.host, uiAction.port, uiAction.code)
                 is TopAction.DisconnectWirelessAdb -> disconnectWirelessAdb(uiAction.host, uiAction.port)
             }
@@ -150,13 +161,35 @@ class TopStateHolder(
         }
     }
 
+    private suspend fun openWirelessAdb() {
+        val target = getLastWirelessAdbTargetUseCase()
+        val name = if (target.host.isBlank()) "" else loadCustomName(target.serial)
+        update {
+            copy(
+                showWirelessAdbDialog = true,
+                wirelessAdbStatus = "",
+                lastWirelessAdbTarget = target,
+                lastWirelessAdbName = name,
+            )
+        }
+    }
+
     private suspend fun connectWirelessAdb(
         host: String,
         port: Int,
+        name: String,
     ) {
         update { copy(wirelessAdbLoading = true, wirelessAdbStatus = "") }
         try {
             val result = connectDeviceUseCase(host, port)
+            // adb reports failures as text ("failed to connect to ...", "cannot connect to ..."), not exceptions.
+            if (isConnectSuccess(result)) {
+                val target = WirelessAdbTarget(host.trim(), port)
+                saveLastWirelessAdbTargetUseCase(target)
+                saveCustomName(target.serial, name.trim())
+                autoConnectEnabled = true
+                update { copy(lastWirelessAdbTarget = target, lastWirelessAdbName = name.trim()) }
+            }
             update { copy(wirelessAdbLoading = false, wirelessAdbStatus = result) }
         } catch (e: Exception) {
             update { copy(wirelessAdbLoading = false, wirelessAdbStatus = "Error: ${e.message}") }
@@ -181,6 +214,7 @@ class TopStateHolder(
         host: String,
         port: Int,
     ) {
+        autoConnectEnabled = false
         update { copy(wirelessAdbLoading = true, wirelessAdbStatus = "") }
         try {
             val result = disconnectDeviceUseCase(host, port)
@@ -189,6 +223,50 @@ class TopStateHolder(
             update { copy(wirelessAdbLoading = false, wirelessAdbStatus = "Error: ${e.message}") }
         }
     }
+
+    // Keeps the last successfully connected wireless device attached: whenever it is missing
+    // from the device list, retry `adb connect` to the saved host:port.
+    private fun startAutoConnect() {
+        autoConnectJob?.cancel()
+        autoConnectJob =
+            coroutineScope.launch {
+                while (isActive) {
+                    val target = getLastWirelessAdbTargetUseCase()
+                    val serial = target.serial
+                    val listed = currentState.devices.firstOrNull { it.serial == serial }
+                    if (autoConnectEnabled && target.host.isNotBlank() && listed?.state != DeviceState.DEVICE) {
+                        try {
+                            // A stale "offline" entry makes adb answer "already connected" without retrying.
+                            if (listed?.state == DeviceState.OFFLINE) disconnectDeviceUseCase(target.host, target.port)
+                            connectDeviceUseCase(target.host, target.port)
+                        } catch (e: Exception) {
+                            println("Auto-connect to $serial failed: ${e.message}")
+                        }
+                    }
+                    delay(AUTO_CONNECT_INTERVAL)
+                }
+            }
+    }
+
+    // The name lives in the per-device settings (same field as Device Settings > Name),
+    // so it shows up in the device selector and stays in sync with manual renames.
+    private suspend fun loadCustomName(serial: String): String =
+        deviceSettingsRepository.getDeviceSettings(Device(serial, "", DeviceState.OFFLINE)).customName ?: ""
+
+    private suspend fun saveCustomName(
+        serial: String,
+        name: String,
+    ) {
+        val device = Device(serial, "", DeviceState.OFFLINE)
+        val settings = deviceSettingsRepository.getDeviceSettings(device)
+        val customName = name.ifBlank { null }
+        if (settings.customName != customName) {
+            deviceSettingsRepository.saveDeviceSettings(device, settings.copy(customName = customName))
+        }
+    }
+
+    private fun isConnectSuccess(result: String): Boolean =
+        result.contains("connected to") && !result.contains("failed") && !result.contains("cannot")
 
     private fun collectDevices() {
         deviceJob?.cancel()
@@ -243,5 +321,6 @@ class TopStateHolder(
 
     companion object {
         private const val RESTART_RECHECK_DELAY = 15_000L
+        private const val AUTO_CONNECT_INTERVAL = 10_000L
     }
 }

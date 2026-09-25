@@ -41,6 +41,7 @@ sealed class TopAction : PulseAction {
     data class ConnectWirelessAdb(
         val host: String,
         val port: Int,
+        val name: String,
     ) : TopAction()
 
     data class PairWirelessAdb(

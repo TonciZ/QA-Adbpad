@@ -7,6 +7,7 @@ import jp.kaleidot725.adbpad.domain.model.setting.Appearance
 import jp.kaleidot725.adbpad.domain.model.setting.ScrcpySettings
 import jp.kaleidot725.adbpad.domain.model.setting.SdkPath
 import jp.kaleidot725.adbpad.domain.model.setting.WindowSize
+import jp.kaleidot725.adbpad.domain.model.setting.WirelessAdbTarget
 
 interface SettingRepository {
     suspend fun updateAppearance(appearance: Appearance): Boolean
@@ -36,4 +37,8 @@ interface SettingRepository {
     suspend fun updateScrcpyTierPresets(presets: ScrcpyTierPresets): Boolean
 
     suspend fun getScrcpyTierPresets(): ScrcpyTierPresets
+
+    suspend fun updateLastWirelessAdbTarget(target: WirelessAdbTarget): Boolean
+
+    suspend fun getLastWirelessAdbTarget(): WirelessAdbTarget
 }

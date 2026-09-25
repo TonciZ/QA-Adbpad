@@ -253,6 +253,7 @@ object EnglishResources : StringResources {
     override val wirelessAdbHost: String = "IP Address"
     override val wirelessAdbPort: String = "Port"
     override val wirelessAdbPairingCode: String = "Pairing Code"
+    override val wirelessAdbDeviceName: String = "Device Name (optional)"
     override val wirelessAdbConnect: String = "Connect"
     override val wirelessAdbPair: String = "Pair"
     override val wirelessAdbDisconnect: String = "Disconnect"
