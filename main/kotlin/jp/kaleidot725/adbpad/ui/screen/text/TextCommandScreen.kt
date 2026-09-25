@@ -90,6 +90,8 @@ fun TextCommandScreen(
                         command = command,
                         canSend = state.canSend,
                         onSendText = { onAction(TextCommandAction.SendTextCommand) },
+                        sendStatus = state.sendStatus,
+                        sendFailed = state.sendFailed,
                         selectedOption = state.selectedTextCommandOption,
                         onUpdateTextCommandOption = { onAction(TextCommandAction.UpdateTextCommandOption(it)) },
                         modifier = Modifier.fillMaxSize(),

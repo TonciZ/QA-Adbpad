@@ -14,6 +14,8 @@ data class TextCommandState(
     val isSendingTab: Boolean = false,
     val searchText: String = "",
     val sortType: SortType = SortType.SORT_BY_NAME_ASC,
+    val sendStatus: String = "",
+    val sendFailed: Boolean = false,
 ) : PulseState {
     val selectedCommand: TextCommand? = commands.firstOrNull { it.id == selectedCommandId }
     val canSend: Boolean = selectedDevice != null

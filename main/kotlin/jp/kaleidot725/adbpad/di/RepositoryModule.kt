@@ -55,7 +55,7 @@ val repositoryModule =
             NormalCommandFavoriteRepositoryImpl()
         }
         single<TextCommandRepository> {
-            TextCommandRepositoryImpl()
+            TextCommandRepositoryImpl(get())
         }
         single<ScreenshotCommandRepository> {
             ScreenshotCommandRepositoryImpl(settingRepository = get())
