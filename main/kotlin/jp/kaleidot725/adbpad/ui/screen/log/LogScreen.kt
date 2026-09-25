@@ -253,10 +253,10 @@ private fun LogLine(
                     return@buildAnnotatedString
                 }
                 val color = levelColor(level)
-                withStyle(SpanStyle(color = dim)) { append(entry.time).append("  ") }
-                withStyle(SpanStyle(color = color, fontWeight = FontWeight.Bold)) { append(level.letter).append("  ") }
+                withStyle(SpanStyle(color = dim)) { append("${entry.time}  ") }
+                withStyle(SpanStyle(color = color, fontWeight = FontWeight.Bold)) { append("${level.letter}  ") }
                 withStyle(SpanStyle(color = color, fontWeight = FontWeight.SemiBold)) { append(entry.tag) }
-                withStyle(SpanStyle(color = dim)) { append(" (").append(entry.pid).append(")  ") }
+                withStyle(SpanStyle(color = dim)) { append(" (${entry.pid})  ") }
                 val messageColor = if (level >= LogLevel.WARN) color else base
                 withStyle(SpanStyle(color = messageColor)) { append(entry.message) }
             }
