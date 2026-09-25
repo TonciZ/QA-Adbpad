@@ -366,6 +366,11 @@ object TurkishResources : StringResources {
     override val logStop: String = "Durdur ve Kaydet"
     override val logClear: String = "Temizle"
     override val logFilter: String = "Filtre (ör. *:E)"
+    override val logSearch: String = "Etiket, mesaj veya PID ara"
+    override val logMinLevel: String = "Min. seviye"
+    override val logAutoScroll: String = "Otomatik kaydır"
+    override val logWrapLines: String = "Satırları kaydır"
+    override val logCopyVisible: String = "Kopyala"
     override val logSaved: String = "Kaydedildi:"
 
     override val commandCategoryAll: String = "Hepsi"

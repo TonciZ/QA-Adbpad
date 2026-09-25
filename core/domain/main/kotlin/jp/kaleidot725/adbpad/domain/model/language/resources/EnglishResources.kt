@@ -365,7 +365,12 @@ object EnglishResources : StringResources {
     override val logStart: String = "Start Logs"
     override val logStop: String = "Stop & Save"
     override val logClear: String = "Clear"
-    override val logFilter: String = "Filter (e.g. *:E)"
+    override val logFilter: String = "logcat filter, applied on start (e.g. *:E)"
+    override val logSearch: String = "Search tag, message or PID"
+    override val logMinLevel: String = "Min level"
+    override val logAutoScroll: String = "Auto-scroll"
+    override val logWrapLines: String = "Wrap lines"
+    override val logCopyVisible: String = "Copy"
     override val logSaved: String = "Saved to:"
 
     override val commandCategoryAll: String = "All"
