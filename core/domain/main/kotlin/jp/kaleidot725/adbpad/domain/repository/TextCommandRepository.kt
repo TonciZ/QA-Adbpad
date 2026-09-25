@@ -30,7 +30,7 @@ interface TextCommandRepository {
         command: TextCommand,
         onStart: suspend () -> Unit,
         onComplete: suspend () -> Unit,
-        onFailed: suspend () -> Unit,
+        onFailed: suspend (reason: String) -> Unit,
     )
 
     fun clear()

@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,6 +32,8 @@ fun TextCommandDetailMenu(
     command: TextCommand,
     canSend: Boolean,
     onSendText: () -> Unit,
+    sendStatus: String,
+    sendFailed: Boolean,
     selectedOption: TextCommand.Option,
     onUpdateTextCommandOption: (TextCommand.Option) -> Unit,
     modifier: Modifier = Modifier,
@@ -60,6 +64,17 @@ fun TextCommandDetailMenu(
                     label = Language.textCommandLineBreakOptionLabel,
                     showNullOption = false,
                     modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+
+        if (sendStatus.isNotEmpty()) {
+            SelectionContainer {
+                Text(
+                    text = sendStatus,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (sendFailed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 )
             }
         }

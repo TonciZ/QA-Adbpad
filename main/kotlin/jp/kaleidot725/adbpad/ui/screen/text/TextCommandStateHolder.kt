@@ -187,15 +187,16 @@ class TextCommandStateHolder(
                         searchText = currentState.searchText,
                         sortType = currentState.sortType,
                     )
-                update { copy(commands = commands) }
+                update { copy(commands = commands, sendStatus = "", sendFailed = false) }
             },
-            onFailed = {
+            onFailed = { reason ->
+                println("Send text to ${selectedDevice.serial} failed: $reason")
                 val commands =
                     getTextCommandUseCase(
                         searchText = currentState.searchText,
                         sortType = currentState.sortType,
                     )
-                update { copy(commands = commands) }
+                update { copy(commands = commands, sendStatus = reason, sendFailed = true) }
             },
             onComplete = {
                 val commands =
@@ -203,7 +204,9 @@ class TextCommandStateHolder(
                         searchText = currentState.searchText,
                         sortType = currentState.sortType,
                     )
-                update { copy(commands = commands) }
+                update {
+                    copy(commands = commands, sendStatus = "Sent to ${selectedDevice.displayName}", sendFailed = false)
+                }
             },
         )
     }
@@ -279,7 +282,7 @@ class TextCommandStateHolder(
     private fun selectCommand(command: TextCommand) {
         val index = currentState.commands.indexOf(command)
         val id = currentState.commands[index].id
-        update { copy(selectedCommandId = id) }
+        update { copy(selectedCommandId = id, sendStatus = "", sendFailed = false) }
     }
 
     private suspend fun updateTextCommandOption(value: TextCommand.Option) {
