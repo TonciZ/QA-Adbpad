@@ -364,6 +364,11 @@ object ChineseResources : StringResources {
     override val logStop: String = "停止并保存"
     override val logClear: String = "清除"
     override val logFilter: String = "过滤 (例: *:E)"
+    override val logSearch: String = "搜索标签、消息或 PID"
+    override val logMinLevel: String = "最低级别"
+    override val logAutoScroll: String = "自动滚动"
+    override val logWrapLines: String = "自动换行"
+    override val logCopyVisible: String = "复制"
     override val logSaved: String = "已保存到:"
 
     override val commandCategoryAll: String = "全部"
