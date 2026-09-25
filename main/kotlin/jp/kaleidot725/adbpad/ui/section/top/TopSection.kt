@@ -80,7 +80,9 @@ fun TopSection(
         WirelessAdbDialog(
             status = topState.wirelessAdbStatus,
             loading = topState.wirelessAdbLoading,
-            onConnect = { host, port -> onTopAction(TopAction.ConnectWirelessAdb(host, port)) },
+            initialTarget = topState.lastWirelessAdbTarget,
+            initialName = topState.lastWirelessAdbName,
+            onConnect = { host, port, name -> onTopAction(TopAction.ConnectWirelessAdb(host, port, name)) },
             onPair = { host, port, code -> onTopAction(TopAction.PairWirelessAdb(host, port, code)) },
             onDisconnect = { host, port -> onTopAction(TopAction.DisconnectWirelessAdb(host, port)) },
             onDismiss = { onTopAction(TopAction.CloseWirelessAdb) },

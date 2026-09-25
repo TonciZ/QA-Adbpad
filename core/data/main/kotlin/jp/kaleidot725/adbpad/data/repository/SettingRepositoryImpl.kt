@@ -8,6 +8,7 @@ import jp.kaleidot725.adbpad.domain.model.setting.Appearance
 import jp.kaleidot725.adbpad.domain.model.setting.ScrcpySettings
 import jp.kaleidot725.adbpad.domain.model.setting.SdkPath
 import jp.kaleidot725.adbpad.domain.model.setting.WindowSize
+import jp.kaleidot725.adbpad.domain.model.setting.WirelessAdbTarget
 import jp.kaleidot725.adbpad.domain.repository.SettingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -115,6 +116,21 @@ class SettingRepositoryImpl : SettingRepository {
         return withContext(Dispatchers.IO) {
             val setting = SettingFileCreator.load()
             return@withContext setting.scrcpyTierPresets
+        }
+    }
+
+    override suspend fun updateLastWirelessAdbTarget(target: WirelessAdbTarget): Boolean {
+        return withContext(Dispatchers.IO) {
+            val oldSetting = SettingFileCreator.load()
+            val newSetting = oldSetting.copy(lastWirelessAdbTarget = target)
+            return@withContext SettingFileCreator.save(newSetting)
+        }
+    }
+
+    override suspend fun getLastWirelessAdbTarget(): WirelessAdbTarget {
+        return withContext(Dispatchers.IO) {
+            val setting = SettingFileCreator.load()
+            return@withContext setting.lastWirelessAdbTarget
         }
     }
 }

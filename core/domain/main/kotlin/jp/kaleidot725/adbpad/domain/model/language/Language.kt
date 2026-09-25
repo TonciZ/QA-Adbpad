@@ -486,6 +486,8 @@ object Language : StringResources {
         get() = getCurrentResources().wirelessAdbPort
     override val wirelessAdbPairingCode: String
         get() = getCurrentResources().wirelessAdbPairingCode
+    override val wirelessAdbDeviceName: String
+        get() = getCurrentResources().wirelessAdbDeviceName
     override val wirelessAdbConnect: String
         get() = getCurrentResources().wirelessAdbConnect
     override val wirelessAdbPair: String

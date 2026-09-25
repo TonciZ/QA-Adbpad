@@ -4,6 +4,7 @@ import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.device.DeviceLiveness
 import jp.kaleidot725.adbpad.domain.model.device.DeviceProfile
 import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierPresets
+import jp.kaleidot725.adbpad.domain.model.setting.WirelessAdbTarget
 import jp.kaleidot725.pulse.mvi.PulseState
 
 data class TopState(
@@ -13,6 +14,8 @@ data class TopState(
     val showWirelessAdbDialog: Boolean = false,
     val wirelessAdbStatus: String = "",
     val wirelessAdbLoading: Boolean = false,
+    val lastWirelessAdbTarget: WirelessAdbTarget = WirelessAdbTarget(),
+    val lastWirelessAdbName: String = "",
     val showScrcpyTierDialog: Boolean = false,
     val scrcpyTierPresets: ScrcpyTierPresets = ScrcpyTierPresets(),
     val deviceProfile: DeviceProfile? = null,

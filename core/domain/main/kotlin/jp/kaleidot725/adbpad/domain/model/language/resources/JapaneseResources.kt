@@ -253,6 +253,7 @@ object JapaneseResources : StringResources {
     override val wirelessAdbHost: String = "IPアドレス"
     override val wirelessAdbPort: String = "ポート"
     override val wirelessAdbPairingCode: String = "ペアリングコード"
+    override val wirelessAdbDeviceName: String = "デバイス名（任意）"
     override val wirelessAdbConnect: String = "接続"
     override val wirelessAdbPair: String = "ペアリング"
     override val wirelessAdbDisconnect: String = "切断"

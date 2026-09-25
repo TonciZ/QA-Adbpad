@@ -253,6 +253,7 @@ object TurkishResources : StringResources {
     override val wirelessAdbHost: String = "IP Adresi"
     override val wirelessAdbPort: String = "Port"
     override val wirelessAdbPairingCode: String = "Eşleştirme Kodu"
+    override val wirelessAdbDeviceName: String = "Cihaz Adı (isteğe bağlı)"
     override val wirelessAdbConnect: String = "Bağlan"
     override val wirelessAdbPair: String = "Eşleştir"
     override val wirelessAdbDisconnect: String = "Bağlantıyı Kes"

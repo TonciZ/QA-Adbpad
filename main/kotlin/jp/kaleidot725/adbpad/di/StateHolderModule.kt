@@ -95,6 +95,8 @@ val stateHolderModule =
                 getScrcpyTierPresetsUseCase = get(),
                 profileDeviceUseCase = get(),
                 deviceSettingsRepository = get(),
+                getLastWirelessAdbTargetUseCase = get(),
+                saveLastWirelessAdbTargetUseCase = get(),
             )
         }
 
