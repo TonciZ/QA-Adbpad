@@ -185,7 +185,8 @@ fun LogScreen(
                                 // Scrolling up with the wheel pauses auto-scroll so the user can read,
                                 // scrolling back to the bottom resumes it.
                                 .onPointerEvent(PointerEventType.Scroll) { event ->
-                                    val dy = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
+                                    val change = event.changes.firstOrNull()
+                                    val dy = change?.scrollDelta?.y ?: 0f
                                     if (dy < 0 && state.autoScroll) {
                                         onAction(LogAction.SetAutoScroll(false))
                                     } else if (dy > 0 && !state.autoScroll && !listState.canScrollForward) {
