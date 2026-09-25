@@ -27,7 +27,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          version=$(grep -oP 'packageVersion = "\K[^"]+' build.gradle.kts)
+          version=$(sed -n 's/.*packageVersion = "\([^"]*\)".*/\1/p' build.gradle.kts)
           echo "version=$version" >> "$GITHUB_OUTPUT"
           test -f ".github/release-notes/v$version.md" || { echo "Missing .github/release-notes/v$version.md"; exit 1; }
 
