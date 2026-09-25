@@ -688,6 +688,16 @@ object Language : StringResources {
         get() = getCurrentResources().logClear
     override val logFilter: String
         get() = getCurrentResources().logFilter
+    override val logSearch: String
+        get() = getCurrentResources().logSearch
+    override val logMinLevel: String
+        get() = getCurrentResources().logMinLevel
+    override val logAutoScroll: String
+        get() = getCurrentResources().logAutoScroll
+    override val logWrapLines: String
+        get() = getCurrentResources().logWrapLines
+    override val logCopyVisible: String
+        get() = getCurrentResources().logCopyVisible
     override val logSaved: String
         get() = getCurrentResources().logSaved
 

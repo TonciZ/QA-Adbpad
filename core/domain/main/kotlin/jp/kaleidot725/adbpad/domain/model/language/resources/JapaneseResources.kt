@@ -365,6 +365,11 @@ object JapaneseResources : StringResources {
     override val logStop: String = "停止して保存"
     override val logClear: String = "クリア"
     override val logFilter: String = "フィルター (例: *:E)"
+    override val logSearch: String = "タグ・メッセージ・PID を検索"
+    override val logMinLevel: String = "最小レベル"
+    override val logAutoScroll: String = "自動スクロール"
+    override val logWrapLines: String = "折り返し"
+    override val logCopyVisible: String = "コピー"
     override val logSaved: String = "保存先:"
 
     override val commandCategoryAll: String = "すべて"
