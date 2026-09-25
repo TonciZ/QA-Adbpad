@@ -11,7 +11,7 @@ class ExecuteTextCommandUseCase(
         device: Device,
         command: TextCommand,
         onStart: suspend () -> Unit,
-        onFailed: suspend () -> Unit,
+        onFailed: suspend (reason: String) -> Unit,
         onComplete: suspend () -> Unit,
     ) {
         textCommandRepository.sendCommand(
@@ -20,8 +20,8 @@ class ExecuteTextCommandUseCase(
             onStart = {
                 onStart()
             },
-            onFailed = {
-                onFailed()
+            onFailed = { reason ->
+                onFailed(reason)
             },
             onComplete = {
                 onComplete()

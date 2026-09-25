@@ -1,18 +1,22 @@
 package jp.kaleidot725.adbpad.data.repository
 
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
+import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import jp.kaleidot725.adbpad.data.local.TextCommandFileCreator
 import jp.kaleidot725.adbpad.domain.model.command.KeyCommand
 import jp.kaleidot725.adbpad.domain.model.command.TextCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
+import jp.kaleidot725.adbpad.domain.repository.SettingRepository
 import jp.kaleidot725.adbpad.domain.repository.TextCommandRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
-class TextCommandRepositoryImpl : TextCommandRepository {
+class TextCommandRepositoryImpl(
+    private val settingRepository: SettingRepository,
+) : TextCommandRepository {
     private val runningCommands: MutableSet<TextCommand> = mutableSetOf()
-    private val adbClient = AndroidDebugBridgeClientFactory().build()
     private val lock: Any = Any()
 
     override suspend fun getAllTextCommand(): List<TextCommand> {
@@ -113,46 +117,85 @@ class TextCommandRepositoryImpl : TextCommandRepository {
         command: TextCommand,
         onStart: suspend () -> Unit,
         onComplete: suspend () -> Unit,
-        onFailed: suspend () -> Unit,
+        onFailed: suspend (reason: String) -> Unit,
     ) {
         withContext(Dispatchers.IO) {
+            val unsupported = command.unsupportedChars
+            if (unsupported.isNotEmpty()) {
+                onFailed(
+                    "adb 'input text' can only type plain ASCII. Unsupported characters: " +
+                        unsupported.joinToString(" "),
+                )
+                return@withContext
+            }
+
             runningCommands.add(command)
             onStart()
 
-            delay(300)
-
-            command.requests.forEachIndexed { index, request ->
-                if (request.cmd.isNotEmpty()) {
-                    val result = adbClient.execute(request, device.serial)
-                    if (result.exitCode != 0) {
-                        runningCommands.remove(command)
-                        onFailed()
-                        return@withContext
-                    }
+            val failure =
+                try {
+                    val adbClient = client()
+                    delay(300)
+                    sendLines(adbClient, device, command)
+                } catch (e: Exception) {
+                    "${e::class.simpleName}: ${e.message ?: "no message"} (is ${device.serial} still connected?)"
+                } finally {
+                    runningCommands.remove(command)
                 }
 
-                if (command.requests.lastIndex != index) {
-                    val keyCode =
-                        when (command.option) {
-                            TextCommand.Option.SendWithTab -> 61
-                            TextCommand.Option.SendWithNewLine -> 66
-                        }
-
-                    val keyCommand = KeyCommand(keyCode)
-                    keyCommand.requests.forEach { keyRequest ->
-                        val keyResult = adbClient.execute(keyRequest, device.serial)
-                        if (keyResult.exitCode != 0) {
-                            onFailed()
-                            return@withContext
-                        }
-                    }
-                }
-            }
-
-            runningCommands.remove(command)
-            onComplete()
+            if (failure == null) onComplete() else onFailed(failure)
         }
     }
+
+    /** Returns null on success, or a human-readable reason for the first failing step. */
+    private suspend fun sendLines(
+        adbClient: AndroidDebugBridgeClient,
+        device: Device,
+        command: TextCommand,
+    ): String? {
+        command.requests.forEachIndexed { index, request ->
+            if (request.cmd.isNotEmpty()) {
+                val result = adbClient.execute(request, device.serial)
+                describeFailure(request.cmd, result)?.let { return it }
+            }
+
+            if (command.requests.lastIndex != index) {
+                val keyCode =
+                    when (command.option) {
+                        TextCommand.Option.SendWithTab -> 61
+                        TextCommand.Option.SendWithNewLine -> 66
+                    }
+
+                KeyCommand(keyCode).requests.forEach { keyRequest ->
+                    val keyResult = adbClient.execute(keyRequest, device.serial)
+                    describeFailure(keyRequest.cmd, keyResult)?.let { return it }
+                }
+            }
+        }
+        return null
+    }
+
+    // `input` often exits 0 while printing a Java exception, so the output is checked as well.
+    private fun describeFailure(
+        cmd: String,
+        result: ShellCommandResult,
+    ): String? {
+        val output = result.output.trim()
+        val failed = result.exitCode != 0 || output.contains("Exception") || output.startsWith("Error")
+        if (!failed) return null
+        return buildString {
+            append("Line ${line(cmd)} failed (exit code ${result.exitCode})")
+            if (output.isNotEmpty()) append(": ").append(output.lineSequence().take(3).joinToString(" | "))
+        }
+    }
+
+    private fun line(cmd: String): String = if (cmd.length > 60) "\"${cmd.take(57)}...\"" else "\"$cmd\""
+
+    // Built per call so a changed ADB server port in settings takes effect without a restart.
+    private suspend fun client(): AndroidDebugBridgeClient =
+        AndroidDebugBridgeClientFactory()
+            .apply { port = settingRepository.getSdkPath().adbServerPort }
+            .build()
 
     override fun clear() {
         runningCommands.clear()

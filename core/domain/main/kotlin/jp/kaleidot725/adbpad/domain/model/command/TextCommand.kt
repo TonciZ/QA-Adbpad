@@ -15,12 +15,12 @@ data class TextCommand(
 ) {
     val requests: List<ShellCommandRequest> get() {
         return buildList {
-            val texts = text.split('\n')
+            val texts = text.replace("\r", "").split('\n')
             texts.forEach { text ->
                 if (text.isEmpty()) {
                     add(ShellCommandRequest(""))
                 } else {
-                    add(ShellCommandRequest("input text $text"))
+                    add(ShellCommandRequest("input text ${escapeForInputText(text)}"))
                 }
             }
         }
@@ -31,7 +31,14 @@ data class TextCommand(
         SendWithNewLine,
     }
 
+    /** Characters `adb shell input text` cannot type (it only maps printable ASCII). */
+    val unsupportedChars: Set<Char> get() = text.filter { it != '\n' && it != '\r' && (it < ' ' || it > '~') }.toSet()
+
     companion object {
+        // `input text` treats %s as a space and splits on real spaces, and the line runs through the
+        // device shell, so quotes, &, ;, |, $, (, ) etc. must not reach it unescaped.
+        fun escapeForInputText(line: String): String = "'" + line.replace("'", "'\\''").replace(" ", "%s") + "'"
+
         fun createNew(
             title: String,
             text: String,
