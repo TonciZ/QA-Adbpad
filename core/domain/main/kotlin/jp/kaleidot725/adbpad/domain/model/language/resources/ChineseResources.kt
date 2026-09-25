@@ -253,6 +253,7 @@ object ChineseResources : StringResources {
     override val wirelessAdbHost: String = "IP地址"
     override val wirelessAdbPort: String = "端口"
     override val wirelessAdbPairingCode: String = "配对码"
+    override val wirelessAdbDeviceName: String = "设备名称（可选）"
     override val wirelessAdbConnect: String = "连接"
     override val wirelessAdbPair: String = "配对"
     override val wirelessAdbDisconnect: String = "断开"

@@ -7,6 +7,7 @@ import jp.kaleidot725.adbpad.domain.model.setting.Appearance
 import jp.kaleidot725.adbpad.domain.model.setting.ScrcpySettings
 import jp.kaleidot725.adbpad.domain.model.setting.SdkPath
 import jp.kaleidot725.adbpad.domain.model.setting.WindowSize
+import jp.kaleidot725.adbpad.domain.model.setting.WirelessAdbTarget
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.IOException
@@ -43,5 +44,6 @@ object SettingFileCreator {
         val scrcpySettings: ScrcpySettings = ScrcpySettings(),
         val accentColor: AccentColor = AccentColor.BLUE,
         val scrcpyTierPresets: ScrcpyTierPresets = ScrcpyTierPresets(),
+        val lastWirelessAdbTarget: WirelessAdbTarget = WirelessAdbTarget(),
     )
 }
