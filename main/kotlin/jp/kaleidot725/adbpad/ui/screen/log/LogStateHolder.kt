@@ -94,7 +94,7 @@ class LogStateHolder(
         }
     }
 
-    private fun stopCapture() {
+    private suspend fun stopCapture() {
         logCollectorJob?.cancel()
         logCollectorJob = null
         flushPending()

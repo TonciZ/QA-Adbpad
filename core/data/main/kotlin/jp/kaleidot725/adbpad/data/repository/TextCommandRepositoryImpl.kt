@@ -1,20 +1,19 @@
 package jp.kaleidot725.adbpad.data.repository
 
 import com.malinskiy.adam.AndroidDebugBridgeClient
-import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import jp.kaleidot725.adbpad.data.local.TextCommandFileCreator
 import jp.kaleidot725.adbpad.domain.model.command.KeyCommand
 import jp.kaleidot725.adbpad.domain.model.command.TextCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
-import jp.kaleidot725.adbpad.domain.repository.SettingRepository
+import jp.kaleidot725.adbpad.domain.repository.AdbClientProvider
 import jp.kaleidot725.adbpad.domain.repository.TextCommandRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 class TextCommandRepositoryImpl(
-    private val settingRepository: SettingRepository,
+    private val adbClientProvider: AdbClientProvider,
 ) : TextCommandRepository {
     private val runningCommands: MutableSet<TextCommand> = mutableSetOf()
     private val lock: Any = Any()
@@ -191,11 +190,7 @@ class TextCommandRepositoryImpl(
 
     private fun line(cmd: String): String = if (cmd.length > 60) "\"${cmd.take(57)}...\"" else "\"$cmd\""
 
-    // Built per call so a changed ADB server port in settings takes effect without a restart.
-    private suspend fun client(): AndroidDebugBridgeClient =
-        AndroidDebugBridgeClientFactory()
-            .apply { port = settingRepository.getSdkPath().adbServerPort }
-            .build()
+    private suspend fun client(): AndroidDebugBridgeClient = adbClientProvider.client()
 
     override fun clear() {
         runningCommands.clear()

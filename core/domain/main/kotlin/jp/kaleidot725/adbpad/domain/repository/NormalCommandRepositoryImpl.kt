@@ -1,6 +1,5 @@
 package jp.kaleidot725.adbpad.domain.repository
 
-import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import jp.kaleidot725.adbpad.domain.model.command.NormalCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
@@ -9,14 +8,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 class NormalCommandRepositoryImpl(
-    private val settingRepository: SettingRepository,
+    private val adbClientProvider: AdbClientProvider,
 ) : NormalCommandRepository {
     private val runningCommands: MutableSet<NormalCommand> = mutableSetOf()
 
-    private suspend fun client() =
-        AndroidDebugBridgeClientFactory()
-            .apply { port = settingRepository.getSdkPath().adbServerPort }
-            .build()
+    private suspend fun client() = adbClientProvider.client()
 
     override fun getCommands(): List<NormalCommand> =
         listOf(
