@@ -288,6 +288,7 @@ under the name in a smaller font.
 **Problem:** Sending text sometimes did nothing, with no error or log.
 
 **Root cause:** Several independent bugs:
+
 - Each line went to the device shell unquoted (`input text $text`), so spaces, quotes, `&`, `;`,
   `|`, `$` and parentheses broke or truncated the command.
 - `input text` cannot type non-ASCII characters (e.g. č, ć, š, ž, đ) at all.
@@ -307,6 +308,27 @@ logcat `-v time` lines are parsed into time, level, tag, PID and message. Added 
 line wrap, text selection, a scrollbar, auto-scroll that pauses when scrolling up and resumes at
 the bottom, and a Copy button for the visible lines. Incoming lines are buffered and published
 every 200 ms instead of copying the whole list per line, which could freeze the UI.
+
+### 22. Fix RAM growing to several GB while the app runs
+
+**Problem:** Left open, the app's memory usage climbed steadily, reaching several GB after a few
+hours.
+
+**Root cause:** `DeviceRepositoryImpl`, `DeviceConnectionRepositoryImpl`,
+`DeviceControlCommandRepositoryImpl`, `NormalCommandRepositoryImpl` and `TextCommandRepositoryImpl`
+all built a fresh `AndroidDebugBridgeClient` (the `adam` library's adb client) on every call
+instead of reusing one. Each client lazily creates its own Vert.x instance - event loop and
+worker thread pools - on first use, and nothing ever called `close()` on the old one. The device
+list is polled every second in the background, so a new, never-released Vert.x instance piled up
+every second the app was running. Confirmed live: the unpatched build's thread count grew from
+335 to 772 in 90 seconds; the fixed build stayed flat at 111 threads over the same window.
+
+Separately, `LogCaptureRepositoryImpl` buffered every captured logcat line in memory for the
+whole capture session, which could also run RAM up during a long capture.
+
+**Fix:** Added `AdbClientProvider`, a single cached `AndroidDebugBridgeClient` reused across all
+adb calls and only rebuilt if the ADB server port setting changes. Log capture now streams lines
+straight to a temp file instead of an in-memory list.
 
 ### Also
 

@@ -14,5 +14,5 @@ interface LogCaptureRepository {
         filter: String = "",
     )
 
-    fun stopCapture(): File?
+    suspend fun stopCapture(): File?
 }

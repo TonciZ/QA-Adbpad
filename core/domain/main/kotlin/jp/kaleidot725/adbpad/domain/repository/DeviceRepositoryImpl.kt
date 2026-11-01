@@ -1,6 +1,5 @@
 package jp.kaleidot725.adbpad.domain.repository
 
-import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.request.device.ListDevicesRequest
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.device.DeviceState
@@ -10,12 +9,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 class DeviceRepositoryImpl(
     private val deviceSettingsRepository: DeviceSettingsRepository,
-    private val settingRepository: SettingRepository,
+    private val adbClientProvider: AdbClientProvider,
 ) : DeviceRepository {
-    private suspend fun client() =
-        AndroidDebugBridgeClientFactory()
-            .apply { port = settingRepository.getSdkPath().adbServerPort }
-            .build()
+    private suspend fun client() = adbClientProvider.client()
 
     private var lastSelectedDevice: Device? = null
     private val selectedDevice: MutableSharedFlow<Device?> = MutableSharedFlow(replay = 1)

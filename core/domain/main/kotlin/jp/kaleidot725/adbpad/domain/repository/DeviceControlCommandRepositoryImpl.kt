@@ -1,18 +1,14 @@
 package jp.kaleidot725.adbpad.domain.repository
 
-import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import jp.kaleidot725.adbpad.domain.model.command.DeviceControlCommand
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class DeviceControlCommandRepositoryImpl(
-    private val settingRepository: SettingRepository,
+    private val adbClientProvider: AdbClientProvider,
 ) : DeviceControlCommandRepository {
-    private suspend fun client() =
-        AndroidDebugBridgeClientFactory()
-            .apply { port = settingRepository.getSdkPath().adbServerPort }
-            .build()
+    private suspend fun client() = adbClientProvider.client()
 
     override suspend fun sendCommand(
         device: Device,

@@ -7,6 +7,7 @@ import jp.kaleidot725.adbpad.data.repository.NormalCommandFavoriteRepositoryImpl
 import jp.kaleidot725.adbpad.data.repository.ScrcpyNewDisplayProfileRepositoryImpl
 import jp.kaleidot725.adbpad.data.repository.SettingRepositoryImpl
 import jp.kaleidot725.adbpad.data.repository.TextCommandRepositoryImpl
+import jp.kaleidot725.adbpad.domain.repository.AdbClientProvider
 import jp.kaleidot725.adbpad.domain.repository.DeviceConnectionRepository
 import jp.kaleidot725.adbpad.domain.repository.DeviceConnectionRepositoryImpl
 import jp.kaleidot725.adbpad.domain.repository.DeviceControlCommandRepository
@@ -39,14 +40,15 @@ val repositoryModule =
     module {
         single { ScrcpyNewDisplayProfileFileCreator() }
         single<ScrcpyNewDisplayProfileRepository> { ScrcpyNewDisplayProfileRepositoryImpl(get()) }
+        single { AdbClientProvider(settingRepository = get()) }
         single<DeviceRepository> {
-            DeviceRepositoryImpl(deviceSettingsRepository = get(), settingRepository = get())
+            DeviceRepositoryImpl(deviceSettingsRepository = get(), adbClientProvider = get())
         }
         single<NormalCommandOutputRepository> {
             NormalCommandOutputRepositoryImpl()
         }
         single<NormalCommandRepository> {
-            NormalCommandRepositoryImpl(settingRepository = get())
+            NormalCommandRepositoryImpl(adbClientProvider = get())
         }
         single<InstalledAppRepository> {
             InstalledAppRepositoryImpl()
@@ -64,10 +66,10 @@ val repositoryModule =
             SettingRepositoryImpl()
         }
         factory<DeviceControlCommandRepository> {
-            DeviceControlCommandRepositoryImpl(settingRepository = get())
+            DeviceControlCommandRepositoryImpl(adbClientProvider = get())
         }
         single<DeviceConnectionRepository> {
-            DeviceConnectionRepositoryImpl(settingRepository = get())
+            DeviceConnectionRepositoryImpl(adbClientProvider = get())
         }
         single<LogCaptureRepository> {
             LogCaptureRepositoryImpl(get())

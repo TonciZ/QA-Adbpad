@@ -1,6 +1,5 @@
 package jp.kaleidot725.adbpad.domain.repository
 
-import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.request.misc.ConnectDeviceRequest
 import com.malinskiy.adam.request.misc.DisconnectDeviceRequest
 import com.malinskiy.adam.request.misc.PairDeviceRequest
@@ -8,14 +7,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class DeviceConnectionRepositoryImpl(
-    private val settingRepository: SettingRepository,
+    private val adbClientProvider: AdbClientProvider,
 ) : DeviceConnectionRepository {
-    // ponytail: built per-call, not cached - port comes from user settings and can change
-    // without an app restart; construction itself doesn't open a connection.
-    private suspend fun client() =
-        AndroidDebugBridgeClientFactory()
-            .apply { port = settingRepository.getSdkPath().adbServerPort }
-            .build()
+    private suspend fun client() = adbClientProvider.client()
 
     override suspend fun connectDevice(
         host: String,
