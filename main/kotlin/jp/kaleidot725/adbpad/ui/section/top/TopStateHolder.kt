@@ -216,11 +216,11 @@ class TopStateHolder(
     }
 
     private suspend fun saveWirelessDevice(
-        host: String,
+        hostText: String,
         port: Int,
         name: String,
     ) {
-        storeSavedDevice(WirelessAdbTarget(host.trim(), port), name.trim())
+        storeSavedDevice(WirelessAdbTarget.parse(hostText, port), name.trim())
         update { copy(showWirelessAdbDialog = false, wirelessAdbStatus = "", editingSavedDevice = null) }
     }
 
@@ -270,16 +270,17 @@ class TopStateHolder(
     }
 
     private suspend fun connectWirelessAdb(
-        host: String,
+        hostText: String,
         port: Int,
         name: String,
     ) {
+        val (host, port) = WirelessAdbTarget.parse(hostText, port)
         update { copy(wirelessAdbLoading = true, wirelessAdbStatus = "") }
         try {
             val result = connectDeviceUseCase(host, port)
             // adb reports failures as text ("failed to connect to ...", "cannot connect to ..."), not exceptions.
             if (isConnectSuccess(result)) {
-                val target = WirelessAdbTarget(host.trim(), port)
+                val target = WirelessAdbTarget(host, port)
                 saveLastWirelessAdbTargetUseCase(target)
                 storeSavedDevice(target, name.trim())
                 autoConnectEnabled = true

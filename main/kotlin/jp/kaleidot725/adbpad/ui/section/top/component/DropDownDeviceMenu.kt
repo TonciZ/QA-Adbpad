@@ -47,6 +47,7 @@ fun DropDownDeviceMenu(
     savedDevices: List<SavedWirelessDevice> = emptyList(),
     onConnectSavedDevice: (WirelessAdbTarget) -> Unit = {},
     onEditSavedDevice: (WirelessAdbTarget) -> Unit = {},
+    onAddDevice: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
     var dropDownWidth by remember { mutableStateOf(0) }
@@ -58,7 +59,7 @@ fun DropDownDeviceMenu(
     Box(modifier) {
         DeviceSelector(
             selectedDevice = selectedDevice,
-            onClick = { if (!expanded && (devices.isNotEmpty() || notConnected.isNotEmpty())) expanded = true },
+            onClick = { if (!expanded) expanded = true },
             modifier =
                 Modifier
                     .wrapContentSize()
@@ -137,6 +138,24 @@ fun DropDownDeviceMenu(
                     },
                 )
             }
+
+            if (devices.isNotEmpty() || notConnected.isNotEmpty()) {
+                HorizontalDivider(color = UserColor.getSplitterColor())
+            }
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = Language.addDeviceByIp,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                    )
+                },
+                onClick = {
+                    onAddDevice()
+                    expanded = false
+                },
+            )
         }
     }
 }

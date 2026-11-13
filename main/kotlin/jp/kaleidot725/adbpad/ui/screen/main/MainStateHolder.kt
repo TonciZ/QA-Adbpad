@@ -20,6 +20,7 @@ import jp.kaleidot725.adbpad.ui.screen.main.state.MainSideEffect
 import jp.kaleidot725.adbpad.ui.screen.main.state.MainState
 import jp.kaleidot725.pulse.mvi.PulseStore
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -101,6 +102,11 @@ class MainStateHolder(
 
     private var themeFlowJob: Job? = null
 
+    private companion object {
+        const val START_ADB_RETRIES = 2
+        const val START_ADB_RETRY_DELAY_MS = 1_500L
+    }
+
     private fun startSyncDarkMode() {
         themeFlowJob?.cancel()
         themeFlowJob =
@@ -124,7 +130,17 @@ class MainStateHolder(
 
     private fun checkAdbServer() {
         coroutineScope.launch {
-            val dialog = if (startAdbUseCase()) MainDialog.Empty else MainDialog.AdbError
+            // ponytail: starting adb can fail once while another adb version (Android Studio,
+            // an older install) is shutting its server down to make room - retry before
+            // bothering the user with an error dialog.
+            var started = startAdbUseCase()
+            repeat(START_ADB_RETRIES) {
+                if (!started) {
+                    delay(START_ADB_RETRY_DELAY_MS)
+                    started = startAdbUseCase()
+                }
+            }
+            val dialog = if (started) MainDialog.Empty else MainDialog.AdbError
             update { copy(dialog = dialog) }
         }
     }

@@ -260,6 +260,7 @@ object ChineseResources : StringResources {
     override val wirelessAdbConnect: String = "连接"
     override val wirelessAdbPair: String = "配对"
     override val wirelessAdbDisconnect: String = "断开"
+    override val addDeviceByIp: String = "通过 IP 添加设备..."
     override val wirelessAdbEditTitle: String = "编辑已保存的设备"
     override val savedDeviceNotConnected: String = "已保存 - 点击连接"
 

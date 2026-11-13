@@ -14,12 +14,17 @@ data class SdkPath(
 ) {
     /** The adb to run: the path from Settings if one is set, otherwise the bundled adb. */
     val adbFile: File?
-        get() = if (adbDirectory.isNotBlank()) File(adbDirectory) else BundledTools.adb
+        get() = customAdb ?: BundledTools.adb
+
+    // A path copied from another machine (or left behind by an uninstalled SDK) must not break
+    // the app - only a path that really exists counts as a custom adb.
+    private val customAdb: File?
+        get() = adbDirectory.takeIf { it.isNotBlank() }?.let(::File)?.takeIf { it.isFile }
 
     /** Same as [adbFile], falling back to whatever `adb` is on the PATH. */
     val adbExecutable: String
         get() = adbFile?.path ?: "adb"
 
     val usesBundledAdb: Boolean
-        get() = adbDirectory.isBlank() && BundledTools.adb != null
+        get() = customAdb == null && BundledTools.adb != null
 }

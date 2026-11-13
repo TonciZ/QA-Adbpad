@@ -8,5 +8,8 @@ data class ScrcpySettings(
 ) {
     /** The scrcpy to run: the path from Settings if one is set, otherwise the bundled scrcpy. */
     val executable: String
-        get() = binaryPath.ifBlank { BundledTools.scrcpy?.path.orEmpty() }
+        get() =
+            binaryPath.takeIf { it.isNotBlank() && java.io.File(it).isFile }
+                ?: BundledTools.scrcpy?.path
+                ?: binaryPath
 }

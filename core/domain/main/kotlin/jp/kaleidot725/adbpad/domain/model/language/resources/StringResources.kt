@@ -259,6 +259,7 @@ interface StringResources {
     val wirelessAdbPair: String
     val wirelessAdbDisconnect: String
     val wirelessAdbEditTitle: String
+    val addDeviceByIp: String
     val savedDeviceNotConnected: String
 
     // NavigationRail tooltips
