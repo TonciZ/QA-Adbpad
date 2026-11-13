@@ -500,6 +500,8 @@ object Language : StringResources {
         get() = getCurrentResources().wirelessAdbPair
     override val wirelessAdbDisconnect: String
         get() = getCurrentResources().wirelessAdbDisconnect
+    override val addDeviceByIp: String
+        get() = getCurrentResources().addDeviceByIp
     override val wirelessAdbEditTitle: String
         get() = getCurrentResources().wirelessAdbEditTitle
     override val savedDeviceNotConnected: String

@@ -260,6 +260,7 @@ object JapaneseResources : StringResources {
     override val wirelessAdbConnect: String = "接続"
     override val wirelessAdbPair: String = "ペアリング"
     override val wirelessAdbDisconnect: String = "切断"
+    override val addDeviceByIp: String = "IPでデバイスを追加..."
     override val wirelessAdbEditTitle: String = "保存済みデバイスを編集"
     override val savedDeviceNotConnected: String = "保存済み - クリックで接続"
 

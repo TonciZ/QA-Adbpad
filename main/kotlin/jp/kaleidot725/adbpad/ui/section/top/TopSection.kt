@@ -135,6 +135,7 @@ fun TopSection(
                     savedDevices = topState.savedDevices,
                     onConnectSavedDevice = { onTopAction(TopAction.ConnectSavedDevice(it)) },
                     onEditSavedDevice = { onTopAction(TopAction.EditSavedDevice(it)) },
+                    onAddDevice = { onTopAction(TopAction.OpenWirelessAdb) },
                     modifier = Modifier.width(200.dp),
                 )
 
