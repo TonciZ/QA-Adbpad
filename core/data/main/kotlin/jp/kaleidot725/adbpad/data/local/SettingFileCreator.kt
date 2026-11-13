@@ -15,6 +15,10 @@ import java.io.IOException
 object SettingFileCreator {
     private const val FILE_NAME = "config.json"
 
+    // ponytail: without this, one unknown key (config saved by a newer version) makes load()
+    // fall back to an all-default Setting, i.e. every saved path and preference is "forgotten".
+    private val json = Json { ignoreUnknownKeys = true }
+
     fun save(setting: Setting): Boolean =
         try {
             FilePathUtil.createDir()
@@ -30,7 +34,7 @@ object SettingFileCreator {
     fun load(): Setting =
         try {
             val content = FilePathUtil.getFilePath(FILE_NAME).readText()
-            Json.decodeFromString(string = content)
+            json.decodeFromString(string = content)
         } catch (_: Exception) {
             Setting()
         }

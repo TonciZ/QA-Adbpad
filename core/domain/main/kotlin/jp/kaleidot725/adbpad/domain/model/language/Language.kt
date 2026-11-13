@@ -315,6 +315,10 @@ object Language : StringResources {
         get() = getCurrentResources().outputTerminalTitle
     override val outputTerminalPlaceholder: String
         get() = getCurrentResources().outputTerminalPlaceholder
+    override val customCommandPlaceholder: String
+        get() = getCurrentResources().customCommandPlaceholder
+    override val customCommandStop: String
+        get() = getCurrentResources().customCommandStop
 
     override val textCommandStartEventFormat: String
         get() = getCurrentResources().textCommandStartEventFormat
@@ -392,6 +396,8 @@ object Language : StringResources {
         get() = getCurrentResources().settingScrcpyHeader
     override val settingScrcpyBinaryPathTitle: String
         get() = getCurrentResources().settingScrcpyBinaryPathTitle
+    override val settingBundledToolHint: String
+        get() = getCurrentResources().settingBundledToolHint
     override val settingScrcpyTierPresetsHeader: String
         get() = getCurrentResources().settingScrcpyTierPresetsHeader
     override val settingScrcpyTierLow: String

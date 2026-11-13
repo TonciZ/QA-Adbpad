@@ -27,7 +27,7 @@ class ProfileDeviceUseCase(
         onProgress: (String) -> Unit = {},
     ): DeviceProfile? =
         withContext(Dispatchers.IO) {
-            val scrcpyPath = settingRepository.getScrcpySettings().binaryPath
+            val scrcpyPath = settingRepository.getScrcpySettings().executable
             onProgress("Listing device encoders...")
             val encoders = listH264Encoders(scrcpyPath, device.serial)
             if (encoders.isEmpty()) {
@@ -127,7 +127,7 @@ class ProfileDeviceUseCase(
         killStaleScrcpyServer(serial)
         pacedConnect(serial, settleDelayMs)
 
-        val client = ScrcpyClient.create(binaryPath = scrcpyPath, adbPath = settingRepository.getSdkPath().adbDirectory)
+        val client = ScrcpyClient.create(binaryPath = scrcpyPath, adbPath = settingRepository.getSdkPath().adbExecutable)
         val result =
             withTimeoutOrNull(PROBE_TIMEOUT_MS) {
                 withContext(Dispatchers.IO) {

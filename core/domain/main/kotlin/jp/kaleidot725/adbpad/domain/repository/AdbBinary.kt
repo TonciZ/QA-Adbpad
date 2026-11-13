@@ -9,7 +9,6 @@ object AdbBinary {
         vararg args: String,
     ): ProcessBuilder {
         val sdkPath = settingRepository.getSdkPath()
-        val adbPath = sdkPath.adbDirectory.ifBlank { "adb" }
-        return ProcessBuilder(listOf(adbPath, "-P", sdkPath.adbServerPort.toString()) + args)
+        return ProcessBuilder(listOf(sdkPath.adbExecutable, "-P", sdkPath.adbServerPort.toString()) + args)
     }
 }

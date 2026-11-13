@@ -1,6 +1,9 @@
 package jp.kaleidot725.adbpad.domain.usecase.update
 
 import jp.kaleidot725.adbpad.domain.model.update.UpdateInfo
+import jp.kaleidot725.adbpad.domain.repository.ScrcpyNewDisplayProcessRepository
+import jp.kaleidot725.adbpad.domain.repository.ScrcpyProcessRepository
+import jp.kaleidot725.adbpad.domain.usecase.adb.StopBundledAdbServerUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -13,7 +16,11 @@ import java.net.http.HttpResponse
 // this downloads the new installer and launches it, then quits so the installer can replace
 // this app's files without file-lock conflicts. Not silent (the OS installer UI still runs),
 // but it's one click instead of "find the release page, download, run it yourself".
-class DownloadAndInstallUpdateUseCase {
+class DownloadAndInstallUpdateUseCase(
+    private val scrcpyProcessRepository: ScrcpyProcessRepository,
+    private val scrcpyNewDisplayProcessRepository: ScrcpyNewDisplayProcessRepository,
+    private val stopBundledAdbServerUseCase: StopBundledAdbServerUseCase,
+) {
     suspend operator fun invoke(update: UpdateInfo): Boolean =
         withContext(Dispatchers.IO) {
             try {
@@ -29,6 +36,11 @@ class DownloadAndInstallUpdateUseCase {
                         .build()
                 val response = client.send(request, HttpResponse.BodyHandlers.ofFile(tempFile.toPath()))
                 if (response.statusCode() != 200) return@withContext false
+
+                // The installer replaces the bundled adb and scrcpy too - nothing may hold them open.
+                scrcpyProcessRepository.terminateAllProcesses()
+                scrcpyNewDisplayProcessRepository.terminateAllProcesses()
+                stopBundledAdbServerUseCase()
 
                 when {
                     fileName.endsWith(".msi") -> ProcessBuilder("msiexec", "/i", tempFile.absolutePath).start()

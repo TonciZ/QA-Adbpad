@@ -25,10 +25,10 @@ class LaunchScrcpyUseCase(
         scrcpyProcessRepository.getProcess(device.serial)?.terminate()
 
         val scrcpySettings = settingRepository.getScrcpySettings()
-        val scrcpyPath = scrcpySettings.binaryPath
+        val scrcpyPath = scrcpySettings.executable
 
         val adbSettings = settingRepository.getSdkPath()
-        val adbPath = adbSettings.adbDirectory
+        val adbPath = adbSettings.adbExecutable
 
         // ponytail: this freeze reproduces with plain native scrcpy too (confirmed - not
         // specific to our app or to profiled devices), so every launch gets the same reset,

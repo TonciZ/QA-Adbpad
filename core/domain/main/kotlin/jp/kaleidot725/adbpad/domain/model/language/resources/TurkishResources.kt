@@ -167,6 +167,9 @@ object TurkishResources : StringResources {
 
     override val outputTerminalTitle: String = "Çıktı"
     override val outputTerminalPlaceholder: String = "Yürütme geçmişi burada görüntülenecek"
+    override val customCommandPlaceholder: String =
+        "adb komutu, örn. adb connect 192.168.1.20:5555 - Enter çalıştırır, Shift+Enter satır ekler"
+    override val customCommandStop: String = "Durdur"
 
     override val textCommandStartEventFormat = "「%s」 metni gönderiliyor"
     override val textCommandEndEventFormat = "「%s」 metni gönderildi"
@@ -212,6 +215,7 @@ object TurkishResources : StringResources {
 
     override val settingScrcpyHeader = "Scrcpy"
     override val settingScrcpyBinaryPathTitle = "Yürütülebilir Dosya Yolu"
+    override val settingBundledToolHint = "Uygulamayla gelen sürümü kullanmak için boş bırakın."
     override val settingScrcpyTierPresetsHeader = "Scrcpy Kalite On Ayarlari"
     override val settingScrcpyTierLow = "Dusuk seviye"
     override val settingScrcpyTierMedium = "Orta seviye"

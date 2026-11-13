@@ -2,12 +2,14 @@ package jp.kaleidot725.adbpad.di
 
 import jp.kaleidot725.adbpad.domain.usecase.adb.RestartAdbUseCase
 import jp.kaleidot725.adbpad.domain.usecase.adb.StartAdbUseCase
+import jp.kaleidot725.adbpad.domain.usecase.adb.StopBundledAdbServerUseCase
 import jp.kaleidot725.adbpad.domain.usecase.app.ShutdownAppUseCase
 import jp.kaleidot725.adbpad.domain.usecase.appearance.GetAccentColorUseCase
 import jp.kaleidot725.adbpad.domain.usecase.appearance.GetAppearanceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.appearance.SaveAccentColorUseCase
 import jp.kaleidot725.adbpad.domain.usecase.appearance.SaveAppearanceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteCommandUseCase
+import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteCustomCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteDeviceControlCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.command.GetNormalCommandGroup
 import jp.kaleidot725.adbpad.domain.usecase.command.ToggleNormalCommandFavorite
@@ -58,6 +60,9 @@ val domainModule =
         }
         factory {
             ExecuteCommandUseCase(get(), get())
+        }
+        factory {
+            ExecuteCustomCommandUseCase(get(), get())
         }
         factory {
             ExecuteDeviceControlCommandUseCase(get())
@@ -144,7 +149,7 @@ val domainModule =
             CheckForUpdateUseCase()
         }
         factory {
-            DownloadAndInstallUpdateUseCase()
+            DownloadAndInstallUpdateUseCase(get(), get(), get())
         }
         factory {
             LaunchScrcpyNewDisplayUseCase(get(), get())
@@ -186,6 +191,9 @@ val domainModule =
             DisconnectDeviceUseCase(get())
         }
         factory {
-            ShutdownAppUseCase(get(), get())
+            ShutdownAppUseCase(get(), get(), get())
+        }
+        factory {
+            StopBundledAdbServerUseCase(get())
         }
     }

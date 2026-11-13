@@ -3,6 +3,7 @@ package jp.kaleidot725.adbpad.ui.screen.setting.state
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.model.setting.AccentColor
 import jp.kaleidot725.adbpad.domain.model.setting.Appearance
+import jp.kaleidot725.adbpad.domain.model.setting.BundledTools
 import jp.kaleidot725.adbpad.domain.model.update.AppVersion
 import jp.kaleidot725.adbpad.domain.model.update.UpdateInfo
 import jp.kaleidot725.adbpad.ui.screen.setting.model.ScrcpyTierFieldsInput
@@ -29,7 +30,8 @@ data class SettingState(
     val highTierPreset: ScrcpyTierFieldsInput = ScrcpyTierFieldsInput(),
     val isSaving: Boolean = false,
 ) : PulseState {
-    val isValidAdbDirectoryPath: Boolean = adbDirectoryPath.isNotEmpty()
+    // Empty means "use the adb bundled with the app", which only works when there is one.
+    val isValidAdbDirectoryPath: Boolean = adbDirectoryPath.isNotEmpty() || BundledTools.adb != null
     val isValidAdbPortNumber: Boolean = adbPortNumber.toIntOrNull() != null
     val isValidScrcpyBinaryPath: Boolean = true
     val isValidTierPresets: Boolean = lowTierPreset.isValid && mediumTierPreset.isValid && highTierPreset.isValid

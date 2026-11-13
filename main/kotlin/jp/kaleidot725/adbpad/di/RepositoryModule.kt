@@ -8,6 +8,8 @@ import jp.kaleidot725.adbpad.data.repository.ScrcpyNewDisplayProfileRepositoryIm
 import jp.kaleidot725.adbpad.data.repository.SettingRepositoryImpl
 import jp.kaleidot725.adbpad.data.repository.TextCommandRepositoryImpl
 import jp.kaleidot725.adbpad.domain.repository.AdbClientProvider
+import jp.kaleidot725.adbpad.domain.repository.CustomCommandRepository
+import jp.kaleidot725.adbpad.domain.repository.CustomCommandRepositoryImpl
 import jp.kaleidot725.adbpad.domain.repository.DeviceConnectionRepository
 import jp.kaleidot725.adbpad.domain.repository.DeviceConnectionRepositoryImpl
 import jp.kaleidot725.adbpad.domain.repository.DeviceControlCommandRepository
@@ -49,6 +51,9 @@ val repositoryModule =
         }
         single<NormalCommandRepository> {
             NormalCommandRepositoryImpl(adbClientProvider = get())
+        }
+        single<CustomCommandRepository> {
+            CustomCommandRepositoryImpl(settingRepository = get())
         }
         single<InstalledAppRepository> {
             InstalledAppRepositoryImpl()

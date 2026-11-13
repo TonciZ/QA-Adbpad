@@ -167,6 +167,8 @@ object ChineseResources : StringResources {
 
     override val outputTerminalTitle: String = "输出"
     override val outputTerminalPlaceholder: String = "执行历史将显示在此处"
+    override val customCommandPlaceholder: String = "输入 adb 命令，例如 adb connect 192.168.1.20:5555 - 按 Enter 运行，Shift+Enter 换行"
+    override val customCommandStop: String = "停止"
 
     override val textCommandStartEventFormat = "开始发送文本 「%s」"
     override val textCommandEndEventFormat = "结束发送文本 「%s」"
@@ -212,6 +214,7 @@ object ChineseResources : StringResources {
 
     override val settingScrcpyHeader = "Scrcpy"
     override val settingScrcpyBinaryPathTitle = "二进制路径"
+    override val settingBundledToolHint = "留空则使用应用内置的版本。"
     override val settingScrcpyTierPresetsHeader = "Scrcpy 画质预设"
     override val settingScrcpyTierLow = "低端设备"
     override val settingScrcpyTierMedium = "中端设备"

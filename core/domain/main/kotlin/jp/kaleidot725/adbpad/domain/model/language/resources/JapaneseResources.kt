@@ -170,6 +170,8 @@ object JapaneseResources : StringResources {
 
     override val outputTerminalTitle: String = "出力"
     override val outputTerminalPlaceholder: String = "実行履歴がここに表示されます"
+    override val customCommandPlaceholder: String = "adbコマンドを入力（例: adb connect 192.168.1.20:5555）- Enterで実行、Shift+Enterで改行"
+    override val customCommandStop: String = "停止"
 
     override val textCommandStartEventFormat = "「%s」のテキスト送信を開始しました"
     override val textCommandEndEventFormat = "「%s」のテキスト送信が完了しました"
@@ -215,6 +217,7 @@ object JapaneseResources : StringResources {
 
     override val settingScrcpyHeader = "Scrcpy"
     override val settingScrcpyBinaryPathTitle = "バイナリパス"
+    override val settingBundledToolHint = "空欄のままにすると、アプリ内蔵のバージョンを使用します。"
     override val settingScrcpyTierPresetsHeader = "Scrcpy 画質プリセット"
     override val settingScrcpyTierLow = "低スペック"
     override val settingScrcpyTierMedium = "中スペック"
