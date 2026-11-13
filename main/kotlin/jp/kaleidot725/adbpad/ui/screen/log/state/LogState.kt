@@ -7,16 +7,20 @@ import jp.kaleidot725.pulse.mvi.PulseState
 data class LogState(
     val entries: List<LogEntry> = emptyList(),
     val isCapturing: Boolean = false,
+    val hasDevice: Boolean = false,
     val filter: String = "",
     val savedFile: String = "",
     val search: String = "",
     val minLevel: LogLevel = LogLevel.VERBOSE,
     val autoScroll: Boolean = true,
     val wrapLines: Boolean = true,
+    val saveDialog: LogSaveDialogState? = null,
 ) : PulseState {
+    val isFiltered: Boolean get() = search.isNotBlank() || minLevel != LogLevel.VERBOSE
+
     // Unparsed lines (level == null) are always kept so headers/crash dumps don't vanish under a level filter.
     val visibleEntries: List<LogEntry> by lazy {
-        if (search.isBlank() && minLevel == LogLevel.VERBOSE) {
+        if (!isFiltered) {
             entries
         } else {
             entries.filter { entry ->
@@ -25,3 +29,14 @@ data class LogState(
         }
     }
 }
+
+data class LogSaveDialogState(
+    val fileName: String,
+    val directory: String,
+    val totalLines: Long,
+    val shownLines: Int,
+    // Offered only while a search or level filter is narrowing the view.
+    val canSaveShownOnly: Boolean,
+    val onlyShown: Boolean = false,
+    val failed: Boolean = false,
+)

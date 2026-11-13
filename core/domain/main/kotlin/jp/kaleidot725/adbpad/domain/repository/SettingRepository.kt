@@ -49,4 +49,8 @@ interface SettingRepository {
     suspend fun updateCustomCommandHistory(history: List<String>): Boolean
 
     suspend fun getCustomCommandHistory(): List<String>
+
+    suspend fun updateLogSaveDirectory(directory: String): Boolean
+
+    suspend fun getLogSaveDirectory(): String
 }

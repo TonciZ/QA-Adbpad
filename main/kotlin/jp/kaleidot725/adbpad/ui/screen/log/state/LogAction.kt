@@ -10,6 +10,24 @@ sealed class LogAction : PulseAction {
 
     data object ClearLog : LogAction()
 
+    data object OpenSaveDialog : LogAction()
+
+    data object CloseSaveDialog : LogAction()
+
+    data class UpdateSaveFileName(
+        val fileName: String,
+    ) : LogAction()
+
+    data class SetSaveOnlyShown(
+        val onlyShown: Boolean,
+    ) : LogAction()
+
+    data object ChooseSaveDirectory : LogAction()
+
+    data object ConfirmSave : LogAction()
+
+    data object OpenSavedFolder : LogAction()
+
     data class UpdateFilter(
         val filter: String,
     ) : LogAction()

@@ -3,7 +3,7 @@ package jp.kaleidot725.adbpad.domain.model.language.resources
 object TurkishResources : StringResources {
     override val windowTitle = "QA-Adbpad"
 
-    override val notFoundDevice = "Cihaz bulunamadı"
+    override val notFoundDevice = "Cihaz yok - eklemek için tıklayın"
     override val notFoundCommand = "Komut bulunamadı"
     override val notFoundInputText = "Giriş metni bulunamadı"
     override val notFoundScreenshot = "Ekran görüntüsü bulunamadı"
@@ -388,6 +388,42 @@ object TurkishResources : StringResources {
     override val logStart: String = "Günlüğü Başlat"
     override val logStop: String = "Durdur ve Kaydet"
     override val logClear: String = "Temizle"
+    override val logStopOnly: String =
+        "Durdur"
+    override val logSave: String =
+        "Kaydet..."
+    override val logSaveTitle: String =
+        "Günlüğü kaydet"
+    override val logSaveFileName: String =
+        "Dosya adı"
+    override val logSaveFolder: String =
+        "Klasör"
+    override val logSaveChangeFolder: String =
+        "Değiştir..."
+    override val logSaveAllFormat: String =
+        "Yakalanan her şey (%d satır)"
+    override val logSaveShownFormat: String =
+        "Yalnızca şu an gösterilenler (%d satır)"
+    override val logSaveFailed: String =
+        "Günlük oraya kaydedilemedi. Başka bir klasör seçin."
+    override val logOpenFolder: String =
+        "Klasörü aç"
+    override val logCopyPath: String =
+        "Yolu kopyala"
+    override val logEmptyHint: String =
+        "Günlükleri başlatın, sorunu cihazda tekrarlayın, ardından Durdur ve Kaydet’e basın."
+    override val logNoDevice: String =
+        "Günlük almak için önce bir cihaz bağlayın."
+    override val wirelessAdbHelpTitle: String =
+        "Bunları nerede bulurum?"
+    override val wirelessAdbHelp: String =
+        "1. TV’de Ayarlar > Cihaz Tercihleri > Hakkında bölümünü açın ve 'Derleme'ye 7 kez basın.\n" +
+            "2. Geri dönün, Geliştirici seçeneklerini açın ve USB hata ayıklamayı (varsa Ağ/Kablosuz hata ayıklamayı da) açın.\n" +
+            "3. IP adresi Ayarlar > Ağ ve İnternet > Wi-Fi ağınız altında bulunur.\n" +
+            "4. IP’yi buraya yazıp Bağlan’a basın, ardından TV’deki 'Hata ayıklamaya izin verilsin mi?' istemini onaylayın.\n" +
+            "Bilgisayar ve TV aynı Wi-Fi ağında olmalıdır. Port neredeyse her zaman 5555’tir."
+    override val wirelessAdbConnectHint: String =
+        "IP adresini, cihazın açık ve bu bilgisayarla aynı Wi-Fi’de olduğunu ve hata ayıklamanın açık olduğunu kontrol edin."
     override val logFilter: String = "Filtre (ör. *:E)"
     override val logSearch: String = "Etiket, mesaj veya PID ara"
     override val logMinLevel: String = "Min. seviye"

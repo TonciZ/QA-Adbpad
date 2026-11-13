@@ -716,6 +716,38 @@ object Language : StringResources {
         get() = getCurrentResources().logStop
     override val logClear: String
         get() = getCurrentResources().logClear
+    override val logStopOnly: String
+        get() = getCurrentResources().logStopOnly
+    override val logSave: String
+        get() = getCurrentResources().logSave
+    override val logSaveTitle: String
+        get() = getCurrentResources().logSaveTitle
+    override val logSaveFileName: String
+        get() = getCurrentResources().logSaveFileName
+    override val logSaveFolder: String
+        get() = getCurrentResources().logSaveFolder
+    override val logSaveChangeFolder: String
+        get() = getCurrentResources().logSaveChangeFolder
+    override val logSaveAllFormat: String
+        get() = getCurrentResources().logSaveAllFormat
+    override val logSaveShownFormat: String
+        get() = getCurrentResources().logSaveShownFormat
+    override val logSaveFailed: String
+        get() = getCurrentResources().logSaveFailed
+    override val logOpenFolder: String
+        get() = getCurrentResources().logOpenFolder
+    override val logCopyPath: String
+        get() = getCurrentResources().logCopyPath
+    override val logEmptyHint: String
+        get() = getCurrentResources().logEmptyHint
+    override val logNoDevice: String
+        get() = getCurrentResources().logNoDevice
+    override val wirelessAdbHelpTitle: String
+        get() = getCurrentResources().wirelessAdbHelpTitle
+    override val wirelessAdbHelp: String
+        get() = getCurrentResources().wirelessAdbHelp
+    override val wirelessAdbConnectHint: String
+        get() = getCurrentResources().wirelessAdbConnectHint
     override val logFilter: String
         get() = getCurrentResources().logFilter
     override val logSearch: String

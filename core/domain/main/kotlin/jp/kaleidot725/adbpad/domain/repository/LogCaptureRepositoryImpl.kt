@@ -1,7 +1,6 @@
 package jp.kaleidot725.adbpad.domain.repository
 
 import jp.kaleidot725.adbpad.domain.model.device.Device
-import jp.kaleidot725.adbpad.domain.model.os.OSContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -13,13 +12,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.awt.FileDialog
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
 import java.io.InputStreamReader
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class LogCaptureRepositoryImpl(
     private val settingRepository: SettingRepository,
@@ -35,7 +32,10 @@ class LogCaptureRepositoryImpl(
 
     // Lines stream straight to this temp file; an in-memory list would grow unbounded.
     private var captureFile: File? = null
-    private var hasCapturedLines = false
+
+    @Volatile
+    override var capturedLineCount: Long = 0
+        private set
     private val scope = CoroutineScope(Dispatchers.IO)
 
     override fun startCapture(
@@ -44,7 +44,7 @@ class LogCaptureRepositoryImpl(
     ) {
         if (_isCapturing.value) return
 
-        hasCapturedLines = false
+        discardCapture()
         _isCapturing.value = true
 
         readerJob =
@@ -76,7 +76,7 @@ class LogCaptureRepositoryImpl(
                         val l = line ?: continue
                         writer.write(l)
                         writer.newLine()
-                        hasCapturedLines = true
+                        capturedLineCount++
                         _logLines.emit(l)
                     }
                 } catch (_: Exception) {
@@ -87,36 +87,37 @@ class LogCaptureRepositoryImpl(
             }
     }
 
-    override suspend fun stopCapture(): File? {
+    override suspend fun stopCapture() {
         process?.destroyForcibly()
         process = null
-        // Join so the temp file is flushed and closed before it's read back below.
+        // Join so the temp file is flushed and closed before anything reads it back.
         readerJob?.cancelAndJoin()
         readerJob = null
         _isCapturing.value = false
+    }
 
-        val tempFile = captureFile
+    override suspend fun saveCapture(
+        target: File,
+        lines: List<String>?,
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                target.parentFile?.mkdirs()
+                val source = captureFile
+                when {
+                    lines != null -> target.writeText(lines.joinToString(System.lineSeparator()))
+                    source != null && source.exists() -> source.copyTo(target, overwrite = true)
+                    else -> return@withContext false
+                }
+                true
+            } catch (_: Exception) {
+                false
+            }
+        }
+
+    override fun discardCapture() {
+        captureFile?.delete()
         captureFile = null
-        if (!hasCapturedLines || tempFile == null || !tempFile.exists()) return null
-        hasCapturedLines = false
-
-        // ponytail: was a fixed OSContext path before - now asks where to save every time,
-        // like any normal "Save As" dialog, defaulting to the same folder as a starting point.
-        val osContext = OSContext.resolveOSContext()
-        val logDir = File(osContext.directory + "logs/")
-        logDir.mkdirs()
-
-        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
-        val dialog = FileDialog(null as java.awt.Frame?, "Save Log As", FileDialog.SAVE)
-        dialog.directory = logDir.absolutePath
-        dialog.file = "logcat_$timestamp.txt"
-        dialog.isVisible = true
-
-        val chosenDir = dialog.directory ?: return null
-        val chosenFile = dialog.file ?: return null
-        val file = File(chosenDir, chosenFile)
-        tempFile.copyTo(file, overwrite = true)
-        tempFile.delete()
-        return file
+        capturedLineCount = 0
     }
 }

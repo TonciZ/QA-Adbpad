@@ -108,6 +108,7 @@ val stateHolderModule =
             LogStateHolder(
                 getSelectedDeviceFlowUseCase = get(),
                 logCaptureRepository = get(),
+                settingRepository = get(),
             )
         }
 

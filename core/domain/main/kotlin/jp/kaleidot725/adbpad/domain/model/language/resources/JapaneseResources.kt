@@ -3,7 +3,7 @@ package jp.kaleidot725.adbpad.domain.model.language.resources
 object JapaneseResources : StringResources {
     override val windowTitle = "QA-Adbpad"
 
-    override val notFoundDevice = "デバイスがありません"
+    override val notFoundDevice = "デバイスなし - クリックで追加"
     override val notFoundCommand = "コマンドがありません"
     override val notFoundInputText = "テキストがありません"
     override val notFoundScreenshot = "スクリーンショットがありません"
@@ -387,6 +387,42 @@ object JapaneseResources : StringResources {
     override val logStart: String = "ログ開始"
     override val logStop: String = "停止して保存"
     override val logClear: String = "クリア"
+    override val logStopOnly: String =
+        "停止"
+    override val logSave: String =
+        "保存..."
+    override val logSaveTitle: String =
+        "ログを保存"
+    override val logSaveFileName: String =
+        "ファイル名"
+    override val logSaveFolder: String =
+        "フォルダー"
+    override val logSaveChangeFolder: String =
+        "変更..."
+    override val logSaveAllFormat: String =
+        "キャプチャしたすべて（%d行）"
+    override val logSaveShownFormat: String =
+        "現在表示中のみ（%d行）"
+    override val logSaveFailed: String =
+        "そこには保存できませんでした。別のフォルダーを選んでください。"
+    override val logOpenFolder: String =
+        "フォルダーを開く"
+    override val logCopyPath: String =
+        "パスをコピー"
+    override val logEmptyHint: String =
+        "「ログ開始」を押し、デバイスで問題を再現してから「停止」と「保存」を押してください。"
+    override val logNoDevice: String =
+        "ログを取得するには、まずデバイスを接続してください。"
+    override val wirelessAdbHelpTitle: String =
+        "どこで確認できますか？"
+    override val wirelessAdbHelp: String =
+        "1. テレビで 設定 > デバイス設定 > 情報 を開き、「ビルド」を7回押します。\n" +
+            "2. 戻って「開発者向けオプション」を開き、USBデバッグ（あればネットワーク/ワイヤレスデバッグも）をオンにします。\n" +
+            "3. IPアドレスは 設定 > ネットワークとインターネット > 接続中のWi-Fi で確認できます。\n" +
+            "4. ここにIPを入力して「接続」を押し、テレビに表示される「デバッグを許可しますか？」を承認します。\n" +
+            "PCとテレビは同じWi-Fiネットワークに接続してください。ポートはほぼ常に5555です。"
+    override val wirelessAdbConnectHint: String =
+        "IPアドレス、デバイスの電源、このPCと同じWi-Fiに接続されているか、デバッグが有効かを確認してください。"
     override val logFilter: String = "フィルター (例: *:E)"
     override val logSearch: String = "タグ・メッセージ・PID を検索"
     override val logMinLevel: String = "最小レベル"
