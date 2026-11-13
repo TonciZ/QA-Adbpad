@@ -360,6 +360,16 @@ object TurkishResources : StringResources {
     override val settingUpdateAvailableFormat: String = "Yeni surum mevcut: %s"
     override val settingDownloadAndInstallFormat: String = "%s Indir ve Kur"
     override val settingUpdateDownloadFailed: String = "Indirme basarisiz - tekrar deneyin"
+    override val updateBannerFormat: String =
+        "%s sürümü hazır."
+    override val updateBannerInstall: String =
+        "Şimdi güncelle"
+    override val updateBannerLater: String =
+        "Sonra"
+    override val updateInstallFailed: String =
+        "Son güncelleme yüklenemedi. Tekrar deneyin ve Windows izin istediğinde Evet’i seçin."
+    override val updateBannerDownloading: String =
+        "Güncelleme indiriliyor. Uygulama kendiliğinden kapanıp yeniden açılacak..."
 
     // Device Setting Categories
     override val categoryDevice: String = "Cihaz"

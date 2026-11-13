@@ -359,6 +359,16 @@ object EnglishResources : StringResources {
     override val settingUpdateAvailableFormat: String = "Update available: %s"
     override val settingDownloadAndInstallFormat: String = "Download & Install %s"
     override val settingUpdateDownloadFailed: String = "Download failed - try again"
+    override val updateBannerFormat: String =
+        "Version %s is available."
+    override val updateBannerInstall: String =
+        "Update now"
+    override val updateBannerLater: String =
+        "Later"
+    override val updateInstallFailed: String =
+        "The last update could not be installed. Try again, and choose Yes when Windows asks for permission."
+    override val updateBannerDownloading: String =
+        "Downloading the update. The app will close and reopen by itself..."
 
     // Device Setting Categories
     override val categoryDevice: String = "Device"

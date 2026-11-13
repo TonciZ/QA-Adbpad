@@ -10,6 +10,8 @@ import jp.kaleidot725.adbpad.domain.usecase.appearance.GetAccentColorUseCase
 import jp.kaleidot725.adbpad.domain.usecase.language.GetLanguageUseCase
 import jp.kaleidot725.adbpad.domain.usecase.refresh.RefreshUseCase
 import jp.kaleidot725.adbpad.domain.usecase.theme.GetDarkModeFlowUseCase
+import jp.kaleidot725.adbpad.domain.usecase.update.CheckForUpdateUseCase
+import jp.kaleidot725.adbpad.domain.usecase.update.DownloadAndInstallUpdateUseCase
 import jp.kaleidot725.adbpad.domain.usecase.window.GetWindowSizeUseCase
 import jp.kaleidot725.adbpad.domain.usecase.window.SaveWindowSizeUseCase
 import jp.kaleidot725.adbpad.ui.container.AppBroadCast
@@ -33,6 +35,8 @@ class MainStateHolder(
     private val getAccentColorUseCase: GetAccentColorUseCase,
     private val refreshUseCase: RefreshUseCase,
     private val shutdownAppUseCase: ShutdownAppUseCase,
+    private val checkForUpdateUseCase: CheckForUpdateUseCase,
+    private val downloadAndInstallUpdateUseCase: DownloadAndInstallUpdateUseCase,
 ) : PulseStore<MainState, MainAction, MainSideEffect, AppBroadCast, AppUnicast>(initialUiState = MainState()) {
     override fun onSetup() {
         restoreWindowSize()
@@ -40,6 +44,7 @@ class MainStateHolder(
         checkAdbServer()
         syncLanguage()
         syncAccentColor()
+        checkForUpdate()
     }
 
     override fun onAction(uiAction: MainAction) {
@@ -51,6 +56,8 @@ class MainStateHolder(
             is MainAction.ToggleAlwaysOnTop -> toggleAlwaysOnTop()
             is MainAction.ToggleNavigationRail -> toggleNavigationRail()
             is MainAction.Shutdown -> shutdown()
+            is MainAction.InstallUpdate -> installUpdate()
+            is MainAction.DismissUpdate -> update { copy(availableUpdate = null, updateFailed = false, lastInstallFailed = false) }
         }
     }
 
@@ -62,6 +69,33 @@ class MainStateHolder(
                 syncLanguage()
                 syncAccentColor()
                 refreshUseCase()
+            }
+        }
+    }
+
+    // Once per launch, quietly: no update, no network or a slow answer all just mean no banner.
+    private fun checkForUpdate() {
+        coroutineScope.launch {
+            val exitCode = downloadAndInstallUpdateUseCase.consumeLastInstallerExitCode()
+            val installFailed = exitCode != null && exitCode !in DownloadAndInstallUpdateUseCase.INSTALLER_SUCCESS_CODES
+            val available = checkForUpdateUseCase() ?: return@launch
+            update { copy(availableUpdate = available, lastInstallFailed = installFailed) }
+        }
+    }
+
+    private fun installUpdate() {
+        val available = currentState.availableUpdate ?: return
+        if (currentState.isInstallingUpdate) return
+        update { copy(isInstallingUpdate = true, updateFailed = false, lastInstallFailed = false) }
+        coroutineScope.launch {
+            // On Windows and macOS a successful start ends the app from inside the use case, so
+            // coming back means it failed - or, on Linux, that the download page was opened and
+            // the banner stays as the way back to it.
+            var started = false
+            try {
+                started = downloadAndInstallUpdateUseCase(available)
+            } finally {
+                update { copy(isInstallingUpdate = false, updateFailed = !started) }
             }
         }
     }

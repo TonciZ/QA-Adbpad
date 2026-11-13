@@ -359,6 +359,16 @@ object ChineseResources : StringResources {
     override val settingUpdateAvailableFormat: String = "发现新版本：%s"
     override val settingDownloadAndInstallFormat: String = "下载并安装 %s"
     override val settingUpdateDownloadFailed: String = "下载失败，请重试"
+    override val updateBannerFormat: String =
+        "版本 %s 已可用。"
+    override val updateBannerInstall: String =
+        "立即更新"
+    override val updateBannerLater: String =
+        "稍后"
+    override val updateInstallFailed: String =
+        "上次更新未能安装。请重试，并在 Windows 请求权限时选择“是”。"
+    override val updateBannerDownloading: String =
+        "正在下载更新。应用将自动关闭并重新打开..."
 
     // Device Setting Categories
     override val categoryDevice: String = "设备"
