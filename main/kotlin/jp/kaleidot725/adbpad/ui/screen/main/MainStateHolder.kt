@@ -128,21 +128,27 @@ class MainStateHolder(
         }
     }
 
+    private var adbCheckJob: Job? = null
+
+    // Runs at launch and after every settings save. An older check still sitting in its retry
+    // delay must not finish later and overwrite the newer result.
     private fun checkAdbServer() {
-        coroutineScope.launch {
-            // ponytail: starting adb can fail once while another adb version (Android Studio,
-            // an older install) is shutting its server down to make room - retry before
-            // bothering the user with an error dialog.
-            var started = startAdbUseCase()
-            repeat(START_ADB_RETRIES) {
-                if (!started) {
-                    delay(START_ADB_RETRY_DELAY_MS)
-                    started = startAdbUseCase()
+        adbCheckJob?.cancel()
+        adbCheckJob =
+            coroutineScope.launch {
+                // ponytail: starting adb can fail once while another adb version (Android Studio,
+                // an older install) is shutting its server down to make room - retry before
+                // bothering the user with an error dialog.
+                var started = startAdbUseCase()
+                repeat(START_ADB_RETRIES) {
+                    if (!started) {
+                        delay(START_ADB_RETRY_DELAY_MS)
+                        started = startAdbUseCase()
+                    }
                 }
+                val dialog = if (started) MainDialog.Empty else MainDialog.AdbError
+                update { copy(dialog = dialog) }
             }
-            val dialog = if (started) MainDialog.Empty else MainDialog.AdbError
-            update { copy(dialog = dialog) }
-        }
     }
 
     private fun syncLanguage() {

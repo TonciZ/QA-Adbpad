@@ -10,7 +10,11 @@ import jp.kaleidot725.adbpad.domain.model.setting.WindowSize
 import jp.kaleidot725.adbpad.domain.model.setting.WirelessAdbTarget
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.io.File
 import java.io.IOException
+import java.nio.file.AtomicMoveNotSupportedException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 object SettingFileCreator {
     private const val FILE_NAME = "config.json"
@@ -19,24 +23,43 @@ object SettingFileCreator {
     // fall back to an all-default Setting, i.e. every saved path and preference is "forgotten".
     private val json = Json { ignoreUnknownKeys = true }
 
+    private val lock = Any()
+
+    /**
+     * Changes one part of the settings. Every feature shares this one file, so the
+     * read-change-write has to be a single step or two features saving at the same moment
+     * would silently undo each other.
+     */
+    fun update(change: (Setting) -> Setting): Boolean = synchronized(lock) { save(change(load())) }
+
     fun save(setting: Setting): Boolean =
-        try {
-            FilePathUtil.createDir()
-            FilePathUtil.getFilePath(FILE_NAME).outputStream().apply {
-                this.write(Json.encodeToString(setting).toByteArray())
-                this.close()
+        synchronized(lock) {
+            try {
+                FilePathUtil.createDir()
+                val target = FilePathUtil.getFilePath(FILE_NAME)
+                // Write next to the file and swap it in, so a reader (or a crash) never sees a
+                // half-written config - that would be read back as "all defaults".
+                val temp = File(target.parentFile, "$FILE_NAME.tmp")
+                temp.writeText(Json.encodeToString(setting))
+                try {
+                    Files.move(temp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
+                } catch (_: AtomicMoveNotSupportedException) {
+                    Files.move(temp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                }
+                true
+            } catch (_: IOException) {
+                false
             }
-            true
-        } catch (_: IOException) {
-            false
         }
 
     fun load(): Setting =
-        try {
-            val content = FilePathUtil.getFilePath(FILE_NAME).readText()
-            json.decodeFromString(string = content)
-        } catch (_: Exception) {
-            Setting()
+        synchronized(lock) {
+            try {
+                val content = FilePathUtil.getFilePath(FILE_NAME).readText()
+                json.decodeFromString(string = content)
+            } catch (_: Exception) {
+                Setting()
+            }
         }
 
     @Serializable

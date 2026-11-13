@@ -32,6 +32,9 @@ class LogStateHolder(
     private val settingRepository: SettingRepository,
 ) : PulseStore<LogState, LogAction, Nothing, AppBroadCast, AppUnicast>(initialUiState = LogState()) {
     private var selectedDevice: Device? = null
+
+    // The device the current capture came from; the selection may have moved on since.
+    private var captureDevice: Device? = null
     private var logCollectorJob: Job? = null
     private val pending = mutableListOf<LogEntry>()
     private var nextId = 0L
@@ -80,6 +83,7 @@ class LogStateHolder(
 
     private fun startCapture() {
         val device = selectedDevice ?: return
+        captureDevice = device
         update { copy(entries = emptyList(), savedFile = "") }
         synchronized(pending) { pending.clear() }
 
@@ -123,14 +127,17 @@ class LogStateHolder(
     }
 
     private fun clearLog() {
-        if (!currentState.isCapturing) logCaptureRepository.discardCapture()
+        // While capturing, lines keep arriving: forget what was captured so far (on screen, in
+        // the not-yet-shown buffer and in the file) without stopping the capture.
+        if (currentState.isCapturing) logCaptureRepository.markCleared() else logCaptureRepository.discardCapture()
+        synchronized(pending) { pending.clear() }
         update { copy(entries = emptyList(), savedFile = "") }
     }
 
     private suspend fun openSaveDialog() {
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
         // The device in the name saves a tester from renaming files before sending them on.
-        val device = selectedDevice?.displayName?.replace(INVALID_FILE_CHARS, "-")?.takeIf { it.isNotBlank() }
+        val device = (captureDevice ?: selectedDevice)?.displayName?.replace(INVALID_FILE_CHARS, "-")?.takeIf { it.isNotBlank() }
         val name = listOfNotNull("logcat", device, timestamp).joinToString("_") + ".txt"
         val directory = settingRepository.getLogSaveDirectory().takeIf { it.isNotBlank() && File(it).isDirectory } ?: defaultDirectory()
         val shown = currentState.visibleEntries.size

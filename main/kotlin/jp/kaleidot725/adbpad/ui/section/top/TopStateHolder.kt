@@ -296,13 +296,14 @@ class TopStateHolder(
     }
 
     private suspend fun pairWirelessAdb(
-        host: String,
-        port: Int,
+        hostText: String,
+        defaultPort: Int,
         code: String,
     ) {
+        val target = WirelessAdbTarget.parse(hostText, defaultPort)
         update { copy(wirelessAdbLoading = true, wirelessAdbStatus = "") }
         try {
-            val result = pairDeviceUseCase(host, port, code)
+            val result = pairDeviceUseCase(target.host, target.port, code)
             update { copy(wirelessAdbLoading = false, wirelessAdbStatus = result) }
         } catch (e: Exception) {
             update { copy(wirelessAdbLoading = false, wirelessAdbStatus = "Error: ${e.message}") }
@@ -310,13 +311,14 @@ class TopStateHolder(
     }
 
     private suspend fun disconnectWirelessAdb(
-        host: String,
-        port: Int,
+        hostText: String,
+        defaultPort: Int,
     ) {
+        val target = WirelessAdbTarget.parse(hostText, defaultPort)
         autoConnectEnabled = false
         update { copy(wirelessAdbLoading = true, wirelessAdbStatus = "") }
         try {
-            val result = disconnectDeviceUseCase(host, port)
+            val result = disconnectDeviceUseCase(target.host, target.port)
             update { copy(wirelessAdbLoading = false, wirelessAdbStatus = result) }
         } catch (e: Exception) {
             update { copy(wirelessAdbLoading = false, wirelessAdbStatus = "Error: ${e.message}") }

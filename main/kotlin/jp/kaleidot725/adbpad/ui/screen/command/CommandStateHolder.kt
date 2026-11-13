@@ -190,8 +190,8 @@ class CommandStateHolder(
                 val entry = input.trim()
                 val history = (listOf(entry) + state.value.customCommandHistory.filter { it != entry }).take(MAX_HISTORY)
                 update { copy(isCustomCommandRunning = true, customCommandHistory = history) }
-                settingRepository.updateCustomCommandHistory(history)
                 try {
+                    settingRepository.updateCustomCommandHistory(history)
                     executeCustomCommandUseCase(input) { state.value.selectedDevice?.serial }
                 } finally {
                     update { copy(isCustomCommandRunning = false) }
