@@ -15,6 +15,8 @@ data class CommandState(
     val executionHistory: CommandExecutionHistory? = null,
     val toggleStates: Map<String, Boolean?> = emptyMap(),
     val isCustomCommandRunning: Boolean = false,
+    // Newest first.
+    val customCommandHistory: List<String> = emptyList(),
 ) : PulseState {
     val canExecuteCommand: Boolean get() = selectedDevice != null
 }

@@ -150,4 +150,18 @@ class SettingRepositoryImpl : SettingRepository {
             return@withContext setting.savedWirelessDevices.ifEmpty { if (last.host.isBlank()) emptyList() else listOf(last) }
         }
     }
+
+    override suspend fun updateCustomCommandHistory(history: List<String>): Boolean {
+        return withContext(Dispatchers.IO) {
+            val oldSetting = SettingFileCreator.load()
+            val newSetting = oldSetting.copy(customCommandHistory = history)
+            return@withContext SettingFileCreator.save(newSetting)
+        }
+    }
+
+    override suspend fun getCustomCommandHistory(): List<String> {
+        return withContext(Dispatchers.IO) {
+            return@withContext SettingFileCreator.load().customCommandHistory
+        }
+    }
 }

@@ -172,6 +172,22 @@ object JapaneseResources : StringResources {
     override val outputTerminalPlaceholder: String = "実行履歴がここに表示されます"
     override val customCommandPlaceholder: String = "adbコマンドを入力（例: adb connect 192.168.1.20:5555）- Enterで実行、Shift+Enterで改行"
     override val customCommandStop: String = "停止"
+    override val scrcpyErrorTitle: String =
+        "画面ミラーリングを開始できませんでした"
+    override val scrcpyErrorNotFound: String =
+        "scrcpyが見つかりません。設定のscrcpyパスを確認するか、空欄にして内蔵版を使用してください。"
+    override val scrcpyErrorTimeout: String =
+        "デバイスが時間内に応答しませんでした。起動して接続されていることを確認し、もう一度お試しください。"
+    override val scrcpyErrorClosed: String =
+        "scrcpyが起動直後に終了しました。"
+    override val deviceHintUnauthorized: String =
+        "デバイス側でデバッグの許可を承認してください"
+    override val deviceHintOffline: String =
+        "オフライン - 電源と同じネットワークを確認"
+    override val deviceHintConnecting: String =
+        "接続中..."
+    override val customCommandHistory: String =
+        "最近のコマンド"
 
     override val textCommandStartEventFormat = "「%s」のテキスト送信を開始しました"
     override val textCommandEndEventFormat = "「%s」のテキスト送信が完了しました"

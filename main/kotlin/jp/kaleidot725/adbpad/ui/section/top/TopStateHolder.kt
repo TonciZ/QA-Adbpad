@@ -5,6 +5,7 @@ import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.device.DeviceLiveness
 import jp.kaleidot725.adbpad.domain.model.device.DeviceState
 import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierLevel
+import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierPreset
 import jp.kaleidot725.adbpad.domain.model.setting.WirelessAdbTarget
 import jp.kaleidot725.adbpad.domain.repository.DeviceSettingsRepository
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteDeviceControlCommandUseCase
@@ -30,6 +31,7 @@ import jp.kaleidot725.adbpad.ui.section.top.state.TopAction
 import jp.kaleidot725.adbpad.ui.section.top.state.TopSideEffect
 import jp.kaleidot725.adbpad.ui.section.top.state.TopState
 import jp.kaleidot725.pulse.mvi.PulseStore
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -79,6 +81,7 @@ class TopStateHolder(
                 TopAction.LaunchScrcpy -> launchScrcpy()
                 TopAction.OpenScrcpyTierDialog -> update { copy(showScrcpyTierDialog = true) }
                 TopAction.CloseScrcpyTierDialog -> update { copy(showScrcpyTierDialog = false) }
+                TopAction.DismissScrcpyError -> update { copy(scrcpyError = null) }
                 is TopAction.LaunchScrcpyWithTier -> launchScrcpyWithTier(uiAction.level)
                 TopAction.ScanDeviceProfile -> scanDeviceProfile()
                 TopAction.LaunchScrcpyWithProfile -> launchScrcpyWithProfile()
@@ -126,23 +129,29 @@ class TopStateHolder(
 
     private suspend fun launchScrcpy() {
         val device = currentState.selectedDevice ?: return
-        try {
-            if (!launchScrcpyUseCase(device)) println("Failed to launch Scrcpy for ${device.serial}")
-        } catch (e: Exception) {
-            println("Failed to launch Scrcpy: ${e.message}")
+        launchScrcpyReportingErrors(device, null)
+    }
+
+    private suspend fun launchScrcpyReportingErrors(
+        device: Device,
+        preset: ScrcpyTierPreset?,
+    ) {
+        val error =
+            try {
+                launchScrcpyUseCase(device, preset)
+            } catch (e: Exception) {
+                e.message ?: e.toString()
+            }
+        if (error != null) {
+            println("Failed to launch Scrcpy for ${device.serial}: $error")
+            update { copy(scrcpyError = error) }
         }
     }
 
     private suspend fun launchScrcpyWithTier(level: ScrcpyTierLevel) {
         val device = currentState.selectedDevice ?: return
         update { copy(showScrcpyTierDialog = false) }
-        try {
-            if (!launchScrcpyUseCase(device, currentState.scrcpyTierPresets.get(level))) {
-                println("Failed to launch Scrcpy for ${device.serial}")
-            }
-        } catch (e: Exception) {
-            println("Failed to launch Scrcpy: ${e.message}")
-        }
+        launchScrcpyReportingErrors(device, currentState.scrcpyTierPresets.get(level))
     }
 
     private suspend fun scanDeviceProfile() {
@@ -163,13 +172,7 @@ class TopStateHolder(
         val device = currentState.selectedDevice ?: return
         val profile = currentState.deviceProfile ?: return
         update { copy(showScrcpyTierDialog = false) }
-        try {
-            if (!launchScrcpyUseCase(device, profile.toTierPreset())) {
-                println("Failed to launch Scrcpy for ${device.serial}")
-            }
-        } catch (e: Exception) {
-            println("Failed to launch Scrcpy: ${e.message}")
-        }
+        launchScrcpyReportingErrors(device, profile.toTierPreset())
     }
 
     private suspend fun openWirelessAdb() {
@@ -369,8 +372,17 @@ class TopStateHolder(
         deviceJob =
             coroutineScope.launch {
                 while (isActive) {
-                    val devices = updateDevicesUseCase()
-                    update { this.copy(devices = devices) }
+                    // ponytail: the first polls can run before the adb server is up (it is started
+                    // in parallel at launch). An uncaught failure here used to end this loop for
+                    // good, leaving "Not found device" on screen until a manual refresh.
+                    try {
+                        val devices = updateDevicesUseCase()
+                        update { this.copy(devices = devices) }
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        println("Device list refresh failed: ${e.message}")
+                    }
                     delay(1000)
                 }
             }

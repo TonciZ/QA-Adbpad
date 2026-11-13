@@ -1,14 +1,20 @@
 package jp.kaleidot725.adbpad.ui.screen.command.component
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -34,8 +40,11 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.composables.icons.lucide.History
+import com.composables.icons.lucide.Lucide
 import jp.kaleidot725.adbpad.domain.model.command.CommandExecutionHistory
 import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteCustomCommandUseCase
@@ -45,6 +54,7 @@ fun CommandOutput(
     executionHistory: CommandExecutionHistory?,
     modifier: Modifier = Modifier,
     isRunning: Boolean = false,
+    history: List<String> = emptyList(),
     onRun: (String) -> Unit = {},
     onStop: () -> Unit = {},
 ) {
@@ -63,6 +73,7 @@ fun CommandOutput(
 
         CustomCommandInput(
             isRunning = isRunning,
+            history = history,
             onRun = onRun,
             onStop = onStop,
         )
@@ -118,10 +129,20 @@ fun CommandOutput(
 @Composable
 private fun CustomCommandInput(
     isRunning: Boolean,
+    history: List<String>,
     onRun: (String) -> Unit,
     onStop: () -> Unit,
 ) {
     var input by remember { mutableStateOf(TextFieldValue("")) }
+    // Position while stepping through history with the arrow keys; -1 = the user's own text.
+    var historyIndex by remember { mutableStateOf(-1) }
+    var historyMenuOpen by remember { mutableStateOf(false) }
+
+    fun recall(index: Int) {
+        historyIndex = index
+        val text = history.getOrNull(index).orEmpty()
+        input = TextFieldValue(text, TextRange(text.length))
+    }
     val textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace)
 
     Row(
@@ -131,7 +152,10 @@ private fun CustomCommandInput(
     ) {
         OutlinedTextField(
             value = input,
-            onValueChange = { input = it },
+            onValueChange = {
+                if (it.text != input.text) historyIndex = -1
+                input = it
+            },
             placeholder = { Text(Language.customCommandPlaceholder, style = textStyle, maxLines = 1) },
             textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
             maxLines = 4,
@@ -140,8 +164,25 @@ private fun CustomCommandInput(
                     .weight(1f)
                     .onPreviewKeyEvent { event ->
                         val isEnter = event.key == Key.Enter || event.key == Key.NumPadEnter
+                        val cursor = input.selection.start
+                        val onFirstLine = !input.text.substring(0, cursor).contains('\n')
+                        val onLastLine = !input.text.substring(cursor).contains('\n')
                         when {
-                            !isEnter || event.type != KeyEventType.KeyDown -> false
+                            event.type != KeyEventType.KeyDown -> false
+
+                            // Up/Down step through earlier commands, like a terminal - but only from
+                            // the edge lines, so the arrows still move inside a multi-line command.
+                            event.key == Key.DirectionUp && onFirstLine && historyIndex < history.lastIndex -> {
+                                recall(historyIndex + 1)
+                                true
+                            }
+
+                            event.key == Key.DirectionDown && onLastLine && historyIndex >= 0 -> {
+                                recall(historyIndex - 1)
+                                true
+                            }
+
+                            !isEnter -> false
 
                             // Shift+Enter: a new line, so several commands can be queued up.
                             event.isShiftPressed -> {
@@ -156,6 +197,37 @@ private fun CustomCommandInput(
                         }
                     },
         )
+
+        if (history.isNotEmpty()) {
+            Box {
+                IconButton(onClick = { historyMenuOpen = true }) {
+                    Icon(
+                        imageVector = Lucide.History,
+                        contentDescription = Language.customCommandHistory,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                DropdownMenu(expanded = historyMenuOpen, onDismissRequest = { historyMenuOpen = false }) {
+                    history.forEachIndexed { index, entry ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = entry.replace("\n", "  ⏎  "),
+                                    style = textStyle,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.widthIn(max = 520.dp),
+                                )
+                            },
+                            onClick = {
+                                recall(index)
+                                historyMenuOpen = false
+                            },
+                        )
+                    }
+                }
+            }
+        }
 
         if (isRunning) {
             OutlinedButton(onClick = onStop) { Text(Language.customCommandStop) }

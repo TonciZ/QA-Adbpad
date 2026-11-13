@@ -169,6 +169,22 @@ object ChineseResources : StringResources {
     override val outputTerminalPlaceholder: String = "执行历史将显示在此处"
     override val customCommandPlaceholder: String = "输入 adb 命令，例如 adb connect 192.168.1.20:5555 - 按 Enter 运行，Shift+Enter 换行"
     override val customCommandStop: String = "停止"
+    override val scrcpyErrorTitle: String =
+        "无法启动屏幕镜像"
+    override val scrcpyErrorNotFound: String =
+        "找不到 scrcpy。请检查设置中的 scrcpy 路径，或将其清空以使用内置版本。"
+    override val scrcpyErrorTimeout: String =
+        "设备未及时响应。请确认设备已唤醒并已连接，然后重试。"
+    override val scrcpyErrorClosed: String =
+        "scrcpy 启动后立即关闭。"
+    override val deviceHintUnauthorized: String =
+        "请在设备上接受调试授权提示"
+    override val deviceHintOffline: String =
+        "离线 - 设备是否开机并在同一网络？"
+    override val deviceHintConnecting: String =
+        "正在连接..."
+    override val customCommandHistory: String =
+        "最近的命令"
 
     override val textCommandStartEventFormat = "开始发送文本 「%s」"
     override val textCommandEndEventFormat = "结束发送文本 「%s」"

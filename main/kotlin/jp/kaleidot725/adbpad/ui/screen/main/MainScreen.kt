@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -234,7 +233,7 @@ private fun App(
 ) {
     val commandSplitPaneState =
         rememberSplitPaneState(
-            initialPositionPercentage = 0.7f,
+            initialPositionPercentage = 0.55f,
         )
     val textSplitPaneState =
         rememberSplitPaneState(
@@ -306,13 +305,6 @@ private fun App(
                     logContent()
                 }
             }
-        val fileCategoryContent =
-            remember {
-                movableContentOf {
-                    Text("TEST")
-                }
-            }
-
         Surface {
             ScreenLayout(
                 top = topContent,
@@ -349,10 +341,6 @@ private fun App(
                         CategoryContentLayer(
                             isSelected = state.category == MainCategory.Log,
                             content = logCategoryContent,
-                        )
-                        CategoryContentLayer(
-                            isSelected = state.category == MainCategory.File,
-                            content = fileCategoryContent,
                         )
                     }
                 },

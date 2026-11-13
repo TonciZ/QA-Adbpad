@@ -24,6 +24,7 @@ data class TopState(
     val deviceProfile: DeviceProfile? = null,
     val isProfilingDevice: Boolean = false,
     val profilingStatus: String = "",
+    val scrcpyError: String? = null,
 ) : PulseState
 
 /** A remembered wireless device: where to reach it and the name the user gave it. */
