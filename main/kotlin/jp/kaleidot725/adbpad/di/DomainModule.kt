@@ -17,10 +17,12 @@ import jp.kaleidot725.adbpad.domain.usecase.device.CheckDeviceLivenessUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.ConnectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.DisconnectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.GetLastWirelessAdbTargetUseCase
+import jp.kaleidot725.adbpad.domain.usecase.device.GetSavedWirelessDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.GetSelectedDeviceFlowUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.PairDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.RestartDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.SaveLastWirelessAdbTargetUseCase
+import jp.kaleidot725.adbpad.domain.usecase.device.SaveSavedWirelessDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.SelectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.UpdateDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.language.GetLanguageUseCase
@@ -120,6 +122,12 @@ val domainModule =
         }
         factory {
             SaveLastWirelessAdbTargetUseCase(get())
+        }
+        factory {
+            GetSavedWirelessDevicesUseCase(get())
+        }
+        factory {
+            SaveSavedWirelessDevicesUseCase(get())
         }
         factory {
             SaveScrcpyTierPresetsUseCase(get())

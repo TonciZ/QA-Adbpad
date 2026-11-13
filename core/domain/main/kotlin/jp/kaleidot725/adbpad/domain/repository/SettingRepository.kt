@@ -41,4 +41,8 @@ interface SettingRepository {
     suspend fun updateLastWirelessAdbTarget(target: WirelessAdbTarget): Boolean
 
     suspend fun getLastWirelessAdbTarget(): WirelessAdbTarget
+
+    suspend fun updateSavedWirelessDevices(devices: List<WirelessAdbTarget>): Boolean
+
+    suspend fun getSavedWirelessDevices(): List<WirelessAdbTarget>
 }

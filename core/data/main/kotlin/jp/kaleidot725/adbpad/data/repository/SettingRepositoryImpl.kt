@@ -133,4 +133,21 @@ class SettingRepositoryImpl : SettingRepository {
             return@withContext setting.lastWirelessAdbTarget
         }
     }
+
+    override suspend fun updateSavedWirelessDevices(devices: List<WirelessAdbTarget>): Boolean {
+        return withContext(Dispatchers.IO) {
+            val oldSetting = SettingFileCreator.load()
+            val newSetting = oldSetting.copy(savedWirelessDevices = devices)
+            return@withContext SettingFileCreator.save(newSetting)
+        }
+    }
+
+    override suspend fun getSavedWirelessDevices(): List<WirelessAdbTarget> {
+        return withContext(Dispatchers.IO) {
+            val setting = SettingFileCreator.load()
+            // Before the list existed only the last target was remembered - carry it over.
+            val last = setting.lastWirelessAdbTarget
+            return@withContext setting.savedWirelessDevices.ifEmpty { if (last.host.isBlank()) emptyList() else listOf(last) }
+        }
+    }
 }

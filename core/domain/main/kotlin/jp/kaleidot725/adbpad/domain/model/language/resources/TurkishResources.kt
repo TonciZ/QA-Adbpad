@@ -261,6 +261,8 @@ object TurkishResources : StringResources {
     override val wirelessAdbConnect: String = "Bağlan"
     override val wirelessAdbPair: String = "Eşleştir"
     override val wirelessAdbDisconnect: String = "Bağlantıyı Kes"
+    override val wirelessAdbEditTitle: String = "Kayıtlı cihazı düzenle"
+    override val savedDeviceNotConnected: String = "Kayıtlı - bağlanmak için tıklayın"
 
     // NavigationRail tooltips
     override val tooltipCommand: String = "Komut"

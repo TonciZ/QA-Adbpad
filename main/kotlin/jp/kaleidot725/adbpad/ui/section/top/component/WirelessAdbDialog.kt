@@ -3,6 +3,7 @@ package jp.kaleidot725.adbpad.ui.section.top.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -30,6 +31,9 @@ fun WirelessAdbDialog(
     loading: Boolean,
     initialTarget: WirelessAdbTarget,
     initialName: String,
+    isEditing: Boolean,
+    onSave: (String, Int, String) -> Unit,
+    onRemove: () -> Unit,
     onConnect: (String, Int, String) -> Unit,
     onPair: (String, Int, String) -> Unit,
     onDisconnect: (String, Int) -> Unit,
@@ -46,7 +50,7 @@ fun WirelessAdbDialog(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                text = Language.wirelessAdbTitle,
+                text = if (isEditing) Language.wirelessAdbEditTitle else Language.wirelessAdbTitle,
                 style = MaterialTheme.typography.titleMedium,
             )
 
@@ -133,11 +137,29 @@ fun WirelessAdbDialog(
                 Text(Language.wirelessAdbDisconnect)
             }
 
-            OutlinedButton(
-                onClick = onDismiss,
-                modifier = Modifier.align(Alignment.End),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(Language.close)
+                // Saves without connecting, e.g. to fix the IP of a device that is not reachable yet.
+                OutlinedButton(
+                    onClick = { onSave(host, portNum, name) },
+                    enabled = hostValid && !loading,
+                ) {
+                    Text(Language.save)
+                }
+
+                if (isEditing) {
+                    OutlinedButton(onClick = onRemove, enabled = !loading) {
+                        Text(Language.delete, color = MaterialTheme.colorScheme.error)
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                OutlinedButton(onClick = onDismiss) {
+                    Text(Language.close)
+                }
             }
         }
     }

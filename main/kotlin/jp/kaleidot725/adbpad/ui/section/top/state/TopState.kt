@@ -16,9 +16,18 @@ data class TopState(
     val wirelessAdbLoading: Boolean = false,
     val lastWirelessAdbTarget: WirelessAdbTarget = WirelessAdbTarget(),
     val lastWirelessAdbName: String = "",
+    val savedDevices: List<SavedWirelessDevice> = emptyList(),
+    // The saved entry the Wireless dialog is editing, null when it is adding a new one.
+    val editingSavedDevice: WirelessAdbTarget? = null,
     val showScrcpyTierDialog: Boolean = false,
     val scrcpyTierPresets: ScrcpyTierPresets = ScrcpyTierPresets(),
     val deviceProfile: DeviceProfile? = null,
     val isProfilingDevice: Boolean = false,
     val profilingStatus: String = "",
 ) : PulseState
+
+/** A remembered wireless device: where to reach it and the name the user gave it. */
+data class SavedWirelessDevice(
+    val target: WirelessAdbTarget,
+    val name: String,
+)

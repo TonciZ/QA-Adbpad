@@ -500,6 +500,10 @@ object Language : StringResources {
         get() = getCurrentResources().wirelessAdbPair
     override val wirelessAdbDisconnect: String
         get() = getCurrentResources().wirelessAdbDisconnect
+    override val wirelessAdbEditTitle: String
+        get() = getCurrentResources().wirelessAdbEditTitle
+    override val savedDeviceNotConnected: String
+        get() = getCurrentResources().savedDeviceNotConnected
 
     // NavigationRail tooltips
     override val tooltipCommand: String

@@ -49,5 +49,6 @@ object SettingFileCreator {
         val accentColor: AccentColor = AccentColor.BLUE,
         val scrcpyTierPresets: ScrcpyTierPresets = ScrcpyTierPresets(),
         val lastWirelessAdbTarget: WirelessAdbTarget = WirelessAdbTarget(),
+        val savedWirelessDevices: List<WirelessAdbTarget> = emptyList(),
     )
 }
