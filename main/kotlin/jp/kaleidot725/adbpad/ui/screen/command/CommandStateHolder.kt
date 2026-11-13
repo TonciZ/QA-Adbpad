@@ -6,6 +6,7 @@ import jp.kaleidot725.adbpad.domain.model.command.ToggleCommandDef
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.repository.NormalCommandOutputRepository
 import jp.kaleidot725.adbpad.domain.repository.NormalCommandRepository
+import jp.kaleidot725.adbpad.domain.repository.SettingRepository
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteCustomCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.command.GetNormalCommandGroup
@@ -29,8 +30,13 @@ class CommandStateHolder(
     private val getSelectedDeviceFlowUseCase: GetSelectedDeviceFlowUseCase,
     private val normalCommandOutputRepository: NormalCommandOutputRepository,
     private val normalCommandRepository: NormalCommandRepository,
+    private val settingRepository: SettingRepository,
 ) : PulseStore<CommandState, CommandAction, CommandSideEffect, AppBroadCast, AppUnicast>(initialUiState = CommandState()) {
     private var customCommandJob: Job? = null
+
+    private companion object {
+        const val MAX_HISTORY = 30
+    }
 
     override fun onSetup() {
         coroutineScope.launch {
@@ -46,6 +52,10 @@ class CommandStateHolder(
         coroutineScope.launch {
             val commands = getNormalCommandGroup()
             update { this.copy(commands = commands) }
+        }
+        coroutineScope.launch {
+            val history = settingRepository.getCustomCommandHistory()
+            update { copy(customCommandHistory = history) }
         }
         coroutineScope.launch {
             normalCommandOutputRepository.executionHistory.collect { history ->
@@ -177,7 +187,10 @@ class CommandStateHolder(
         if (input.isBlank() || customCommandJob?.isActive == true) return
         customCommandJob =
             coroutineScope.launch {
-                update { copy(isCustomCommandRunning = true) }
+                val entry = input.trim()
+                val history = (listOf(entry) + state.value.customCommandHistory.filter { it != entry }).take(MAX_HISTORY)
+                update { copy(isCustomCommandRunning = true, customCommandHistory = history) }
+                settingRepository.updateCustomCommandHistory(history)
                 try {
                     executeCustomCommandUseCase(input) { state.value.selectedDevice?.serial }
                 } finally {

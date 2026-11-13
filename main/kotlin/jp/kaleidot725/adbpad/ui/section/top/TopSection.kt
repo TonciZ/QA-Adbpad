@@ -63,6 +63,7 @@ import jp.kaleidot725.adbpad.ui.common.resource.clickableBackground
 import jp.kaleidot725.adbpad.ui.component.button.CommandIconButton
 import jp.kaleidot725.adbpad.ui.section.top.component.DeviceStatusDot
 import jp.kaleidot725.adbpad.ui.section.top.component.DropDownDeviceMenu
+import jp.kaleidot725.adbpad.ui.section.top.component.ScrcpyErrorDialog
 import jp.kaleidot725.adbpad.ui.section.top.component.ScrcpyTierDialog
 import jp.kaleidot725.adbpad.ui.section.top.component.WirelessAdbDialog
 import jp.kaleidot725.adbpad.ui.section.top.state.TopAction
@@ -90,6 +91,10 @@ fun TopSection(
             onDisconnect = { host, port -> onTopAction(TopAction.DisconnectWirelessAdb(host, port)) },
             onDismiss = { onTopAction(TopAction.CloseWirelessAdb) },
         )
+    }
+
+    topState.scrcpyError?.let { message ->
+        ScrcpyErrorDialog(message = message, onDismiss = { onTopAction(TopAction.DismissScrcpyError) })
     }
 
     if (topState.showScrcpyTierDialog) {

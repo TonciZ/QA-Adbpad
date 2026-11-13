@@ -169,6 +169,22 @@ object EnglishResources : StringResources {
     override val outputTerminalPlaceholder: String = "Execution history will be displayed here"
     override val customCommandPlaceholder: String = "adb command, e.g. adb connect 192.168.1.20:5555 - Enter runs, Shift+Enter adds a line"
     override val customCommandStop: String = "Stop"
+    override val scrcpyErrorTitle: String =
+        "Screen mirroring could not start"
+    override val scrcpyErrorNotFound: String =
+        "scrcpy was not found. Check the scrcpy path in Settings, or clear it to use the built-in version."
+    override val scrcpyErrorTimeout: String =
+        "The device did not answer in time. Make sure it is awake and connected, then try again."
+    override val scrcpyErrorClosed: String =
+        "scrcpy closed right after starting."
+    override val deviceHintUnauthorized: String =
+        "Accept the debugging prompt on the device"
+    override val deviceHintOffline: String =
+        "Offline - is it on and on the same network?"
+    override val deviceHintConnecting: String =
+        "Connecting..."
+    override val customCommandHistory: String =
+        "Recent commands"
 
     override val textCommandStartEventFormat = "Start sending text「%s」"
     override val textCommandEndEventFormat = "End sending text「%s」"

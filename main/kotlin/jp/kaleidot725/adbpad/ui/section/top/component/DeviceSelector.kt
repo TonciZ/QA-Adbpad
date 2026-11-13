@@ -88,7 +88,22 @@ fun DeviceLabel(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        if (device.name.isNotBlank()) {
+        // A device adb lists but cannot use yet: say what to do instead of leaving a dead entry.
+        val hint =
+            when (device.state) {
+                DeviceState.UNAUTHORIZED, DeviceState.AUTHORIZING -> Language.deviceHintUnauthorized
+                DeviceState.CONNECTING -> Language.deviceHintConnecting
+                else -> null
+            }
+        if (hint != null) {
+            Text(
+                text = hint,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, lineHeight = 12.sp),
+                color = MaterialTheme.colorScheme.error,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        } else if (device.name.isNotBlank()) {
             Text(
                 text = device.serial,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, lineHeight = 12.sp),

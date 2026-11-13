@@ -55,6 +55,8 @@ fun DropDownDeviceMenu(
     val savedBySerial = savedDevices.associateBy { it.target.serial }
     // Saved devices that adb does not list right now - shown so they can be reconnected or edited.
     val notConnected = savedDevices.filter { saved -> devices.none { it.serial == saved.target.serial } }
+    // adb keeps a dropped wireless device around as "offline"; it needs a reconnect, not a select.
+    val offlineSerials = devices.filter { it.state == DeviceState.OFFLINE }.map { it.serial }.toSet()
 
     Box(modifier) {
         DeviceSelector(
@@ -86,10 +88,16 @@ fun DropDownDeviceMenu(
                 val saved = savedBySerial[device.serial]
                 DropdownMenuItem(
                     text = {
-                        DeviceLabel(
-                            device = device,
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                        )
+                        Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+                            DeviceLabel(device = device)
+                            if (device.serial in offlineSerials) {
+                                Text(
+                                    text = Language.deviceHintOffline,
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, lineHeight = 12.sp),
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
+                        }
                     },
                     trailingIcon =
                         saved?.let {

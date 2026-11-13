@@ -50,5 +50,6 @@ object SettingFileCreator {
         val scrcpyTierPresets: ScrcpyTierPresets = ScrcpyTierPresets(),
         val lastWirelessAdbTarget: WirelessAdbTarget = WirelessAdbTarget(),
         val savedWirelessDevices: List<WirelessAdbTarget> = emptyList(),
+        val customCommandHistory: List<String> = emptyList(),
     )
 }

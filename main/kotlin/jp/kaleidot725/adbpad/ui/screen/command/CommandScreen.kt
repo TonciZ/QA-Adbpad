@@ -42,6 +42,7 @@ fun CommandScreen(
         layoutMode = state.layoutMode,
         executionHistory = state.executionHistory,
         isCustomCommandRunning = state.isCustomCommandRunning,
+        customCommandHistory = state.customCommandHistory,
         onRunCustomCommand = { input -> onAction(CommandAction.RunCustomCommand(input)) },
         onStopCustomCommand = { onAction(CommandAction.StopCustomCommand) },
         onClickFilter = { onAction(CommandAction.ClickCategoryTab(it)) },
@@ -63,6 +64,7 @@ private fun CommandScreen(
     layoutMode: CommandLayoutMode,
     executionHistory: CommandExecutionHistory?,
     isCustomCommandRunning: Boolean = false,
+    customCommandHistory: List<String> = emptyList(),
     onRunCustomCommand: (String) -> Unit = {},
     onStopCustomCommand: () -> Unit = {},
     onClickFilter: (NormalCommandCategory) -> Unit,
@@ -129,6 +131,7 @@ private fun CommandScreen(
             CommandOutput(
                 executionHistory = executionHistory,
                 isRunning = isCustomCommandRunning,
+                history = customCommandHistory,
                 onRun = onRunCustomCommand,
                 onStop = onStopCustomCommand,
                 modifier = Modifier.fillMaxSize(),

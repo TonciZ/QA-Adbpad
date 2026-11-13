@@ -23,6 +23,7 @@ val stateHolderModule =
                 getSelectedDeviceFlowUseCase = get(),
                 normalCommandOutputRepository = get(),
                 normalCommandRepository = get(),
+                settingRepository = get(),
             )
         }
 

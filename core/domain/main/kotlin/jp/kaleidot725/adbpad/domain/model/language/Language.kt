@@ -319,6 +319,22 @@ object Language : StringResources {
         get() = getCurrentResources().customCommandPlaceholder
     override val customCommandStop: String
         get() = getCurrentResources().customCommandStop
+    override val scrcpyErrorTitle: String
+        get() = getCurrentResources().scrcpyErrorTitle
+    override val scrcpyErrorNotFound: String
+        get() = getCurrentResources().scrcpyErrorNotFound
+    override val scrcpyErrorTimeout: String
+        get() = getCurrentResources().scrcpyErrorTimeout
+    override val scrcpyErrorClosed: String
+        get() = getCurrentResources().scrcpyErrorClosed
+    override val deviceHintUnauthorized: String
+        get() = getCurrentResources().deviceHintUnauthorized
+    override val deviceHintOffline: String
+        get() = getCurrentResources().deviceHintOffline
+    override val deviceHintConnecting: String
+        get() = getCurrentResources().deviceHintConnecting
+    override val customCommandHistory: String
+        get() = getCurrentResources().customCommandHistory
 
     override val textCommandStartEventFormat: String
         get() = getCurrentResources().textCommandStartEventFormat

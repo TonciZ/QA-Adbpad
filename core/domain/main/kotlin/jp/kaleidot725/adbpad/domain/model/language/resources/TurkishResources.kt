@@ -170,6 +170,22 @@ object TurkishResources : StringResources {
     override val customCommandPlaceholder: String =
         "adb komutu, örn. adb connect 192.168.1.20:5555 - Enter çalıştırır, Shift+Enter satır ekler"
     override val customCommandStop: String = "Durdur"
+    override val scrcpyErrorTitle: String =
+        "Ekran yansıtma başlatılamadı"
+    override val scrcpyErrorNotFound: String =
+        "scrcpy bulunamadı. Ayarlardaki scrcpy yolunu kontrol edin veya yerleşik sürüm için boş bırakın."
+    override val scrcpyErrorTimeout: String =
+        "Cihaz zamanında yanıt vermedi. Açık ve bağlı olduğundan emin olup tekrar deneyin."
+    override val scrcpyErrorClosed: String =
+        "scrcpy başladıktan hemen sonra kapandı."
+    override val deviceHintUnauthorized: String =
+        "Cihazdaki hata ayıklama iznini onaylayın"
+    override val deviceHintOffline: String =
+        "Çevrimdışı - açık ve aynı ağda mı?"
+    override val deviceHintConnecting: String =
+        "Bağlanıyor..."
+    override val customCommandHistory: String =
+        "Son komutlar"
 
     override val textCommandStartEventFormat = "「%s」 metni gönderiliyor"
     override val textCommandEndEventFormat = "「%s」 metni gönderildi"

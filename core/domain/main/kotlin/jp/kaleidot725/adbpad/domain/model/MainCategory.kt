@@ -7,5 +7,4 @@ enum class MainCategory {
     ScrcpyNewDisplay,
     App,
     Log,
-    File,
 }

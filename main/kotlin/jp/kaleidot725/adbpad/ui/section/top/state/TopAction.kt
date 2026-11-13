@@ -21,6 +21,8 @@ sealed class TopAction : PulseAction {
 
     data object CloseScrcpyTierDialog : TopAction()
 
+    data object DismissScrcpyError : TopAction()
+
     data class LaunchScrcpyWithTier(
         val level: ScrcpyTierLevel,
     ) : TopAction()

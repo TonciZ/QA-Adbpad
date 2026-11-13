@@ -2,6 +2,7 @@ package jp.kaleidot725.adbpad.domain.usecase.scrcpy
 
 import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierPreset
+import jp.kaleidot725.adbpad.domain.model.language.Language
 import jp.kaleidot725.adbpad.domain.repository.AdbBinary
 import jp.kaleidot725.adbpad.domain.repository.DeviceSettingsRepository
 import jp.kaleidot725.adbpad.domain.repository.ScrcpyProcessRepository
@@ -12,20 +13,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import java.io.File
+import java.io.InputStream
 
 class LaunchScrcpyUseCase(
     private val settingRepository: SettingRepository,
     private val scrcpyProcessRepository: ScrcpyProcessRepository,
     private val deviceSettingsRepository: DeviceSettingsRepository,
 ) {
+    /** Starts mirroring. Returns null on success, otherwise a message that can be shown to the user. */
     suspend operator fun invoke(
         device: Device,
         tierPreset: ScrcpyTierPreset? = null,
-    ): Boolean {
+    ): String? {
         scrcpyProcessRepository.getProcess(device.serial)?.terminate()
 
         val scrcpySettings = settingRepository.getScrcpySettings()
         val scrcpyPath = scrcpySettings.executable
+        if (scrcpyPath.isBlank() || (scrcpyPath.contains(File.separatorChar) && !File(scrcpyPath).isFile)) {
+            return Language.scrcpyErrorNotFound
+        }
 
         val adbSettings = settingRepository.getSdkPath()
         val adbPath = adbSettings.adbExecutable
@@ -113,22 +120,40 @@ class LaunchScrcpyUseCase(
         if (result == null) {
             println("Scrcpy launch timed out for ${device.serial} after ${LAUNCH_TIMEOUT_MS}ms - device likely unresponsive")
             flushDeviceConnectionState(device.serial)
-            return false
+            return Language.scrcpyErrorTimeout
         }
 
         return when (result) {
             is ScrcpyResult.Success -> {
-                scrcpyProcessRepository.storeProcess(device.serial, result.process)
-                true
+                // ponytail: "started" only means the process was spawned. scrcpy reports real
+                // problems (device unauthorized, encoder refused) by exiting a moment later.
+                delay(EARLY_EXIT_CHECK_MS)
+                if (result.process.isAlive) {
+                    scrcpyProcessRepository.storeProcess(device.serial, result.process)
+                    null
+                } else {
+                    val details = readAvailable(result.process.errorStream) + readAvailable(result.process.inputStream)
+                    val reason = details.lines().lastOrNull { it.contains("ERROR", ignoreCase = true) }?.trim()
+                    listOfNotNull(Language.scrcpyErrorClosed, reason).joinToString("\n")
+                }
             }
 
             is ScrcpyResult.Error -> {
                 println("Scrcpy launch failed for ${device.serial}: ${result.message}")
                 result.exception.printStackTrace()
-                false
+                result.message
             }
         }
     }
+
+    // Only what is already buffered - never blocks on a stream that might stay open.
+    private fun readAvailable(stream: InputStream?): String =
+        try {
+            val available = stream?.available() ?: 0
+            if (stream != null && available > 0) String(stream.readNBytes(available)) else ""
+        } catch (_: Exception) {
+            ""
+        }
 
     private suspend fun pacedConnect(
         serial: String,
@@ -171,6 +196,7 @@ class LaunchScrcpyUseCase(
 
     companion object {
         private const val LAUNCH_TIMEOUT_MS = 15_000L
+        private const val EARLY_EXIT_CHECK_MS = 1_500L
         private const val READINESS_PING_SETTLE_MS = 2_000L
         private const val DEFAULT_SETTLE_DELAY_MS = 3_000L
     }

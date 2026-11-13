@@ -160,6 +160,14 @@ interface StringResources {
     val outputTerminalPlaceholder: String
     val customCommandPlaceholder: String
     val customCommandStop: String
+    val scrcpyErrorTitle: String
+    val scrcpyErrorNotFound: String
+    val scrcpyErrorTimeout: String
+    val scrcpyErrorClosed: String
+    val deviceHintUnauthorized: String
+    val deviceHintOffline: String
+    val deviceHintConnecting: String
+    val customCommandHistory: String
 
     val textCommandStartEventFormat: String
     val textCommandEndEventFormat: String
