@@ -12,10 +12,12 @@ import jp.kaleidot725.adbpad.domain.usecase.device.CheckDeviceLivenessUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.ConnectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.DisconnectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.GetLastWirelessAdbTargetUseCase
+import jp.kaleidot725.adbpad.domain.usecase.device.GetSavedWirelessDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.GetSelectedDeviceFlowUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.PairDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.RestartDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.SaveLastWirelessAdbTargetUseCase
+import jp.kaleidot725.adbpad.domain.usecase.device.SaveSavedWirelessDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.SelectDeviceUseCase
 import jp.kaleidot725.adbpad.domain.usecase.device.UpdateDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.GetScrcpyTierPresetsUseCase
@@ -23,6 +25,7 @@ import jp.kaleidot725.adbpad.domain.usecase.scrcpy.LaunchScrcpyUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.ProfileDeviceUseCase
 import jp.kaleidot725.adbpad.ui.container.AppBroadCast
 import jp.kaleidot725.adbpad.ui.container.AppUnicast
+import jp.kaleidot725.adbpad.ui.section.top.state.SavedWirelessDevice
 import jp.kaleidot725.adbpad.ui.section.top.state.TopAction
 import jp.kaleidot725.adbpad.ui.section.top.state.TopSideEffect
 import jp.kaleidot725.adbpad.ui.section.top.state.TopState
@@ -48,6 +51,8 @@ class TopStateHolder(
     private val deviceSettingsRepository: DeviceSettingsRepository,
     private val getLastWirelessAdbTargetUseCase: GetLastWirelessAdbTargetUseCase,
     private val saveLastWirelessAdbTargetUseCase: SaveLastWirelessAdbTargetUseCase,
+    private val getSavedWirelessDevicesUseCase: GetSavedWirelessDevicesUseCase,
+    private val saveSavedWirelessDevicesUseCase: SaveSavedWirelessDevicesUseCase,
 ) : PulseStore<TopState, TopAction, TopSideEffect, AppBroadCast, AppUnicast>(TopState()) {
     private var deviceJob: Job? = null
     private var selectedDeviceJob: Job? = null
@@ -59,6 +64,7 @@ class TopStateHolder(
     override fun onSetup() {
         collectDevices()
         startAutoConnect()
+        coroutineScope.launch { refreshSavedDevices() }
         coroutineScope.launch {
             val presets = getScrcpyTierPresetsUseCase()
             update { copy(scrcpyTierPresets = presets) }
@@ -80,12 +86,17 @@ class TopStateHolder(
                 TopAction.RestartDevice -> restartDevice()
                 TopAction.Refresh -> unicast(AppUnicast.Refresh)
                 TopAction.OpenWirelessAdb -> openWirelessAdb()
+                is TopAction.ConnectSavedDevice -> connectSavedDevice(uiAction.target)
+                is TopAction.EditSavedDevice -> editSavedDevice(uiAction.target)
+                is TopAction.SaveWirelessDevice -> saveWirelessDevice(uiAction.host, uiAction.port, uiAction.name)
+                TopAction.RemoveSavedDevice -> removeSavedDevice()
                 TopAction.CloseWirelessAdb ->
                     update {
                         copy(
                             showWirelessAdbDialog = false,
                             wirelessAdbStatus = "",
                             wirelessAdbLoading = false,
+                            editingSavedDevice = null,
                         )
                     }
                 is TopAction.ConnectWirelessAdb -> connectWirelessAdb(uiAction.host, uiAction.port, uiAction.name)
@@ -170,8 +181,92 @@ class TopStateHolder(
                 wirelessAdbStatus = "",
                 lastWirelessAdbTarget = target,
                 lastWirelessAdbName = name,
+                editingSavedDevice = null,
             )
         }
+    }
+
+    private suspend fun refreshSavedDevices() {
+        val saved = getSavedWirelessDevicesUseCase().map { SavedWirelessDevice(it, loadCustomName(it.serial)) }
+        update { copy(savedDevices = saved) }
+    }
+
+    // Picking a saved device that is not connected: connect it and keep it connected from now on.
+    private suspend fun connectSavedDevice(target: WirelessAdbTarget) {
+        saveLastWirelessAdbTargetUseCase(target)
+        autoConnectEnabled = true
+        try {
+            connectDeviceUseCase(target.host, target.port)
+        } catch (e: Exception) {
+            println("Connect to ${target.serial} failed: ${e.message}")
+        }
+    }
+
+    private suspend fun editSavedDevice(target: WirelessAdbTarget) {
+        val name = loadCustomName(target.serial)
+        update {
+            copy(
+                showWirelessAdbDialog = true,
+                wirelessAdbStatus = "",
+                lastWirelessAdbTarget = target,
+                lastWirelessAdbName = name,
+                editingSavedDevice = target,
+            )
+        }
+    }
+
+    private suspend fun saveWirelessDevice(
+        host: String,
+        port: Int,
+        name: String,
+    ) {
+        storeSavedDevice(WirelessAdbTarget(host.trim(), port), name.trim())
+        update { copy(showWirelessAdbDialog = false, wirelessAdbStatus = "", editingSavedDevice = null) }
+    }
+
+    /**
+     * Adds [target] to the saved list, or - when the dialog is editing an entry - replaces that
+     * entry. A changed IP/port is a new serial as far as adb is concerned, so everything stored
+     * under the old serial (name, scrcpy options, scrcpy profile) moves to the new one.
+     */
+    private suspend fun storeSavedDevice(
+        target: WirelessAdbTarget,
+        name: String,
+    ) {
+        val previous = currentState.editingSavedDevice
+        val saved = getSavedWirelessDevicesUseCase()
+        val moved = previous != null && previous != target
+
+        if (moved) {
+            val oldDevice = Device(previous.serial, "", DeviceState.OFFLINE)
+            val oldSettings = deviceSettingsRepository.getDeviceSettings(oldDevice)
+            deviceSettingsRepository.saveDeviceSettings(
+                Device(target.serial, "", DeviceState.OFFLINE),
+                oldSettings.copy(deviceId = target.serial),
+            )
+            deviceSettingsRepository.deleteDeviceSettings(oldDevice)
+            if (getLastWirelessAdbTargetUseCase() == previous) saveLastWirelessAdbTargetUseCase(target)
+            try {
+                disconnectDeviceUseCase(previous.host, previous.port)
+            } catch (_: Exception) {
+                // the old address is usually already unreachable - that is why it is being edited
+            }
+        }
+        saveCustomName(target.serial, name)
+
+        val updated =
+            if (moved) saved.map { if (it == previous) target else it }.distinct() else (saved + target).distinct()
+        saveSavedWirelessDevicesUseCase(updated)
+        refreshSavedDevices()
+    }
+
+    private suspend fun removeSavedDevice() {
+        val target = currentState.editingSavedDevice ?: return
+        saveSavedWirelessDevicesUseCase(getSavedWirelessDevicesUseCase() - target)
+        // Otherwise auto-connect would keep bringing the removed device back.
+        if (getLastWirelessAdbTargetUseCase() == target) saveLastWirelessAdbTargetUseCase(WirelessAdbTarget())
+        refreshSavedDevices()
+        update { copy(showWirelessAdbDialog = false, wirelessAdbStatus = "", editingSavedDevice = null) }
     }
 
     private suspend fun connectWirelessAdb(
@@ -186,9 +281,9 @@ class TopStateHolder(
             if (isConnectSuccess(result)) {
                 val target = WirelessAdbTarget(host.trim(), port)
                 saveLastWirelessAdbTargetUseCase(target)
-                saveCustomName(target.serial, name.trim())
+                storeSavedDevice(target, name.trim())
                 autoConnectEnabled = true
-                update { copy(lastWirelessAdbTarget = target, lastWirelessAdbName = name.trim()) }
+                update { copy(lastWirelessAdbTarget = target, lastWirelessAdbName = name.trim(), editingSavedDevice = target) }
             }
             update { copy(wirelessAdbLoading = false, wirelessAdbStatus = result) }
         } catch (e: Exception) {

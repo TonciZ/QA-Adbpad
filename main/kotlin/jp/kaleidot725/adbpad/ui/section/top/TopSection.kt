@@ -82,6 +82,9 @@ fun TopSection(
             loading = topState.wirelessAdbLoading,
             initialTarget = topState.lastWirelessAdbTarget,
             initialName = topState.lastWirelessAdbName,
+            isEditing = topState.editingSavedDevice != null,
+            onSave = { host, port, name -> onTopAction(TopAction.SaveWirelessDevice(host, port, name)) },
+            onRemove = { onTopAction(TopAction.RemoveSavedDevice) },
             onConnect = { host, port, name -> onTopAction(TopAction.ConnectWirelessAdb(host, port, name)) },
             onPair = { host, port, code -> onTopAction(TopAction.PairWirelessAdb(host, port, code)) },
             onDisconnect = { host, port -> onTopAction(TopAction.DisconnectWirelessAdb(host, port)) },
@@ -129,6 +132,9 @@ fun TopSection(
                     devices = topState.devices,
                     selectedDevice = topState.selectedDevice,
                     onSelectDevice = { onTopAction(TopAction.SelectDevice(it)) },
+                    savedDevices = topState.savedDevices,
+                    onConnectSavedDevice = { onTopAction(TopAction.ConnectSavedDevice(it)) },
+                    onEditSavedDevice = { onTopAction(TopAction.EditSavedDevice(it)) },
                     modifier = Modifier.width(200.dp),
                 )
 

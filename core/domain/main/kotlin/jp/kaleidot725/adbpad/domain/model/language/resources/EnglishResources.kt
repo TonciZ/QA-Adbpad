@@ -260,6 +260,8 @@ object EnglishResources : StringResources {
     override val wirelessAdbConnect: String = "Connect"
     override val wirelessAdbPair: String = "Pair"
     override val wirelessAdbDisconnect: String = "Disconnect"
+    override val wirelessAdbEditTitle: String = "Edit saved device"
+    override val savedDeviceNotConnected: String = "Saved - click to connect"
 
     // NavigationRail tooltips
     override val tooltipCommand: String = "Command"

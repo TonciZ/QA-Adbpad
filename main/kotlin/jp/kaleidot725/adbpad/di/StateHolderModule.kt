@@ -98,6 +98,8 @@ val stateHolderModule =
                 deviceSettingsRepository = get(),
                 getLastWirelessAdbTargetUseCase = get(),
                 saveLastWirelessAdbTargetUseCase = get(),
+                getSavedWirelessDevicesUseCase = get(),
+                saveSavedWirelessDevicesUseCase = get(),
             )
         }
 
