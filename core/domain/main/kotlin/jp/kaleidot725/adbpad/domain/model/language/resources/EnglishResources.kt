@@ -3,7 +3,7 @@ package jp.kaleidot725.adbpad.domain.model.language.resources
 object EnglishResources : StringResources {
     override val windowTitle = "QA-Adbpad"
 
-    override val notFoundDevice = "Not found device"
+    override val notFoundDevice = "No device - click to add"
     override val notFoundCommand = "Not found command"
     override val notFoundInputText = "Not found input text"
     override val notFoundScreenshot = "Not found screenshot"
@@ -387,7 +387,43 @@ object EnglishResources : StringResources {
     override val logStart: String = "Start Logs"
     override val logStop: String = "Stop & Save"
     override val logClear: String = "Clear"
-    override val logFilter: String = "logcat filter, applied on start (e.g. *:E)"
+    override val logStopOnly: String =
+        "Stop"
+    override val logSave: String =
+        "Save..."
+    override val logSaveTitle: String =
+        "Save log"
+    override val logSaveFileName: String =
+        "File name"
+    override val logSaveFolder: String =
+        "Folder"
+    override val logSaveChangeFolder: String =
+        "Change..."
+    override val logSaveAllFormat: String =
+        "Everything captured (%d lines)"
+    override val logSaveShownFormat: String =
+        "Only what is shown now (%d lines)"
+    override val logSaveFailed: String =
+        "Could not save the log there. Pick another folder."
+    override val logOpenFolder: String =
+        "Open folder"
+    override val logCopyPath: String =
+        "Copy path"
+    override val logEmptyHint: String =
+        "Press Start Logs, repeat the problem on the device, then press Stop and Save."
+    override val logNoDevice: String =
+        "Connect a device first to capture logs."
+    override val wirelessAdbHelpTitle: String =
+        "Where do I find these?"
+    override val wirelessAdbHelp: String =
+        "1. On the TV open Settings > Device Preferences > About and press 'Build' 7 times.\n" +
+            "2. Go back, open Developer options and turn on USB debugging (and Network or Wireless debugging if listed).\n" +
+            "3. The IP address is under Settings > Network & Internet > your Wi-Fi network.\n" +
+            "4. Type the IP here and press Connect, then accept the 'Allow debugging?' prompt on the TV.\n" +
+            "The PC and the TV must be on the same Wi-Fi network. The port is almost always 5555."
+    override val wirelessAdbConnectHint: String =
+        "Check the IP address, that the device is on and on the same Wi-Fi as this computer, and that debugging is turned on."
+    override val logFilter: String = "Advanced (optional): logcat filter, e.g. *:E"
     override val logSearch: String = "Search tag, message or PID"
     override val logMinLevel: String = "Min level"
     override val logAutoScroll: String = "Auto-scroll"

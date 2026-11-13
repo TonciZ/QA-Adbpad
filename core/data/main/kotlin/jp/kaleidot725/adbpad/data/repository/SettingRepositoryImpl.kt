@@ -164,4 +164,18 @@ class SettingRepositoryImpl : SettingRepository {
             return@withContext SettingFileCreator.load().customCommandHistory
         }
     }
+
+    override suspend fun updateLogSaveDirectory(directory: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val oldSetting = SettingFileCreator.load()
+            val newSetting = oldSetting.copy(logSaveDirectory = directory)
+            return@withContext SettingFileCreator.save(newSetting)
+        }
+    }
+
+    override suspend fun getLogSaveDirectory(): String {
+        return withContext(Dispatchers.IO) {
+            return@withContext SettingFileCreator.load().logSaveDirectory
+        }
+    }
 }

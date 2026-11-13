@@ -376,6 +376,22 @@ interface StringResources {
     val logStart: String
     val logStop: String
     val logClear: String
+    val logStopOnly: String
+    val logSave: String
+    val logSaveTitle: String
+    val logSaveFileName: String
+    val logSaveFolder: String
+    val logSaveChangeFolder: String
+    val logSaveAllFormat: String
+    val logSaveShownFormat: String
+    val logSaveFailed: String
+    val logOpenFolder: String
+    val logCopyPath: String
+    val logEmptyHint: String
+    val logNoDevice: String
+    val wirelessAdbHelpTitle: String
+    val wirelessAdbHelp: String
+    val wirelessAdbConnectHint: String
     val logFilter: String
     val logSearch: String
     val logMinLevel: String

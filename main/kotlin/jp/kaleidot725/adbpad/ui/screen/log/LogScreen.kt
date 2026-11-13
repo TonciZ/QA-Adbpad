@@ -25,6 +25,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -50,9 +51,21 @@ import jp.kaleidot725.adbpad.ui.screen.log.state.LogState
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LogScreen(
+    state: LogState,
+    onAction: (LogAction) -> Unit,
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LogContent(state = state, onAction = onAction)
+        // After the content so the dialog's scrim and card are drawn on top of it.
+        state.saveDialog?.let { LogSaveDialog(dialog = it, onAction = onAction) }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun LogContent(
     state: LogState,
     onAction: (LogAction) -> Unit,
 ) {
@@ -88,13 +101,22 @@ fun LogScreen(
                 )
 
                 if (!state.isCapturing) {
-                    Button(onClick = { onAction(LogAction.StartCapture) }) {
+                    Button(onClick = { onAction(LogAction.StartCapture) }, enabled = state.hasDevice) {
                         Text(Language.logStart)
                     }
                 } else {
                     Button(onClick = { onAction(LogAction.StopCapture) }) {
-                        Text(Language.logStop)
+                        Text(Language.logStopOnly)
                     }
+                }
+
+                // Saving is its own step: stopping never throws a file dialog at the user, and a
+                // capture can be looked through (and filtered) before deciding what to keep.
+                OutlinedButton(
+                    onClick = { onAction(LogAction.OpenSaveDialog) },
+                    enabled = !state.isCapturing && state.entries.isNotEmpty(),
+                ) {
+                    Text(Language.logSave)
                 }
 
                 OutlinedButton(onClick = { onAction(LogAction.ClearLog) }) {
@@ -162,11 +184,26 @@ fun LogScreen(
             }
 
             if (state.savedFile.isNotEmpty()) {
-                Text(
-                    text = "${Language.logSaved} ${state.savedFile}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        text = "${Language.logSaved} ${state.savedFile}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    TextButton(onClick = { onAction(LogAction.OpenSavedFolder) }) {
+                        Text(Language.logOpenFolder)
+                    }
+                    TextButton(onClick = { copyToClipboard(state.savedFile) }) {
+                        Text(Language.logCopyPath)
+                    }
+                }
             }
 
             Box(
@@ -175,6 +212,15 @@ fun LogScreen(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.small),
             ) {
+                if (state.entries.isEmpty()) {
+                    Text(
+                        text = if (state.hasDevice || state.isCapturing) Language.logEmptyHint else Language.logNoDevice,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.align(Alignment.Center).padding(24.dp),
+                    )
+                }
+
                 SelectionContainer {
                     LazyColumn(
                         state = listState,

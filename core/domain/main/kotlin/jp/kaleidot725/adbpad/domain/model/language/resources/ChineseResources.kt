@@ -3,7 +3,7 @@ package jp.kaleidot725.adbpad.domain.model.language.resources
 object ChineseResources : StringResources {
     override val windowTitle = "QA-Adbpad"
 
-    override val notFoundDevice = "未找到设备"
+    override val notFoundDevice = "无设备 - 点击添加"
     override val notFoundCommand = "未找到命令"
     override val notFoundInputText = "未找到输入文本"
     override val notFoundScreenshot = "未找到截图"
@@ -385,6 +385,42 @@ object ChineseResources : StringResources {
     override val logStart: String = "开始记录"
     override val logStop: String = "停止并保存"
     override val logClear: String = "清除"
+    override val logStopOnly: String =
+        "停止"
+    override val logSave: String =
+        "保存..."
+    override val logSaveTitle: String =
+        "保存日志"
+    override val logSaveFileName: String =
+        "文件名"
+    override val logSaveFolder: String =
+        "文件夹"
+    override val logSaveChangeFolder: String =
+        "更改..."
+    override val logSaveAllFormat: String =
+        "捕获的全部内容（%d 行）"
+    override val logSaveShownFormat: String =
+        "仅当前显示的内容（%d 行）"
+    override val logSaveFailed: String =
+        "无法保存到该位置。请选择其他文件夹。"
+    override val logOpenFolder: String =
+        "打开文件夹"
+    override val logCopyPath: String =
+        "复制路径"
+    override val logEmptyHint: String =
+        "点击“开始日志”，在设备上重现问题，然后点击“停止”和“保存”。"
+    override val logNoDevice: String =
+        "请先连接设备再捕获日志。"
+    override val wirelessAdbHelpTitle: String =
+        "在哪里可以找到这些信息？"
+    override val wirelessAdbHelp: String =
+        "1. 在电视上打开 设置 > 设备偏好设置 > 关于，连续按 7 次“版本号”。\n" +
+            "2. 返回并打开“开发者选项”，开启 USB 调试（如有网络/无线调试也请开启）。\n" +
+            "3. IP 地址位于 设置 > 网络和互联网 > 当前 Wi-Fi 网络。\n" +
+            "4. 在此输入 IP 并点击“连接”，然后在电视上接受“允许调试？”提示。\n" +
+            "电脑和电视必须在同一个 Wi-Fi 网络中。端口几乎总是 5555。"
+    override val wirelessAdbConnectHint: String =
+        "请检查 IP 地址、设备是否开机并与此电脑在同一 Wi-Fi，以及是否已开启调试。"
     override val logFilter: String = "过滤 (例: *:E)"
     override val logSearch: String = "搜索标签、消息或 PID"
     override val logMinLevel: String = "最低级别"

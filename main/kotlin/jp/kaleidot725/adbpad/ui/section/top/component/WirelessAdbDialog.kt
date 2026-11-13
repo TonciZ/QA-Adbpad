@@ -1,5 +1,6 @@
 package jp.kaleidot725.adbpad.ui.section.top.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,6 +44,7 @@ fun WirelessAdbDialog(
     var port by remember(initialTarget) { mutableStateOf(initialTarget.port.toString()) }
     var name by remember(initialName) { mutableStateOf(initialName) }
     var pairingCode by remember { mutableStateOf("") }
+    var showHelp by remember { mutableStateOf(false) }
 
     FloatingDialog(onDismiss = onDismiss, modifier = Modifier.width(400.dp)) {
         Column(
@@ -53,6 +55,21 @@ fun WirelessAdbDialog(
                 text = if (isEditing) Language.wirelessAdbEditTitle else Language.wirelessAdbTitle,
                 style = MaterialTheme.typography.titleMedium,
             )
+
+            // For someone who has never enabled debugging on a TV: the four steps, on demand.
+            Text(
+                text = Language.wirelessAdbHelpTitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { showHelp = !showHelp },
+            )
+            if (showHelp) {
+                Text(
+                    text = Language.wirelessAdbHelp,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
 
             OutlinedTextField(
                 value = host,
@@ -102,6 +119,17 @@ fun WirelessAdbDialog(
                         } else {
                             MaterialTheme.colorScheme.primary
                         },
+                )
+            }
+
+            if (status.contains("failed", ignoreCase = true) ||
+                status.contains("cannot", ignoreCase = true) ||
+                status.startsWith("Error")
+            ) {
+                Text(
+                    text = Language.wirelessAdbConnectHint,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
