@@ -210,6 +210,9 @@ class SettingStateHolder(
         // when the download/launch actually failed.
         if (!started) {
             update { copy(isInstallingUpdate = false, updateCheckMessage = Language.settingUpdateDownloadFailed) }
+        } else {
+            // Only reached on Linux, where the release page was opened in the browser instead.
+            update { copy(isInstallingUpdate = false) }
         }
     }
 }

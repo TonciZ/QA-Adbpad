@@ -18,22 +18,33 @@ plugins {
 
 group = "jp.kaleidot725"
 
-// Bundled adb + scrcpy: both come from the official scrcpy Windows release, which ships an adb
-// that matches it. They are installed with the app and used whenever Settings has no custom
-// path, so a new app release is also how the tools get updated.
-// To update: bump the version and paste the win64 zip checksum from SHA256SUMS.txt on
+// Bundled adb + scrcpy: both come from the official scrcpy release for the OS being built, which
+// ships an adb that matches it. They are installed with the app and used whenever Settings has
+// no custom path, so a new app release is also how the tools get updated.
+// To update: bump the version and paste the checksums from SHA256SUMS.txt on
 // https://github.com/Genymobile/scrcpy/releases
 val bundledScrcpyVersion = "4.1"
-val bundledScrcpySha256 = "5b12172b3264b2889f4583ee64752ce832e29bc8b1089dca81093459697165db"
+
+// Compose resource folder for the OS -> scrcpy release asset and its SHA-256.
+val bundledScrcpyAssets =
+    mapOf(
+        "windows-x64" to ("scrcpy-win64-v$bundledScrcpyVersion.zip" to "5b12172b3264b2889f4583ee64752ce832e29bc8b1089dca81093459697165db"),
+        "linux-x64" to
+            ("scrcpy-linux-x86_64-v$bundledScrcpyVersion.tar.gz" to "ad56ae8bfeedf41e824945c11dbf55fcb092b3e615b9b486f48a50e30d389635"),
+        "macos-arm64" to
+            ("scrcpy-macos-aarch64-v$bundledScrcpyVersion.tar.gz" to "20fd47c9014dd5e0fa77091f3cb7adbda8445a360c4584aeaa0150b5b3988ff3"),
+        "macos-x64" to
+            ("scrcpy-macos-x86_64-v$bundledScrcpyVersion.tar.gz" to "ee2a7223bc8dbdc4f482db1134bcf441178dafb833492b71ca4c22090c58ce72"),
+    )
 val bundledResourcesDir = layout.buildDirectory.dir("bundledResources")
 
 val prepareBundledTools by tasks.registering {
     val version = bundledScrcpyVersion
-    val sha256 = bundledScrcpySha256
-    val zipFile = layout.buildDirectory.file("downloads/scrcpy-win64-v$version.zip")
+    val assets = bundledScrcpyAssets
+    val downloadsDir = layout.buildDirectory.dir("downloads")
     val rootDir = bundledResourcesDir
     inputs.property("version", version)
-    inputs.property("sha256", sha256)
+    inputs.property("assets", assets.toString())
     outputs.dir(rootDir)
 
     doLast {
@@ -53,35 +64,52 @@ val prepareBundledTools by tasks.registering {
         val root = rootDir.get().asFile
         root.deleteRecursively()
         root.mkdirs()
-        // Windows-only bundle (the only platform this fork ships). Elsewhere the folder stays
-        // empty and the app falls back to the paths in Settings or to `adb` on the PATH.
-        if (!System.getProperty("os.name").startsWith("Windows")) return@doLast
 
-        val zip = zipFile.get().asFile
-        if (!zip.isFile || checksum(zip) != sha256) {
-            zip.parentFile.mkdirs()
-            val url = "https://github.com/Genymobile/scrcpy/releases/download/v$version/${zip.name}"
-            logger.lifecycle("Downloading $url")
-            URI(url).toURL().openStream().use { input -> zip.outputStream().use { input.copyTo(it) } }
-        }
-        val actual = checksum(zip)
-        check(actual == sha256) { "Checksum mismatch for ${zip.name}: expected $sha256 but got $actual" }
-
-        // Compose merges <root>/windows-x64/** into the installed app's resources folder.
-        val toolsDir = root.resolve("windows-x64/tools")
-        toolsDir.mkdirs()
-        // The launcher scripts are for double-clicking scrcpy by hand; nothing here uses them.
-        val skipped = setOf("scrcpy-noconsole.vbs", "open_a_terminal_here.bat")
-        ZipFile(zip).use { archive ->
-            for (entry in archive.entries()) {
-                val name = entry.name.substringAfterLast('/')
-                if (entry.isDirectory || name.isEmpty() || name in skipped) continue
-                archive.getInputStream(entry).use { input -> toolsDir.resolve(name).outputStream().use { input.copyTo(it) } }
+        val osName = System.getProperty("os.name").lowercase()
+        val os =
+            when {
+                osName.startsWith("windows") -> "windows"
+                osName.startsWith("mac") -> "macos"
+                else -> "linux"
             }
+        val arch = if (System.getProperty("os.arch") in setOf("aarch64", "arm64")) "arm64" else "x64"
+        // No scrcpy release for this OS/CPU: the folder stays empty and the app falls back to
+        // the paths in Settings or to `adb` on the PATH.
+        val (assetName, sha256) = assets["$os-$arch"] ?: return@doLast
+
+        val archive = downloadsDir.get().asFile.resolve(assetName)
+        if (!archive.isFile || checksum(archive) != sha256) {
+            archive.parentFile.mkdirs()
+            val url = "https://github.com/Genymobile/scrcpy/releases/download/v$version/$assetName"
+            logger.lifecycle("Downloading $url")
+            URI(url).toURL().openStream().use { input -> archive.outputStream().use { input.copyTo(it) } }
         }
+        val actual = checksum(archive)
+        check(actual == sha256) { "Checksum mismatch for $assetName: expected $sha256 but got $actual" }
+
+        // Compose merges <root>/<os>-<arch>/** into the installed app's resources folder.
+        val toolsDir = root.resolve("$os-$arch/tools")
+        toolsDir.mkdirs()
+        if (assetName.endsWith(".zip")) {
+            ZipFile(archive).use { zip ->
+                for (entry in zip.entries()) {
+                    val name = entry.name.substringAfterLast('/')
+                    if (entry.isDirectory || name.isEmpty()) continue
+                    zip.getInputStream(entry).use { input -> toolsDir.resolve(name).outputStream().use { input.copyTo(it) } }
+                }
+            }
+        } else {
+            // tar keeps the executable bits on adb and scrcpy, which a plain Java copy would drop.
+            val tar =
+                ProcessBuilder("tar", "-xzf", archive.absolutePath, "--strip-components=1", "-C", toolsDir.absolutePath)
+                    .inheritIO()
+                    .start()
+            check(tar.waitFor() == 0) { "Could not extract $assetName" }
+        }
+        // Launcher scripts and the man page are for using scrcpy by hand; nothing here needs them.
+        listOf("scrcpy-noconsole.vbs", "open_a_terminal_here.bat", "scrcpy.1").forEach { toolsDir.resolve(it).delete() }
     }
 }
-version = "3.9.0"
 
 kotlin {
     jvm()
@@ -183,7 +211,8 @@ compose.desktop {
             }
 
             linux {
-                iconFile.set(project.file("icon.ico"))
+                // jpackage wants a PNG on Linux; the .ico made the .deb build fall back to a default icon.
+                iconFile.set(project.file("main/resources/icon.png"))
             }
         }
     }

@@ -7,7 +7,7 @@ object FilePathUtil {
     fun createDir() {
         try {
             val file = File(getDirPath())
-            if (!file.exists()) file.mkdir()
+            if (!file.exists()) file.mkdirs()
         } catch (_: Exception) {
             return
         }

@@ -54,8 +54,17 @@ class CheckForUpdateUseCase {
                 val latestVersion = release.tagName.removePrefix("v")
                 if (!isNewer(latestVersion, AppVersion.CURRENT)) return@withContext null
 
-                val assetExt = if (System.getProperty("os.name").contains("Mac", ignoreCase = true)) ".dmg" else ".msi"
-                val asset = release.assets.firstOrNull { it.name.endsWith(assetExt) } ?: return@withContext null
+                val os = System.getProperty("os.name").lowercase()
+                val assetExt =
+                    when {
+                        os.startsWith("mac") -> ".dmg"
+                        os.startsWith("windows") -> ".msi"
+                        else -> ".deb"
+                    }
+                // macOS ships one disk image per CPU type - take the one named for this machine.
+                val arch = if (System.getProperty("os.arch") in setOf("aarch64", "arm64")) "arm64" else "x64"
+                val candidates = release.assets.filter { it.name.endsWith(assetExt) }
+                val asset = candidates.firstOrNull { it.name.contains(arch) } ?: candidates.firstOrNull() ?: return@withContext null
 
                 UpdateInfo(version = latestVersion, downloadUrl = asset.browserDownloadUrl, htmlUrl = release.htmlUrl)
                 // ponytail: catches Throwable, not just Exception - a missing JDK module (see

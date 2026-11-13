@@ -24,6 +24,15 @@ class DownloadAndInstallUpdateUseCase(
     suspend operator fun invoke(update: UpdateInfo): Boolean =
         withContext(Dispatchers.IO) {
             try {
+                // ponytail: installing a .deb needs root and not every distro uses one, so on
+                // Linux the update is a visit to the release page (it lists the .deb and the
+                // portable .tar.gz) instead of an in-place install.
+                val os = System.getProperty("os.name").lowercase()
+                if (!os.startsWith("windows") && !os.startsWith("mac")) {
+                    ProcessBuilder("xdg-open", update.htmlUrl).start()
+                    return@withContext true
+                }
+
                 val fileName = update.downloadUrl.substringAfterLast("/")
                 val tempFile = File(System.getProperty("java.io.tmpdir"), fileName)
 

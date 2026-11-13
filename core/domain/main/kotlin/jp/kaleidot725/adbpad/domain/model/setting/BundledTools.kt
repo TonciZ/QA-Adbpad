@@ -20,6 +20,9 @@ object BundledTools {
 
     private fun find(name: String): File? {
         val dir = toolsDir ?: return null
-        return listOf("$name.exe", name).map { File(dir, it) }.firstOrNull { it.isFile }
+        val file = listOf("$name.exe", name).map { File(dir, it) }.firstOrNull { it.isFile } ?: return null
+        // Packaging can drop the executable bit on Linux/macOS; put it back where we are allowed to.
+        if (!file.canExecute()) runCatching { file.setExecutable(true) }
+        return file
     }
 }
