@@ -2,16 +2,20 @@ package jp.kaleidot725.adbpad.domain.usecase.app
 
 import jp.kaleidot725.adbpad.domain.repository.ScrcpyNewDisplayProcessRepository
 import jp.kaleidot725.adbpad.domain.repository.ScrcpyProcessRepository
+import jp.kaleidot725.adbpad.domain.usecase.adb.StopBundledAdbServerUseCase
+import kotlinx.coroutines.runBlocking
 import kotlin.system.exitProcess
 
 class ShutdownAppUseCase(
     private val scrcpyProcessRepository: ScrcpyProcessRepository,
     private val scrcpyNewDisplayProcessRepository: ScrcpyNewDisplayProcessRepository,
+    private val stopBundledAdbServerUseCase: StopBundledAdbServerUseCase,
 ) {
     operator fun invoke() {
         // Terminate all running Scrcpy processes
         scrcpyProcessRepository.terminateAllProcesses()
         scrcpyNewDisplayProcessRepository.terminateAllProcesses()
+        runBlocking { stopBundledAdbServerUseCase() }
 
         println("Application shutdown complete.")
 

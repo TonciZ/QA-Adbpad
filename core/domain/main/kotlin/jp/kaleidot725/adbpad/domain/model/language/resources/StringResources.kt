@@ -158,6 +158,8 @@ interface StringResources {
 
     val outputTerminalTitle: String
     val outputTerminalPlaceholder: String
+    val customCommandPlaceholder: String
+    val customCommandStop: String
 
     val textCommandStartEventFormat: String
     val textCommandEndEventFormat: String
@@ -202,6 +204,7 @@ interface StringResources {
 
     val settingScrcpyHeader: String
     val settingScrcpyBinaryPathTitle: String
+    val settingBundledToolHint: String
     val settingScrcpyTierPresetsHeader: String
     val settingScrcpyTierLow: String
     val settingScrcpyTierMedium: String

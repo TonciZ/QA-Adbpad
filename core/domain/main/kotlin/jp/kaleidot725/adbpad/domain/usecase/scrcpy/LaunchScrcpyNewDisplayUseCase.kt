@@ -20,11 +20,7 @@ class LaunchScrcpyNewDisplayUseCase(
         val scrcpySettings = settingRepository.getScrcpySettings()
         val adbSettings = settingRepository.getSdkPath()
 
-        if (scrcpySettings.binaryPath.isBlank()) {
-            return false
-        }
-
-        if (adbSettings.adbDirectory.isBlank()) {
+        if (scrcpySettings.executable.isBlank()) {
             return false
         }
 
@@ -36,7 +32,7 @@ class LaunchScrcpyNewDisplayUseCase(
             }
         }
 
-        val client = ScrcpyClient.create(binaryPath = scrcpySettings.binaryPath, adbPath = adbSettings.adbDirectory)
+        val client = ScrcpyClient.create(binaryPath = scrcpySettings.executable, adbPath = adbSettings.adbExecutable)
         val title = "${profile.displayName} - Virtual Display"
 
         val result =

@@ -7,6 +7,7 @@ import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.repository.NormalCommandOutputRepository
 import jp.kaleidot725.adbpad.domain.repository.NormalCommandRepository
 import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteCommandUseCase
+import jp.kaleidot725.adbpad.domain.usecase.command.ExecuteCustomCommandUseCase
 import jp.kaleidot725.adbpad.domain.usecase.command.GetNormalCommandGroup
 import jp.kaleidot725.adbpad.domain.usecase.command.ToggleNormalCommandFavorite
 import jp.kaleidot725.adbpad.domain.usecase.device.GetSelectedDeviceFlowUseCase
@@ -17,16 +18,20 @@ import jp.kaleidot725.adbpad.ui.screen.command.state.CommandAction
 import jp.kaleidot725.adbpad.ui.screen.command.state.CommandSideEffect
 import jp.kaleidot725.adbpad.ui.screen.command.state.CommandState
 import jp.kaleidot725.pulse.mvi.PulseStore
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class CommandStateHolder(
     private val getNormalCommandGroup: GetNormalCommandGroup,
     private val toggleNormalCommandFavorite: ToggleNormalCommandFavorite,
     private val executeCommandUseCase: ExecuteCommandUseCase,
+    private val executeCustomCommandUseCase: ExecuteCustomCommandUseCase,
     private val getSelectedDeviceFlowUseCase: GetSelectedDeviceFlowUseCase,
     private val normalCommandOutputRepository: NormalCommandOutputRepository,
     private val normalCommandRepository: NormalCommandRepository,
 ) : PulseStore<CommandState, CommandAction, CommandSideEffect, AppBroadCast, AppUnicast>(initialUiState = CommandState()) {
+    private var customCommandJob: Job? = null
+
     override fun onSetup() {
         coroutineScope.launch {
             getSelectedDeviceFlowUseCase().collect { device ->
@@ -57,6 +62,8 @@ class CommandStateHolder(
                 is CommandAction.ToggleFavorite -> toggleFavorite(uiAction.command)
                 is CommandAction.ToggleSwitch -> executeToggle(uiAction.command)
                 is CommandAction.ToggleLayoutMode -> toggleLayoutMode()
+                is CommandAction.RunCustomCommand -> runCustomCommand(uiAction.input)
+                is CommandAction.StopCustomCommand -> customCommandJob?.cancel()
             }
         }
     }
@@ -163,6 +170,20 @@ class CommandStateHolder(
         } catch (_: Exception) {
             update { copy(toggleStates = toggleStates + (def.onKey to null)) }
         }
+    }
+
+    // Deliberately not gated on a selected device: `adb connect` is how a device gets there.
+    private fun runCustomCommand(input: String) {
+        if (input.isBlank() || customCommandJob?.isActive == true) return
+        customCommandJob =
+            coroutineScope.launch {
+                update { copy(isCustomCommandRunning = true) }
+                try {
+                    executeCustomCommandUseCase(input) { state.value.selectedDevice?.serial }
+                } finally {
+                    update { copy(isCustomCommandRunning = false) }
+                }
+            }
     }
 
     private fun toggleLayoutMode() {

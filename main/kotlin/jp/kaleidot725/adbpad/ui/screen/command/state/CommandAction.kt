@@ -22,4 +22,10 @@ sealed class CommandAction : PulseAction {
     ) : CommandAction()
 
     data object ToggleLayoutMode : CommandAction()
+
+    data class RunCustomCommand(
+        val input: String,
+    ) : CommandAction()
+
+    data object StopCustomCommand : CommandAction()
 }

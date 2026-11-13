@@ -167,6 +167,8 @@ object EnglishResources : StringResources {
 
     override val outputTerminalTitle: String = "Output"
     override val outputTerminalPlaceholder: String = "Execution history will be displayed here"
+    override val customCommandPlaceholder: String = "adb command, e.g. adb connect 192.168.1.20:5555 - Enter runs, Shift+Enter adds a line"
+    override val customCommandStop: String = "Stop"
 
     override val textCommandStartEventFormat = "Start sending text「%s」"
     override val textCommandEndEventFormat = "End sending text「%s」"
@@ -212,6 +214,7 @@ object EnglishResources : StringResources {
 
     override val settingScrcpyHeader = "Scrcpy"
     override val settingScrcpyBinaryPathTitle = "Binary Path"
+    override val settingBundledToolHint = "Leave empty to use the version built into the app."
     override val settingScrcpyTierPresetsHeader = "Scrcpy Quality Presets"
     override val settingScrcpyTierLow = "Low-end"
     override val settingScrcpyTierMedium = "Mid-range"

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import jp.kaleidot725.adbpad.domain.model.device.ScrcpyTierLevel
 import jp.kaleidot725.adbpad.domain.model.language.Language
+import jp.kaleidot725.adbpad.domain.model.setting.BundledTools
 import jp.kaleidot725.adbpad.ui.component.text.DefaultOutlineTextField
 import jp.kaleidot725.adbpad.ui.component.text.SubTitle
 import jp.kaleidot725.adbpad.ui.screen.setting.model.ScrcpyTierFieldsInput
@@ -62,6 +63,15 @@ fun SdkPathSettingsPane(
             placeHolder = "",
         )
 
+        if (BundledTools.adb != null) {
+            Text(
+                text = Language.settingBundledToolHint,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 4.dp),
+            )
+        }
+
         DefaultOutlineTextField(
             id = initialized,
             initialText = adbPortNumber,
@@ -86,6 +96,15 @@ fun SdkPathSettingsPane(
             isError = !isValidScrcpyBinaryPath,
             placeHolder = "",
         )
+
+        if (BundledTools.scrcpy != null) {
+            Text(
+                text = Language.settingBundledToolHint,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 4.dp),
+            )
+        }
 
         SubTitle(
             text = Language.settingScrcpyTierPresetsHeader,
