@@ -165,7 +165,7 @@ compose.desktop {
 
         nativeDistributions {
             packageName = "QA-Adbpad"
-            packageVersion = "1.6.0"
+            packageVersion = "1.6.1"
             description = "Android Debug Bridge GUI Application for QA testing, including Android TV"
             copyright = "Copyright (c) 2026 TonciZ. Based on AdbPad (c) 2025 kaleidot725."
             vendor = "TonciZ"

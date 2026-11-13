@@ -34,8 +34,14 @@ class LogCaptureRepositoryImpl(
     private var captureFile: File? = null
 
     @Volatile
-    override var capturedLineCount: Long = 0
-        private set
+    private var writtenLines: Long = 0
+
+    // Lines at the start of the capture file that the user cleared away mid-capture.
+    @Volatile
+    private var clearedLines: Long = 0
+
+    override val capturedLineCount: Long
+        get() = writtenLines - clearedLines
     private val scope = CoroutineScope(Dispatchers.IO)
 
     override fun startCapture(
@@ -50,6 +56,7 @@ class LogCaptureRepositoryImpl(
         readerJob =
             scope.launch {
                 var writer: BufferedWriter? = null
+                var started: Process? = null
                 try {
                     val extraArgs = mutableListOf("-s", device.serial, "logcat", "-v", "time")
                     if (filter.isNotBlank()) {
@@ -58,30 +65,33 @@ class LogCaptureRepositoryImpl(
 
                     val pb = AdbBinary.processBuilder(settingRepository, *extraArgs.toTypedArray())
                     pb.redirectErrorStream(true)
-                    val started = pb.start()
-                    process = started
-                    if (!currentCoroutineContext().isActive) {
-                        started.destroyForcibly()
-                        return@launch
-                    }
+                    val logcat = pb.start()
+                    started = logcat
+                    process = logcat
+                    if (!currentCoroutineContext().isActive) return@launch
 
                     val file = File.createTempFile("adbpad_logcat_", ".txt")
                     file.deleteOnExit()
                     captureFile = file
                     writer = file.bufferedWriter()
 
-                    val reader = BufferedReader(InputStreamReader(process!!.inputStream))
+                    val reader = BufferedReader(InputStreamReader(logcat.inputStream))
                     var line: String?
                     while (reader.readLine().also { line = it } != null) {
                         val l = line ?: continue
                         writer.write(l)
                         writer.newLine()
-                        capturedLineCount++
+                        writtenLines++
                         _logLines.emit(l)
                     }
-                } catch (_: Exception) {
+                } catch (e: Exception) {
+                    println("Log capture stopped: ${e.message}")
                 } finally {
-                    writer?.close()
+                    runCatching { writer?.close() }
+                    // However this ended (device gone, disk full, cancelled), logcat must not be
+                    // left running with nobody reading it.
+                    started?.destroyForcibly()
+                    if (process === started) process = null
                     _isCapturing.value = false
                 }
             }
@@ -106,6 +116,16 @@ class LogCaptureRepositoryImpl(
                 val source = captureFile
                 when {
                     lines != null -> target.writeText(lines.joinToString(System.lineSeparator()))
+                    source != null && source.exists() && clearedLines > 0 ->
+                        source.bufferedReader().use { reader ->
+                            target.bufferedWriter().use { out ->
+                                reader.lineSequence().drop(clearedLines.toInt()).forEach {
+                                    out.write(it)
+                                    out.newLine()
+                                }
+                            }
+                        }
+
                     source != null && source.exists() -> source.copyTo(target, overwrite = true)
                     else -> return@withContext false
                 }
@@ -115,9 +135,14 @@ class LogCaptureRepositoryImpl(
             }
         }
 
+    override fun markCleared() {
+        clearedLines = writtenLines
+    }
+
     override fun discardCapture() {
         captureFile?.delete()
         captureFile = null
-        capturedLineCount = 0
+        writtenLines = 0
+        clearedLines = 0
     }
 }

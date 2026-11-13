@@ -26,5 +26,8 @@ interface LogCaptureRepository {
         lines: List<String>?,
     ): Boolean
 
+    /** Clear pressed mid-capture: lines captured so far no longer count and are left out of a save. */
+    fun markCleared()
+
     fun discardCapture()
 }

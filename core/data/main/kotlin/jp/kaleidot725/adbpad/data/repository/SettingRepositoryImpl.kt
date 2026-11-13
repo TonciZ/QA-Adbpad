@@ -16,9 +16,7 @@ import kotlinx.coroutines.withContext
 class SettingRepositoryImpl : SettingRepository {
     override suspend fun updateAppearance(appearance: Appearance): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(appearance = appearance)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(appearance = appearance) }
         }
     }
 
@@ -31,9 +29,7 @@ class SettingRepositoryImpl : SettingRepository {
 
     override suspend fun updateSdkPath(sdkPath: SdkPath): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(sdkPath = sdkPath)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(sdkPath = sdkPath) }
         }
     }
 
@@ -46,9 +42,7 @@ class SettingRepositoryImpl : SettingRepository {
 
     override suspend fun updateWindowSize(size: WindowSize): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(windowSize = size)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(windowSize = size) }
         }
     }
 
@@ -61,9 +55,7 @@ class SettingRepositoryImpl : SettingRepository {
 
     override suspend fun updateLanguage(language: Language.Type): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(language = language)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(language = language) }
         }
     }
 
@@ -76,9 +68,7 @@ class SettingRepositoryImpl : SettingRepository {
 
     override suspend fun updateScrcpySettings(scrcpySettings: ScrcpySettings): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(scrcpySettings = scrcpySettings)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(scrcpySettings = scrcpySettings) }
         }
     }
 
@@ -91,9 +81,7 @@ class SettingRepositoryImpl : SettingRepository {
 
     override suspend fun updateAccentColor(accentColor: AccentColor): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(accentColor = accentColor)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(accentColor = accentColor) }
         }
     }
 
@@ -106,9 +94,7 @@ class SettingRepositoryImpl : SettingRepository {
 
     override suspend fun updateScrcpyTierPresets(presets: ScrcpyTierPresets): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(scrcpyTierPresets = presets)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(scrcpyTierPresets = presets) }
         }
     }
 
@@ -121,9 +107,7 @@ class SettingRepositoryImpl : SettingRepository {
 
     override suspend fun updateLastWirelessAdbTarget(target: WirelessAdbTarget): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(lastWirelessAdbTarget = target)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(lastWirelessAdbTarget = target) }
         }
     }
 
@@ -136,9 +120,7 @@ class SettingRepositoryImpl : SettingRepository {
 
     override suspend fun updateSavedWirelessDevices(devices: List<WirelessAdbTarget>): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(savedWirelessDevices = devices)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(savedWirelessDevices = devices) }
         }
     }
 
@@ -153,9 +135,7 @@ class SettingRepositoryImpl : SettingRepository {
 
     override suspend fun updateCustomCommandHistory(history: List<String>): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(customCommandHistory = history)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(customCommandHistory = history) }
         }
     }
 
@@ -167,9 +147,7 @@ class SettingRepositoryImpl : SettingRepository {
 
     override suspend fun updateLogSaveDirectory(directory: String): Boolean {
         return withContext(Dispatchers.IO) {
-            val oldSetting = SettingFileCreator.load()
-            val newSetting = oldSetting.copy(logSaveDirectory = directory)
-            return@withContext SettingFileCreator.save(newSetting)
+            return@withContext SettingFileCreator.update { it.copy(logSaveDirectory = directory) }
         }
     }
 
