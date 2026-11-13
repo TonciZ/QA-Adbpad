@@ -669,6 +669,16 @@ object Language : StringResources {
         get() = getCurrentResources().settingDownloadAndInstallFormat
     override val settingUpdateDownloadFailed: String
         get() = getCurrentResources().settingUpdateDownloadFailed
+    override val updateBannerFormat: String
+        get() = getCurrentResources().updateBannerFormat
+    override val updateBannerInstall: String
+        get() = getCurrentResources().updateBannerInstall
+    override val updateBannerLater: String
+        get() = getCurrentResources().updateBannerLater
+    override val updateInstallFailed: String
+        get() = getCurrentResources().updateInstallFailed
+    override val updateBannerDownloading: String
+        get() = getCurrentResources().updateBannerDownloading
 
     // Device Setting Categories
     override val categoryDevice: String

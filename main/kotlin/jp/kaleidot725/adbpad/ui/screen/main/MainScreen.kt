@@ -1,17 +1,29 @@
 package jp.kaleidot725.adbpad.ui.screen.main
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusProperties
@@ -317,31 +329,43 @@ private fun App(
                     )
                 },
                 content = {
-                    Box(Modifier.fillMaxSize()) {
-                        CategoryContentLayer(
-                            isSelected = state.category == MainCategory.Command,
-                            content = commandCategoryContent,
-                        )
-                        CategoryContentLayer(
-                            isSelected = state.category == MainCategory.Text,
-                            content = textCommandCategoryContent,
-                        )
-                        CategoryContentLayer(
-                            isSelected = state.category == MainCategory.Screenshot,
-                            content = screenshotCategoryContent,
-                        )
-                        CategoryContentLayer(
-                            isSelected = state.category == MainCategory.ScrcpyNewDisplay,
-                            content = scrcpyNewDisplayCategoryContent,
-                        )
-                        CategoryContentLayer(
-                            isSelected = state.category == MainCategory.App,
-                            content = appCategoryContent,
-                        )
-                        CategoryContentLayer(
-                            isSelected = state.category == MainCategory.Log,
-                            content = logCategoryContent,
-                        )
+                    Column(Modifier.fillMaxSize()) {
+                        state.availableUpdate?.let { available ->
+                            UpdateBanner(
+                                version = available.version,
+                                isInstalling = state.isInstallingUpdate,
+                                failed = state.updateFailed,
+                                lastInstallFailed = state.lastInstallFailed,
+                                onInstall = { onMainAction(MainAction.InstallUpdate) },
+                                onDismiss = { onMainAction(MainAction.DismissUpdate) },
+                            )
+                        }
+                        Box(Modifier.weight(1f).fillMaxWidth()) {
+                            CategoryContentLayer(
+                                isSelected = state.category == MainCategory.Command,
+                                content = commandCategoryContent,
+                            )
+                            CategoryContentLayer(
+                                isSelected = state.category == MainCategory.Text,
+                                content = textCommandCategoryContent,
+                            )
+                            CategoryContentLayer(
+                                isSelected = state.category == MainCategory.Screenshot,
+                                content = screenshotCategoryContent,
+                            )
+                            CategoryContentLayer(
+                                isSelected = state.category == MainCategory.ScrcpyNewDisplay,
+                                content = scrcpyNewDisplayCategoryContent,
+                            )
+                            CategoryContentLayer(
+                                isSelected = state.category == MainCategory.App,
+                                content = appCategoryContent,
+                            )
+                            CategoryContentLayer(
+                                isSelected = state.category == MainCategory.Log,
+                                content = logCategoryContent,
+                            )
+                        }
                     }
                 },
                 dialog = {
@@ -366,6 +390,54 @@ private fun App(
                 },
                 modifier = Modifier.fillMaxSize(),
             )
+        }
+    }
+}
+
+@Composable
+private fun UpdateBanner(
+    version: String,
+    isInstalling: Boolean,
+    failed: Boolean,
+    lastInstallFailed: Boolean,
+    onInstall: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, top = 8.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+        ) {
+            Text(
+                text =
+                    when {
+                        isInstalling -> Language.updateBannerDownloading
+                        failed -> Language.settingUpdateDownloadFailed
+                        lastInstallFailed -> Language.updateInstallFailed
+                        else -> Language.updateBannerFormat.format(version)
+                    },
+                style = MaterialTheme.typography.bodyMedium,
+                color =
+                    if ((failed || lastInstallFailed) &&
+                        !isInstalling
+                    ) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
+                modifier = Modifier.weight(1f),
+            )
+            if (isInstalling) {
+                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+            } else {
+                Button(onClick = onInstall) { Text(Language.updateBannerInstall) }
+                TextButton(onClick = onDismiss) { Text(Language.updateBannerLater) }
+            }
         }
     }
 }

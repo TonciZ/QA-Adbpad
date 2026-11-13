@@ -25,4 +25,8 @@ sealed class MainAction : PulseAction {
     data object ToggleNavigationRail : MainAction()
 
     data object Shutdown : MainAction()
+
+    data object InstallUpdate : MainAction()
+
+    data object DismissUpdate : MainAction()
 }

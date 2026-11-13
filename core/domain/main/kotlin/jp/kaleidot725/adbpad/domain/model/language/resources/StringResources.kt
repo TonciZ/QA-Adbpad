@@ -349,6 +349,11 @@ interface StringResources {
     val settingUpdateAvailableFormat: String
     val settingDownloadAndInstallFormat: String
     val settingUpdateDownloadFailed: String
+    val updateBannerFormat: String
+    val updateBannerInstall: String
+    val updateBannerLater: String
+    val updateInstallFailed: String
+    val updateBannerDownloading: String
 
     // Device Setting Categories
     val categoryDevice: String

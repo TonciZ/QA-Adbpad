@@ -359,6 +359,16 @@ object JapaneseResources : StringResources {
     override val settingUpdateAvailableFormat: String = "新しいバージョンがあります: %s"
     override val settingDownloadAndInstallFormat: String = "%s をダウンロードしてインストール"
     override val settingUpdateDownloadFailed: String = "ダウンロードに失敗しました - もう一度お試しください"
+    override val updateBannerFormat: String =
+        "バージョン %s が利用可能です。"
+    override val updateBannerInstall: String =
+        "今すぐ更新"
+    override val updateBannerLater: String =
+        "後で"
+    override val updateInstallFailed: String =
+        "前回の更新をインストールできませんでした。もう一度試し、Windowsの許可の確認では「はい」を選んでください。"
+    override val updateBannerDownloading: String =
+        "更新をダウンロード中です。アプリは自動的に終了して再起動します..."
 
     // Device Setting Categories
     override val categoryDevice: String = "デバイス"

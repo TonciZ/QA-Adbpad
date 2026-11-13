@@ -129,6 +129,8 @@ val stateHolderModule =
                 getAccentColorUseCase = get(),
                 refreshUseCase = get(),
                 shutdownAppUseCase = get(),
+                checkForUpdateUseCase = get(),
+                downloadAndInstallUpdateUseCase = get(),
             )
         }
     }
