@@ -4,10 +4,10 @@ object EnglishResources : StringResources {
     override val windowTitle = "QA-Adbpad"
 
     override val notFoundDevice = "No device - click to add"
-    override val notFoundCommand = "Not found command"
-    override val notFoundInputText = "Not found input text"
-    override val notFoundScreenshot = "Not found screenshot"
-    override val notFoundApp = "Not found app"
+    override val notFoundCommand = "No commands here"
+    override val notFoundInputText = "No saved texts yet - press + to add one"
+    override val notFoundScreenshot = "No screenshots yet - press the camera button"
+    override val notFoundApp = "No apps found"
 
     override val execute = "Run"
     override val save = "Save"
@@ -287,14 +287,9 @@ object EnglishResources : StringResources {
     override val tooltipFile: String = "File"
     override val tooltipSetting: String = "Setting"
     override val tooltipScrcpy: String = "Launch Scrcpy"
-    override val tooltipNewDisplay: String = "Virtual display"
     override val tooltipApp: String = "Apps"
 
     // MenuBar Window menu
-    override val menuWindow: String = "Window"
-    override val menuWindowMaximize: String = "Maximize"
-    override val menuWindowMinimize: String = "Minimize"
-    override val menuWindowFullscreen: String = "Fullscreen"
     override val menuWindowAlwaysOnTop: String = "Always on Top"
 
     // Device Settings Screen
@@ -304,7 +299,6 @@ object EnglishResources : StringResources {
     override val scrcpySettingsSection: String = "Scrcpy Settings"
 
     // Scrcpy Options Section
-    override val virtualDisplayOptionsSection: String = "Virtual Display Options"
     override val videoOptionsSection: String = "Video Options"
     override val audioOptionsSection: String = "Audio Options"
     override val displayOptionsSection: String = "Display Options"
@@ -336,9 +330,6 @@ object EnglishResources : StringResources {
     override val windowYLabel: String = "Window Y"
     override val windowWidthLabel: String = "Window Width"
     override val windowHeightLabel: String = "Window Height"
-    override val virtualDisplayWidthLabel: String = "Width"
-    override val virtualDisplayHeightLabel: String = "Height"
-    override val virtualDisplayDpiLabel: String = "DPI"
     override val logLevelLabel: String = "Log Level"
 
     override val autoLabel: String = "Auto"
@@ -373,24 +364,6 @@ object EnglishResources : StringResources {
     // Device Setting Categories
     override val categoryDevice: String = "Device"
     override val categoryScrcpy: String = "Scrcpy"
-
-    override val scrcpyNewDisplayProfiles: String = "Preset profiles"
-    override val scrcpyNewDisplayOverview: String =
-        "Launch scrcpy with a virtual display that matches the selected device profile."
-    override val scrcpyNewDisplayResolution: String = "Resolution"
-    override val scrcpyNewDisplayDensity: String = "Pixel density"
-    override val scrcpyNewDisplayDensityUnknown: String = "Unknown"
-    override val scrcpyNewDisplayRefresh: String = "Refresh rate"
-    override val scrcpyNewDisplayRefreshUnknown: String = "Unknown"
-    override val scrcpyNewDisplayPanel: String = "Panel"
-    override val scrcpyNewDisplayNoDevice: String = "Select a device from the toolbar to run the virtual display."
-    override val scrcpyNewDisplayLaunchSuccess: String = "Started scrcpy with the virtual display."
-    override val scrcpyNewDisplayLaunchFailure: String =
-        "Failed to launch scrcpy. Check the scrcpy path and device connection."
-    override val scrcpyNewDisplayEmpty: String = "No profiles available."
-    override val scrcpyNewDisplayTitleFormat: String = "%s virtual display"
-    override val scrcpyNewDisplayTargetDeviceFormat: String = "Target device: %s"
-    override val scrcpyNewDisplayLaunchOptions: String = "Launch Options"
 
     // Log screen
     override val tooltipLog: String = "Log"

@@ -277,14 +277,9 @@ interface StringResources {
     val tooltipFile: String
     val tooltipSetting: String
     val tooltipScrcpy: String
-    val tooltipNewDisplay: String
     val tooltipApp: String
 
     // MenuBar Window menu
-    val menuWindow: String
-    val menuWindowMaximize: String
-    val menuWindowMinimize: String
-    val menuWindowFullscreen: String
     val menuWindowAlwaysOnTop: String
 
     // Device Settings Screen
@@ -294,7 +289,6 @@ interface StringResources {
     val scrcpySettingsSection: String
 
     // Scrcpy Options Section
-    val virtualDisplayOptionsSection: String
     val videoOptionsSection: String
     val audioOptionsSection: String
     val displayOptionsSection: String
@@ -326,9 +320,6 @@ interface StringResources {
     val windowYLabel: String
     val windowWidthLabel: String
     val windowHeightLabel: String
-    val virtualDisplayWidthLabel: String
-    val virtualDisplayHeightLabel: String
-    val virtualDisplayDpiLabel: String
     val logLevelLabel: String
 
     val autoLabel: String
@@ -360,21 +351,6 @@ interface StringResources {
     val categoryScrcpy: String
 
     // Scrcpy New Display Screen
-    val scrcpyNewDisplayProfiles: String
-    val scrcpyNewDisplayOverview: String
-    val scrcpyNewDisplayResolution: String
-    val scrcpyNewDisplayDensity: String
-    val scrcpyNewDisplayDensityUnknown: String
-    val scrcpyNewDisplayRefresh: String
-    val scrcpyNewDisplayRefreshUnknown: String
-    val scrcpyNewDisplayPanel: String
-    val scrcpyNewDisplayNoDevice: String
-    val scrcpyNewDisplayLaunchSuccess: String
-    val scrcpyNewDisplayLaunchFailure: String
-    val scrcpyNewDisplayEmpty: String
-    val scrcpyNewDisplayTitleFormat: String
-    val scrcpyNewDisplayTargetDeviceFormat: String
-    val scrcpyNewDisplayLaunchOptions: String
 
     // Log screen
     val tooltipLog: String

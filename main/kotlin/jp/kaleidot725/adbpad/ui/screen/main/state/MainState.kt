@@ -16,7 +16,8 @@ data class MainState(
     val category: MainCategory = MainCategory.Command,
     val selectedDevice: Device? = null,
     val isAlwaysOnTop: Boolean = false,
-    val isNavigationRailCollapsed: Boolean = true,
+    // Open by default: icons alone do not tell a first-time user what each section is.
+    val isNavigationRailCollapsed: Boolean = false,
     val accentColor: AccentColor = AccentColor.BLUE,
     // Found by the check at launch; null when up to date, offline, or dismissed for this run.
     val availableUpdate: UpdateInfo? = null,

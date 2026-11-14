@@ -54,7 +54,7 @@ In Compose, wire them with `MVIChildContent(mvi = stateHolder) { state, onAction
 
 `ScreenLayout` — top-level shell: top bar, navigation rail, content area, right panel, dialog overlay.
 
-`ThreePaneLayout(splitterState, left, center?, right?)` — resizable left pane + fixed-width right pane (default 300dp via `rightWidth`). Each slot is individually wrapped in a floating `Surface(RoundedCornerShape(12.dp))`. Gap between panes is created via content padding (not a visible divider). Used by Text, Screenshot, ScrcpyNewDisplay screens.
+`ThreePaneLayout(splitterState, left, center?, right?)` — resizable left pane + fixed-width right pane (default 300dp via `rightWidth`). Each slot is individually wrapped in a floating `Surface(RoundedCornerShape(12.dp))`. Gap between panes is created via content padding (not a visible divider). Used by Text and Screenshot screens.
 
 `HorizontalPaneLayout(splitterState, first, second)` — two-pane resizable split. Both panes are individually floating Surfaces.
 

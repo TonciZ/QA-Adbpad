@@ -340,8 +340,9 @@ straight to a temp file instead of an in-memory list.
 
 ## Known limitations
 
-- Virtual Display (`--new-display`) requires Android 14+ on the device and starts genuinely blank
-  - nothing is auto-launched onto the new display. This is scrcpy's own behavior, not a bug here.
+- The upstream Virtual Display screen (scrcpy `--new-display`) and the Window menu bar were
+  removed in 1.7.0. Virtual displays need Android 14+ and target phones, not TV boxes. Always on
+  Top is now a pin button in the toolbar; the Fullscreen menu item has no replacement.
 - Scrcpy stability on Android TV hardware depends on the device's video encoder; the fixes above
   address the crash/freeze causes found on the specific hardware tested against, not every
   possible Android TV chipset quirk.
