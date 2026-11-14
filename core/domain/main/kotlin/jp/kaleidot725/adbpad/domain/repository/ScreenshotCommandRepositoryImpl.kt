@@ -4,20 +4,18 @@ import jp.kaleidot725.adbpad.domain.model.device.Device
 import jp.kaleidot725.adbpad.domain.model.os.OSContext
 import jp.kaleidot725.adbpad.domain.model.screenshot.Screenshot
 import jp.kaleidot725.adbpad.domain.model.sort.SortType
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import java.io.File
 import java.util.Date
 
 class ScreenshotCommandRepositoryImpl(
     private val settingRepository: SettingRepository,
 ) : ScreenshotCommandRepository {
-    init {
-        createDirectory()
-    }
-
     override suspend fun captureScreenshot(
         device: Device,
         onStart: suspend () -> Unit,
@@ -89,29 +87,47 @@ class ScreenshotCommandRepositoryImpl(
     private suspend fun capture(
         device: Device,
         file: File,
-    ): Boolean =
-        try {
-            withTimeout(CAPTURE_TIMEOUT) {
-                val process =
+    ): Boolean {
+        var process: Process? = null
+        return try {
+            // ponytail: create the folder here, not once at startup. On a fresh install the
+            // app's own data folder does not exist yet when this class is built, the old
+            // single-level mkdir() failed silently, and every capture then failed too.
+            file.parentFile?.mkdirs()
+            coroutineScope {
+                val adb =
                     AdbBinary
                         .processBuilder(settingRepository, "-s", device.serial, "exec-out", "screencap", "-p")
                         .start()
-                file.outputStream().use { out -> process.inputStream.copyTo(out) }
-                process.waitFor() == 0 && file.exists() && file.length() > 0
+                process = adb
+                // Reading the pipe blocks and ignores coroutine timeouts; ending the process is
+                // what actually unblocks it when a device stops answering.
+                val watchdog =
+                    launch {
+                        delay(CAPTURE_TIMEOUT)
+                        adb.destroyForcibly()
+                    }
+                try {
+                    file.outputStream().use { out -> adb.inputStream.copyTo(out) }
+                    adb.waitFor() == 0 && file.length() > 0
+                } finally {
+                    watchdog.cancel()
+                }
             }
-        } catch (e: TimeoutCancellationException) {
-            false
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
+            println("Screenshot failed: ${e.message}")
             false
-        }
+        } finally {
+            // Never leave `adb screencap` running after a failed or abandoned capture.
+            process?.destroyForcibly()
+        }.also { captured -> if (!captured) file.delete() }
+    }
 
     companion object {
         private const val FILE_NAME_RESULT = "Screenshot"
         private const val CAPTURE_TIMEOUT = 10_000L
-
-        private fun createDirectory() {
-            getDirectory().mkdir()
-        }
 
         private fun getDirectory(): File {
             val osContext = OSContext.resolveOSContext()
