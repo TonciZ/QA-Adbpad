@@ -80,7 +80,7 @@ fun TextCommandEditor(
                         Text(
                             text = Language.textCommandTextPlaceholder,
                             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.align(Alignment.TopStart),
                         )
                     }

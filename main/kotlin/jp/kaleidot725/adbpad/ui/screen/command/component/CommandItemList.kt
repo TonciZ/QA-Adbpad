@@ -19,14 +19,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import jp.kaleidot725.adbpad.domain.model.language.Language
+import jp.kaleidot725.adbpad.ui.common.resource.UserColor
 import jp.kaleidot725.adbpad.ui.common.resource.clickableBackground
 import jp.kaleidot725.adbpad.ui.component.indicator.RunningIndicator
 
@@ -78,7 +79,7 @@ fun CommandItemList(
                         Icon(
                             imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favorite",
-                            tint = if (isFavorite) Color(0xFFFF4081) else MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = if (isFavorite) UserColor.getFavoriteColor() else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -95,6 +96,8 @@ fun CommandItemList(
                     checked = toggleState ?: false,
                     onCheckedChange = { onToggle() },
                     enabled = canExecute,
+                    // The default outline (onSurface at 50%) drops below 3:1 on a hovered or running card.
+                    colors = SwitchDefaults.colors(uncheckedBorderColor = MaterialTheme.colorScheme.onSurface),
                 )
             } else {
                 Button(

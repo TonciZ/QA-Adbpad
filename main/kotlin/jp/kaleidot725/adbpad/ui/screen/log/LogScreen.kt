@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.SpanStyle
@@ -261,7 +262,7 @@ private fun LevelChip(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    val color = levelColor(level)
+    val color = levelColor(level, isLightTheme())
     Box(
         contentAlignment = Alignment.Center,
         modifier =
@@ -278,7 +279,15 @@ private fun LevelChip(
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Bold,
             fontSize = 12.sp,
-            color = if (selected) Color.White else color,
+            // On the filled chip pick whichever of black/white contrasts more with the fill.
+            color =
+                if (!selected) {
+                    color
+                } else if (color.luminance() > 0.18f) {
+                    Color.Black
+                } else {
+                    Color.White
+                },
         )
     }
 }
@@ -289,16 +298,17 @@ private fun LogLine(
     wrap: Boolean,
 ) {
     val level = entry.level
-    val dim = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    val dim = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+    val isLight = isLightTheme()
     val base = MaterialTheme.colorScheme.onSurfaceVariant
     val text =
-        remember(entry, dim, base) {
+        remember(entry, dim, base, isLight) {
             buildAnnotatedString {
                 if (level == null) {
                     withStyle(SpanStyle(color = dim)) { append(entry.message) }
                     return@buildAnnotatedString
                 }
-                val color = levelColor(level)
+                val color = levelColor(level, isLight)
                 withStyle(SpanStyle(color = dim)) { append("${entry.time}  ") }
                 withStyle(SpanStyle(color = color, fontWeight = FontWeight.Bold)) { append("${level.letter}  ") }
                 withStyle(SpanStyle(color = color, fontWeight = FontWeight.SemiBold)) { append(entry.tag) }
@@ -320,15 +330,33 @@ private fun LogLine(
     )
 }
 
-// Mid-tone colors that stay readable on both light and dark surfaces.
-private fun levelColor(level: LogLevel): Color =
-    when (level) {
-        LogLevel.VERBOSE -> Color(0xFF8A8A8A)
-        LogLevel.DEBUG -> Color(0xFF4A90D9)
-        LogLevel.INFO -> Color(0xFF3FA34D)
-        LogLevel.WARN -> Color(0xFFD08A00)
-        LogLevel.ERROR -> Color(0xFFE5484D)
-        LogLevel.FATAL -> Color(0xFFB0368F)
+@Composable
+private fun isLightTheme(): Boolean = MaterialTheme.colorScheme.surface.luminance() > 0.5f
+
+// One set per theme: no single mid-tone reaches 4.5:1 on both white and the dark surface.
+// Every colour here is at least 4.8:1 against its theme's log background.
+private fun levelColor(
+    level: LogLevel,
+    isLight: Boolean,
+): Color =
+    if (isLight) {
+        when (level) {
+            LogLevel.VERBOSE -> Color(0xFF707070)
+            LogLevel.DEBUG -> Color(0xFF2F6DB5)
+            LogLevel.INFO -> Color(0xFF2E7D32)
+            LogLevel.WARN -> Color(0xFF8A5A00)
+            LogLevel.ERROR -> Color(0xFFC62828)
+            LogLevel.FATAL -> Color(0xFFB0368F)
+        }
+    } else {
+        when (level) {
+            LogLevel.VERBOSE -> Color(0xFF8A8A8A)
+            LogLevel.DEBUG -> Color(0xFF4A90D9)
+            LogLevel.INFO -> Color(0xFF3FA34D)
+            LogLevel.WARN -> Color(0xFFD08A00)
+            LogLevel.ERROR -> Color(0xFFFF6B6B)
+            LogLevel.FATAL -> Color(0xFFD86BB8)
+        }
     }
 
 private fun copyToClipboard(text: String) {

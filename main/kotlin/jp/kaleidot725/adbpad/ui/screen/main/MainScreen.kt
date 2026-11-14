@@ -1,6 +1,9 @@
 package jp.kaleidot725.adbpad.ui.screen.main
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.LocalScrollbarStyle
+import androidx.compose.foundation.defaultScrollbarStyle
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
@@ -54,7 +61,8 @@ private fun createLightColorScheme(accentColor: AccentColor) =
         primary = accentColor.lightColor,
         onPrimary = UserColor.Light.ON_PRIMARY,
         primaryContainer = accentColor.lightColor.copy(alpha = 0.1f),
-        onPrimaryContainer = accentColor.lightColor,
+        // Text on the tinted container: the accent itself is too close to its own tint.
+        onPrimaryContainer = UserColor.Light.ON_SURFACE,
         inversePrimary = accentColor.lightColor.copy(alpha = 0.8f),
         secondary = UserColor.Light.SECONDARY,
         onSecondary = UserColor.Light.ON_SECONDARY,
@@ -93,8 +101,8 @@ private fun createDarkColorScheme(accentColor: AccentColor) =
     ColorScheme(
         primary = accentColor.darkColor,
         onPrimary = UserColor.Dark.ON_PRIMARY,
-        primaryContainer = accentColor.darkColor.copy(alpha = 0.2f),
-        onPrimaryContainer = accentColor.darkColor,
+        primaryContainer = accentColor.darkColor.copy(alpha = 0.16f),
+        onPrimaryContainer = UserColor.Dark.ON_SURFACE,
         inversePrimary = accentColor.darkColor.copy(alpha = 0.8f),
         secondary = UserColor.Dark.SECONDARY,
         onSecondary = UserColor.Dark.ON_SECONDARY,
@@ -166,18 +174,37 @@ fun MainScreen(
                     createLightColorScheme(state.accentColor)
                 },
         ) {
-            App(
-                state = state,
-                onMainAction = onAction,
-                topContent = topContent,
-                commandContent = commandContent,
-                textCommandContent = textCommandContent,
-                screenshotContent = screenshotContent,
-                appContent = appContent,
-                logContent = logContent,
-                settingContent = settingContent,
-                deviceSettingsContent = deviceSettingsContent,
-            )
+            // Compose's default scrollbar is black at 12% - invisible on the dark theme and barely
+            // there on the light one. onSurface at 50% gives 3:1 or more in both.
+            val scrollbarStyle =
+                defaultScrollbarStyle().copy(
+                    unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+                )
+            // Material's default highlight (primary at 40%) leaves selected text under 4.5:1 with
+            // the mono accent on the dark theme; 20% keeps it readable in every accent.
+            val selectionColors =
+                TextSelectionColors(
+                    handleColor = MaterialTheme.colorScheme.primary,
+                    backgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                )
+            CompositionLocalProvider(
+                LocalScrollbarStyle provides scrollbarStyle,
+                LocalTextSelectionColors provides selectionColors,
+            ) {
+                App(
+                    state = state,
+                    onMainAction = onAction,
+                    topContent = topContent,
+                    commandContent = commandContent,
+                    textCommandContent = textCommandContent,
+                    screenshotContent = screenshotContent,
+                    appContent = appContent,
+                    logContent = logContent,
+                    settingContent = settingContent,
+                    deviceSettingsContent = deviceSettingsContent,
+                )
+            }
         }
     }
 }
@@ -339,7 +366,8 @@ private fun UpdateBanner(
     onDismiss: () -> Unit,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, top = 8.dp),
     ) {
@@ -371,7 +399,10 @@ private fun UpdateBanner(
                 CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
             } else {
                 Button(onClick = onInstall) { Text(Language.updateBannerInstall) }
-                TextButton(onClick = onDismiss) { Text(Language.updateBannerLater) }
+                TextButton(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+                ) { Text(Language.updateBannerLater) }
             }
         }
     }

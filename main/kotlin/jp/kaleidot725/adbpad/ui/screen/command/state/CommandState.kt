@@ -11,7 +11,7 @@ data class CommandState(
     val commands: NormalCommandGroup = NormalCommandGroup.Empty,
     val filtered: NormalCommandCategory = NormalCommandCategory.ALL,
     val selectedDevice: Device? = null,
-    val layoutMode: CommandLayoutMode = CommandLayoutMode.CARD,
+    val layoutMode: CommandLayoutMode = CommandLayoutMode.LIST,
     val executionHistory: CommandExecutionHistory? = null,
     val toggleStates: Map<String, Boolean?> = emptyMap(),
     val isCustomCommandRunning: Boolean = false,

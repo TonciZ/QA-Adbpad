@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -123,10 +122,7 @@ fun DropDownDeviceMenu(
                 DropdownMenuItem(
                     text = {
                         Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-                            DeviceLabel(
-                                device = Device(saved.target.serial, saved.name, DeviceState.OFFLINE),
-                                modifier = Modifier.alpha(0.6f),
-                            )
+                            DeviceLabel(device = Device(saved.target.serial, saved.name, DeviceState.OFFLINE))
                             Text(
                                 text = Language.savedDeviceNotConnected,
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, lineHeight = 12.sp),
