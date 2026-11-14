@@ -93,7 +93,8 @@ class ScreenshotCommandRepositoryImpl(
             // ponytail: create the folder here, not once at startup. On a fresh install the
             // app's own data folder does not exist yet when this class is built, the old
             // single-level mkdir() failed silently, and every capture then failed too.
-            file.parentFile?.mkdirs()
+            // Only when it is missing: first capture after install, or the user deleted it.
+            file.parentFile?.let { folder -> if (!folder.isDirectory) folder.mkdirs() }
             coroutineScope {
                 val adb =
                     AdbBinary
