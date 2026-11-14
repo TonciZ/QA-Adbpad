@@ -28,14 +28,10 @@ import jp.kaleidot725.adbpad.domain.usecase.device.UpdateDevicesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.language.GetLanguageUseCase
 import jp.kaleidot725.adbpad.domain.usecase.language.SaveLanguageUseCase
 import jp.kaleidot725.adbpad.domain.usecase.refresh.RefreshUseCase
-import jp.kaleidot725.adbpad.domain.usecase.scrcpy.DeleteScrcpyNewDisplayProfileUseCase
-import jp.kaleidot725.adbpad.domain.usecase.scrcpy.GetScrcpyNewDisplayProfilesUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.GetScrcpySettingsUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.GetScrcpyTierPresetsUseCase
-import jp.kaleidot725.adbpad.domain.usecase.scrcpy.LaunchScrcpyNewDisplayUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.LaunchScrcpyUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.ProfileDeviceUseCase
-import jp.kaleidot725.adbpad.domain.usecase.scrcpy.SaveScrcpyNewDisplayProfileUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.SaveScrcpySettingsUseCase
 import jp.kaleidot725.adbpad.domain.usecase.scrcpy.SaveScrcpyTierPresetsUseCase
 import jp.kaleidot725.adbpad.domain.usecase.screenshot.RenameScreenshotUseCase
@@ -136,15 +132,6 @@ val domainModule =
             GetScrcpySettingsUseCase(get())
         }
         factory {
-            GetScrcpyNewDisplayProfilesUseCase(get())
-        }
-        factory {
-            SaveScrcpyNewDisplayProfileUseCase(get())
-        }
-        factory {
-            DeleteScrcpyNewDisplayProfileUseCase(get())
-        }
-        factory {
             SaveScrcpySettingsUseCase(get())
         }
         factory {
@@ -157,10 +144,7 @@ val domainModule =
             CheckForUpdateUseCase()
         }
         factory {
-            DownloadAndInstallUpdateUseCase(get(), get(), get())
-        }
-        factory {
-            LaunchScrcpyNewDisplayUseCase(get(), get())
+            DownloadAndInstallUpdateUseCase(get(), get())
         }
         factory {
             GetAppearanceUseCase(get())
@@ -199,7 +183,7 @@ val domainModule =
             DisconnectDeviceUseCase(get())
         }
         factory {
-            ShutdownAppUseCase(get(), get(), get())
+            ShutdownAppUseCase(get(), get())
         }
         factory {
             StopBundledAdbServerUseCase(get())

@@ -4,7 +4,6 @@ enum class MainCategory {
     Command,
     Text,
     Screenshot,
-    ScrcpyNewDisplay,
     App,
     Log,
 }

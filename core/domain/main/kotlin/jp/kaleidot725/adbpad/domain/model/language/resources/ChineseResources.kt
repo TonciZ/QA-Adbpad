@@ -287,14 +287,9 @@ object ChineseResources : StringResources {
     override val tooltipFile: String = "文件"
     override val tooltipSetting: String = "设置"
     override val tooltipScrcpy: String = "启动 Scrcpy"
-    override val tooltipNewDisplay: String = "虚拟显示"
     override val tooltipApp: String = "应用"
 
     // MenuBar Window menu
-    override val menuWindow: String = "窗口"
-    override val menuWindowMaximize: String = "最大化"
-    override val menuWindowMinimize: String = "最小化"
-    override val menuWindowFullscreen: String = "全屏"
     override val menuWindowAlwaysOnTop: String = "始终置顶"
 
     // Device Settings Screen
@@ -304,7 +299,6 @@ object ChineseResources : StringResources {
     override val scrcpySettingsSection: String = "Scrcpy设置"
 
     // Scrcpy Options Section
-    override val virtualDisplayOptionsSection: String = "虚拟显示选项"
     override val videoOptionsSection: String = "视频选项"
     override val audioOptionsSection: String = "音频选项"
     override val displayOptionsSection: String = "显示选项"
@@ -336,9 +330,6 @@ object ChineseResources : StringResources {
     override val windowYLabel: String = "窗口Y"
     override val windowWidthLabel: String = "窗口宽度"
     override val windowHeightLabel: String = "窗口高度"
-    override val virtualDisplayWidthLabel: String = "宽度"
-    override val virtualDisplayHeightLabel: String = "高度"
-    override val virtualDisplayDpiLabel: String = "DPI"
     override val logLevelLabel: String = "日志级别"
 
     override val autoLabel: String = "自动"
@@ -373,22 +364,6 @@ object ChineseResources : StringResources {
     // Device Setting Categories
     override val categoryDevice: String = "设备"
     override val categoryScrcpy: String = "Scrcpy"
-
-    override val scrcpyNewDisplayProfiles: String = "预设列表"
-    override val scrcpyNewDisplayOverview: String = "使用所选设备预设创建虚拟显示并启动 scrcpy。"
-    override val scrcpyNewDisplayResolution: String = "分辨率"
-    override val scrcpyNewDisplayDensity: String = "像素密度"
-    override val scrcpyNewDisplayDensityUnknown: String = "未知"
-    override val scrcpyNewDisplayRefresh: String = "刷新率"
-    override val scrcpyNewDisplayRefreshUnknown: String = "未知"
-    override val scrcpyNewDisplayPanel: String = "屏幕"
-    override val scrcpyNewDisplayNoDevice: String = "请先在工具栏中选择设备。"
-    override val scrcpyNewDisplayLaunchSuccess: String = "已使用虚拟显示启动 scrcpy。"
-    override val scrcpyNewDisplayLaunchFailure: String = "scrcpy 启动失败，请检查路径和设备连接。"
-    override val scrcpyNewDisplayEmpty: String = "没有可用的预设。"
-    override val scrcpyNewDisplayTitleFormat: String = "%s 虚拟显示"
-    override val scrcpyNewDisplayTargetDeviceFormat: String = "目标设备：%s"
-    override val scrcpyNewDisplayLaunchOptions: String = "启动选项"
 
     // Log screen
     override val tooltipLog: String = "日志"

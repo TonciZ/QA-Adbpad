@@ -46,6 +46,8 @@ import com.composables.icons.lucide.Circle
 import com.composables.icons.lucide.HeartPulse
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Menu
+import com.composables.icons.lucide.Pin
+import com.composables.icons.lucide.PinOff
 import com.composables.icons.lucide.Power
 import com.composables.icons.lucide.RefreshCcw
 import com.composables.icons.lucide.RotateCw
@@ -76,6 +78,8 @@ fun TopSection(
     onTopAction: (TopAction) -> Unit,
     onOpenDeviceSettings: (Device) -> Unit,
     onToggleNavigationRail: () -> Unit,
+    isAlwaysOnTop: Boolean = false,
+    onToggleAlwaysOnTop: () -> Unit = {},
 ) {
     if (topState.showWirelessAdbDialog) {
         WirelessAdbDialog(
@@ -202,6 +206,13 @@ fun TopSection(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val enabled = topState.selectedDevice != null
+
+                // Keeps this window above a mirrored screen; was the only useful item of the old menu bar.
+                TopSectionIconButton(
+                    tooltip = Language.menuWindowAlwaysOnTop,
+                    icon = if (isAlwaysOnTop) Lucide.Pin else Lucide.PinOff,
+                    onClick = onToggleAlwaysOnTop,
+                )
 
                 CommandTooltip(text = Language.tooltipPower) {
                     CommandIconButton(

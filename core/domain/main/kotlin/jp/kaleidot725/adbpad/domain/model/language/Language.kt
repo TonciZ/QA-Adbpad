@@ -536,20 +536,10 @@ object Language : StringResources {
         get() = getCurrentResources().tooltipSetting
     override val tooltipScrcpy: String
         get() = getCurrentResources().tooltipScrcpy
-    override val tooltipNewDisplay: String
-        get() = getCurrentResources().tooltipNewDisplay
     override val tooltipApp: String
         get() = getCurrentResources().tooltipApp
 
     // MenuBar Window menu
-    override val menuWindow: String
-        get() = getCurrentResources().menuWindow
-    override val menuWindowMaximize: String
-        get() = getCurrentResources().menuWindowMaximize
-    override val menuWindowMinimize: String
-        get() = getCurrentResources().menuWindowMinimize
-    override val menuWindowFullscreen: String
-        get() = getCurrentResources().menuWindowFullscreen
     override val menuWindowAlwaysOnTop: String
         get() = getCurrentResources().menuWindowAlwaysOnTop
 
@@ -564,8 +554,6 @@ object Language : StringResources {
         get() = getCurrentResources().scrcpySettingsSection
 
     // Scrcpy Options Section
-    override val virtualDisplayOptionsSection: String
-        get() = getCurrentResources().virtualDisplayOptionsSection
     override val videoOptionsSection: String
         get() = getCurrentResources().videoOptionsSection
     override val audioOptionsSection: String
@@ -626,12 +614,6 @@ object Language : StringResources {
         get() = getCurrentResources().windowWidthLabel
     override val windowHeightLabel: String
         get() = getCurrentResources().windowHeightLabel
-    override val virtualDisplayWidthLabel: String
-        get() = getCurrentResources().virtualDisplayWidthLabel
-    override val virtualDisplayHeightLabel: String
-        get() = getCurrentResources().virtualDisplayHeightLabel
-    override val virtualDisplayDpiLabel: String
-        get() = getCurrentResources().virtualDisplayDpiLabel
     override val logLevelLabel: String
         get() = getCurrentResources().logLevelLabel
 
@@ -685,37 +667,6 @@ object Language : StringResources {
         get() = getCurrentResources().categoryDevice
     override val categoryScrcpy: String
         get() = getCurrentResources().categoryScrcpy
-
-    override val scrcpyNewDisplayProfiles: String
-        get() = getCurrentResources().scrcpyNewDisplayProfiles
-    override val scrcpyNewDisplayOverview: String
-        get() = getCurrentResources().scrcpyNewDisplayOverview
-    override val scrcpyNewDisplayResolution: String
-        get() = getCurrentResources().scrcpyNewDisplayResolution
-    override val scrcpyNewDisplayDensity: String
-        get() = getCurrentResources().scrcpyNewDisplayDensity
-    override val scrcpyNewDisplayDensityUnknown: String
-        get() = getCurrentResources().scrcpyNewDisplayDensityUnknown
-    override val scrcpyNewDisplayRefresh: String
-        get() = getCurrentResources().scrcpyNewDisplayRefresh
-    override val scrcpyNewDisplayRefreshUnknown: String
-        get() = getCurrentResources().scrcpyNewDisplayRefreshUnknown
-    override val scrcpyNewDisplayPanel: String
-        get() = getCurrentResources().scrcpyNewDisplayPanel
-    override val scrcpyNewDisplayNoDevice: String
-        get() = getCurrentResources().scrcpyNewDisplayNoDevice
-    override val scrcpyNewDisplayLaunchSuccess: String
-        get() = getCurrentResources().scrcpyNewDisplayLaunchSuccess
-    override val scrcpyNewDisplayLaunchFailure: String
-        get() = getCurrentResources().scrcpyNewDisplayLaunchFailure
-    override val scrcpyNewDisplayEmpty: String
-        get() = getCurrentResources().scrcpyNewDisplayEmpty
-    override val scrcpyNewDisplayTitleFormat: String
-        get() = getCurrentResources().scrcpyNewDisplayTitleFormat
-    override val scrcpyNewDisplayTargetDeviceFormat: String
-        get() = getCurrentResources().scrcpyNewDisplayTargetDeviceFormat
-    override val scrcpyNewDisplayLaunchOptions: String
-        get() = getCurrentResources().scrcpyNewDisplayLaunchOptions
 
     // Log screen
     override val tooltipLog: String
@@ -789,10 +740,6 @@ object Language : StringResources {
         get() = getCurrentResources().commandCategoryTime
     override val commandCategoryFavorite: String
         get() = getCurrentResources().commandCategoryFavorite
-
-    fun scrcpyNewDisplayTitle(name: String): String = String.format(scrcpyNewDisplayTitleFormat, name)
-
-    fun scrcpyNewDisplayTargetDevice(name: String): String = String.format(scrcpyNewDisplayTargetDeviceFormat, name)
 
     fun commandManualTimeZoneTitle(country: String): String = String.format(commandManualTimeZoneTitleFormat, country)
 

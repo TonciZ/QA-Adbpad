@@ -21,8 +21,6 @@ import jp.kaleidot725.adbpad.ui.screen.log.LogStateHolder
 import jp.kaleidot725.adbpad.ui.screen.main.MainScreen
 import jp.kaleidot725.adbpad.ui.screen.main.MainStateHolder
 import jp.kaleidot725.adbpad.ui.screen.main.state.MainAction
-import jp.kaleidot725.adbpad.ui.screen.newdisplay.ScrcpyNewDisplayScreen
-import jp.kaleidot725.adbpad.ui.screen.newdisplay.ScrcpyNewDisplayStateHolder
 import jp.kaleidot725.adbpad.ui.screen.screenshot.ScreenshotScreen
 import jp.kaleidot725.adbpad.ui.screen.screenshot.ScreenshotStateHolder
 import jp.kaleidot725.adbpad.ui.screen.setting.SettingScreen
@@ -49,8 +47,6 @@ fun main() {
             by remember { mutableStateOf(GlobalContext.get().get<TextCommandStateHolder>()) }
         val screenshotStateHolder: ScreenshotStateHolder
             by remember { mutableStateOf(GlobalContext.get().get<ScreenshotStateHolder>()) }
-        val scrcpyNewDisplayStateHolder: ScrcpyNewDisplayStateHolder
-            by remember { mutableStateOf(GlobalContext.get().get<ScrcpyNewDisplayStateHolder>()) }
         val appStateHolder: AppStateHolder
             by remember { mutableStateOf(GlobalContext.get().get<AppStateHolder>()) }
         val topStateHolder: TopStateHolder
@@ -70,7 +66,6 @@ fun main() {
                             commandStateHolder,
                             textCommandStateHolder,
                             screenshotStateHolder,
-                            scrcpyNewDisplayStateHolder,
                             appStateHolder,
                             topStateHolder,
                             logStateHolder,
@@ -97,6 +92,8 @@ fun main() {
                                     onTopAction = onTopAction,
                                     onOpenDeviceSettings = { device -> onAction(MainAction.OpenDeviceSettings(device)) },
                                     onToggleNavigationRail = { onAction(MainAction.ToggleNavigationRail) },
+                                    isAlwaysOnTop = state.isAlwaysOnTop,
+                                    onToggleAlwaysOnTop = { onAction(MainAction.ToggleAlwaysOnTop) },
                                 )
                             },
                         )
@@ -134,19 +131,6 @@ fun main() {
                                     state = state,
                                     onAction = onAction,
                                     screenshotSplitPaneState = screenshotSplitPaneState,
-                                    rightSplitterState = rightSplitterState,
-                                )
-                            },
-                        )
-                    },
-                    scrcpyNewDisplayContent = { splitterState, rightSplitterState ->
-                        PulseContent(
-                            store = scrcpyNewDisplayStateHolder,
-                            content = { state, onAction ->
-                                ScrcpyNewDisplayScreen(
-                                    state = state,
-                                    onAction = onAction,
-                                    splitterState = splitterState,
                                     rightSplitterState = rightSplitterState,
                                 )
                             },

@@ -1,7 +1,6 @@
 package jp.kaleidot725.adbpad.domain.usecase.update
 
 import jp.kaleidot725.adbpad.domain.model.update.UpdateInfo
-import jp.kaleidot725.adbpad.domain.repository.ScrcpyNewDisplayProcessRepository
 import jp.kaleidot725.adbpad.domain.repository.ScrcpyProcessRepository
 import jp.kaleidot725.adbpad.domain.usecase.adb.StopBundledAdbServerUseCase
 import kotlinx.coroutines.CancellationException
@@ -23,7 +22,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 // user to finish; on Linux the release page is opened.
 class DownloadAndInstallUpdateUseCase(
     private val scrcpyProcessRepository: ScrcpyProcessRepository,
-    private val scrcpyNewDisplayProcessRepository: ScrcpyNewDisplayProcessRepository,
     private val stopBundledAdbServerUseCase: StopBundledAdbServerUseCase,
 ) {
     /** True where "update" can only mean opening the download page (Linux): the app keeps running. */
@@ -53,7 +51,6 @@ class DownloadAndInstallUpdateUseCase(
                 // then let go of the bundled adb and scrcpy, which the installer replaces too.
                 if (isMsi) startWindowsInstaller(installer) else ProcessBuilder("open", installer.absolutePath).start()
                 scrcpyProcessRepository.terminateAllProcesses()
-                scrcpyNewDisplayProcessRepository.terminateAllProcesses()
                 stopBundledAdbServerUseCase()
 
                 kotlin.system.exitProcess(0)

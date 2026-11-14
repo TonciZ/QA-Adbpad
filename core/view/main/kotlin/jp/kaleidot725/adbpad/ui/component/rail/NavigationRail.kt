@@ -16,7 +16,6 @@ import com.composables.icons.lucide.Camera
 import com.composables.icons.lucide.ChevronsRight
 import com.composables.icons.lucide.File
 import com.composables.icons.lucide.Lucide
-import com.composables.icons.lucide.MonitorSmartphone
 import com.composables.icons.lucide.Package
 import com.composables.icons.lucide.ScrollText
 import com.composables.icons.lucide.Settings
@@ -61,15 +60,6 @@ fun NavigationRail(
             isSelected = category == MainCategory.Screenshot,
             isCollapsed = isCollapsed,
             onClick = { onSelectCategory(MainCategory.Screenshot) },
-        )
-
-        NavigationRailItem(
-            label = Language.tooltipNewDisplay,
-            icon = Lucide.MonitorSmartphone,
-            contentDescription = "virtual display menu",
-            isSelected = category == MainCategory.ScrcpyNewDisplay,
-            isCollapsed = isCollapsed,
-            onClick = { onSelectCategory(MainCategory.ScrcpyNewDisplay) },
         )
 
         NavigationRailItem(

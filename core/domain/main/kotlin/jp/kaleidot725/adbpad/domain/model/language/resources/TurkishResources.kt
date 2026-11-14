@@ -288,14 +288,9 @@ object TurkishResources : StringResources {
     override val tooltipFile: String = "Dosya"
     override val tooltipSetting: String = "Ayarlar"
     override val tooltipScrcpy: String = "Scrcpy'yi Başlat"
-    override val tooltipNewDisplay: String = "Sanal ekran"
     override val tooltipApp: String = "Uygulamalar"
 
     // MenuBar Window menu
-    override val menuWindow: String = "Pencere"
-    override val menuWindowMaximize: String = "Büyüt"
-    override val menuWindowMinimize: String = "Küçült"
-    override val menuWindowFullscreen: String = "Tam Ekran"
     override val menuWindowAlwaysOnTop: String = "Her Zaman Üstte"
 
     // Device Settings Screen
@@ -305,7 +300,6 @@ object TurkishResources : StringResources {
     override val scrcpySettingsSection: String = "Scrcpy Ayarları"
 
     // Scrcpy Options Section
-    override val virtualDisplayOptionsSection: String = "Sanal Ekran Seçenekleri"
     override val videoOptionsSection: String = "Video Seçenekleri"
     override val audioOptionsSection: String = "Ses Seçenekleri"
     override val displayOptionsSection: String = "Ekran Seçenekleri"
@@ -337,9 +331,6 @@ object TurkishResources : StringResources {
     override val windowYLabel: String = "Pencere Y"
     override val windowWidthLabel: String = "Pencere Genişliği"
     override val windowHeightLabel: String = "Pencere Yüksekliği"
-    override val virtualDisplayWidthLabel: String = "Genişlik"
-    override val virtualDisplayHeightLabel: String = "Yükseklik"
-    override val virtualDisplayDpiLabel: String = "DPI"
     override val logLevelLabel: String = "Günlük Seviyesi"
 
     override val autoLabel: String = "Otomatik"
@@ -374,24 +365,6 @@ object TurkishResources : StringResources {
     // Device Setting Categories
     override val categoryDevice: String = "Cihaz"
     override val categoryScrcpy: String = "Scrcpy"
-
-    override val scrcpyNewDisplayProfiles: String = "Hazır profiller"
-    override val scrcpyNewDisplayOverview: String =
-        "Seçili cihaz profiliyle sanal bir ekran oluşturup scrcpy'yi başlatır."
-    override val scrcpyNewDisplayResolution: String = "Çözünürlük"
-    override val scrcpyNewDisplayDensity: String = "Piksel yoğunluğu"
-    override val scrcpyNewDisplayDensityUnknown: String = "Bilinmiyor"
-    override val scrcpyNewDisplayRefresh: String = "Yenileme hızı"
-    override val scrcpyNewDisplayRefreshUnknown: String = "Bilinmiyor"
-    override val scrcpyNewDisplayPanel: String = "Panel"
-    override val scrcpyNewDisplayNoDevice: String = "Lütfen araç çubuğundan bir cihaz seçin."
-    override val scrcpyNewDisplayLaunchSuccess: String = "Sanal ekran ile scrcpy başlatıldı."
-    override val scrcpyNewDisplayLaunchFailure: String =
-        "scrcpy başlatılamadı. Yol ve cihaz bağlantısını kontrol edin."
-    override val scrcpyNewDisplayEmpty: String = "Kullanılabilir profil yok."
-    override val scrcpyNewDisplayTitleFormat: String = "%s sanal ekranı"
-    override val scrcpyNewDisplayTargetDeviceFormat: String = "Hedef cihaz: %s"
-    override val scrcpyNewDisplayLaunchOptions: String = "Başlatma Seçenekleri"
 
     // Log screen
     override val tooltipLog: String = "Günlük"

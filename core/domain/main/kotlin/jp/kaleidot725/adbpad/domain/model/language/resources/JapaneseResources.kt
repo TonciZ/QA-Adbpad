@@ -287,14 +287,9 @@ object JapaneseResources : StringResources {
     override val tooltipFile: String = "ファイル"
     override val tooltipSetting: String = "設定"
     override val tooltipScrcpy: String = "Scrcpyを起動"
-    override val tooltipNewDisplay: String = "仮想ディスプレイ"
     override val tooltipApp: String = "アプリ"
 
     // MenuBar Window menu
-    override val menuWindow: String = "ウィンドウ"
-    override val menuWindowMaximize: String = "最大化"
-    override val menuWindowMinimize: String = "最小化"
-    override val menuWindowFullscreen: String = "フルスクリーン"
     override val menuWindowAlwaysOnTop: String = "常に最前面に表示"
 
     // Device Settings Screen
@@ -304,7 +299,6 @@ object JapaneseResources : StringResources {
     override val scrcpySettingsSection: String = "Scrcpy設定"
 
     // Scrcpy Options Section
-    override val virtualDisplayOptionsSection: String = "仮想ディスプレイオプション"
     override val videoOptionsSection: String = "映像オプション"
     override val audioOptionsSection: String = "音声オプション"
     override val displayOptionsSection: String = "表示オプション"
@@ -336,9 +330,6 @@ object JapaneseResources : StringResources {
     override val windowYLabel: String = "ウィンドウY"
     override val windowWidthLabel: String = "ウィンドウ幅"
     override val windowHeightLabel: String = "ウィンドウ高さ"
-    override val virtualDisplayWidthLabel: String = "幅"
-    override val virtualDisplayHeightLabel: String = "高さ"
-    override val virtualDisplayDpiLabel: String = "DPI"
     override val logLevelLabel: String = "ログレベル"
 
     override val autoLabel: String = "自動"
@@ -373,24 +364,6 @@ object JapaneseResources : StringResources {
     // Device Setting Categories
     override val categoryDevice: String = "デバイス"
     override val categoryScrcpy: String = "Scrcpy"
-
-    override val scrcpyNewDisplayProfiles: String = "プリセット一覧"
-    override val scrcpyNewDisplayOverview: String =
-        "選択した端末プリセットで仮想ディスプレイを作成して scrcpy を起動します。"
-    override val scrcpyNewDisplayResolution: String = "解像度"
-    override val scrcpyNewDisplayDensity: String = "画素密度"
-    override val scrcpyNewDisplayDensityUnknown: String = "不明"
-    override val scrcpyNewDisplayRefresh: String = "リフレッシュレート"
-    override val scrcpyNewDisplayRefreshUnknown: String = "不明"
-    override val scrcpyNewDisplayPanel: String = "ディスプレイ"
-    override val scrcpyNewDisplayNoDevice: String = "ツールバーから端末を選択してください。"
-    override val scrcpyNewDisplayLaunchSuccess: String = "仮想ディスプレイで scrcpy を起動しました。"
-    override val scrcpyNewDisplayLaunchFailure: String =
-        "scrcpy の起動に失敗しました。バイナリパスと端末の接続を確認してください。"
-    override val scrcpyNewDisplayEmpty: String = "プリセットが見つかりません。"
-    override val scrcpyNewDisplayTitleFormat: String = "%s の仮想ディスプレイ"
-    override val scrcpyNewDisplayTargetDeviceFormat: String = "対象端末: %s"
-    override val scrcpyNewDisplayLaunchOptions: String = "起動オプション"
 
     // Log screen
     override val tooltipLog: String = "ログ"

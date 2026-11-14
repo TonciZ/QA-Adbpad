@@ -31,9 +31,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.zIndex
 import jp.kaleidot725.adbpad.domain.model.MainCategory
@@ -140,7 +138,6 @@ fun MainScreen(
     commandContent: @Composable (SplitPaneState) -> Unit,
     textCommandContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
     screenshotContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
-    scrcpyNewDisplayContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
     appContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
     logContent: @Composable () -> Unit,
     settingContent: @Composable () -> Unit,
@@ -160,48 +157,6 @@ fun MainScreen(
         state = windowState,
         alwaysOnTop = state.isAlwaysOnTop,
     ) {
-        MenuBar {
-            Menu(Language.menuWindow) {
-                CheckboxItem(
-                    text = Language.menuWindowMaximize,
-                    checked = windowState.placement == WindowPlacement.Maximized,
-                    onCheckedChange = {
-                        windowState.placement =
-                            if (windowState.placement == WindowPlacement.Maximized) {
-                                WindowPlacement.Floating
-                            } else {
-                                WindowPlacement.Maximized
-                            }
-                    },
-                )
-                CheckboxItem(
-                    text = Language.menuWindowMinimize,
-                    checked = windowState.isMinimized,
-                    onCheckedChange = {
-                        windowState.isMinimized = !windowState.isMinimized
-                    },
-                )
-                CheckboxItem(
-                    text = Language.menuWindowFullscreen,
-                    checked = windowState.placement == WindowPlacement.Fullscreen,
-                    onCheckedChange = {
-                        windowState.placement =
-                            if (windowState.placement == WindowPlacement.Fullscreen) {
-                                WindowPlacement.Floating
-                            } else {
-                                WindowPlacement.Fullscreen
-                            }
-                    },
-                )
-                CheckboxItem(
-                    text = Language.menuWindowAlwaysOnTop,
-                    checked = state.isAlwaysOnTop,
-                    onCheckedChange = {
-                        onAction(MainAction.ToggleAlwaysOnTop)
-                    },
-                )
-            }
-        }
         DisposableEffect(Unit) { onDispose { onAction(MainAction.SaveSetting(this@Window.getWindowSize())) } }
         MaterialTheme(
             colorScheme =
@@ -218,7 +173,6 @@ fun MainScreen(
                 commandContent = commandContent,
                 textCommandContent = textCommandContent,
                 screenshotContent = screenshotContent,
-                scrcpyNewDisplayContent = scrcpyNewDisplayContent,
                 appContent = appContent,
                 logContent = logContent,
                 settingContent = settingContent,
@@ -237,7 +191,6 @@ private fun App(
     commandContent: @Composable (SplitPaneState) -> Unit,
     textCommandContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
     screenshotContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
-    scrcpyNewDisplayContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
     appContent: @Composable (SplitPaneState, SplitPaneState) -> Unit,
     logContent: @Composable () -> Unit,
     settingContent: @Composable () -> Unit,
@@ -260,14 +213,6 @@ private fun App(
             initialPositionPercentage = 0.1f,
         )
     val screenshotRightSplitPaneState =
-        rememberSplitPaneState(
-            initialPositionPercentage = 0.8f,
-        )
-    val scrcpyNewDisplaySplitPaneState =
-        rememberSplitPaneState(
-            initialPositionPercentage = 0.1f,
-        )
-    val scrcpyNewDisplayRightSplitPaneState =
         rememberSplitPaneState(
             initialPositionPercentage = 0.8f,
         )
@@ -297,12 +242,6 @@ private fun App(
             remember {
                 movableContentOf {
                     screenshotContent(screenshotSplitPaneState, screenshotRightSplitPaneState)
-                }
-            }
-        val scrcpyNewDisplayCategoryContent =
-            remember {
-                movableContentOf {
-                    scrcpyNewDisplayContent(scrcpyNewDisplaySplitPaneState, scrcpyNewDisplayRightSplitPaneState)
                 }
             }
         val appCategoryContent =
@@ -352,10 +291,6 @@ private fun App(
                             CategoryContentLayer(
                                 isSelected = state.category == MainCategory.Screenshot,
                                 content = screenshotCategoryContent,
-                            )
-                            CategoryContentLayer(
-                                isSelected = state.category == MainCategory.ScrcpyNewDisplay,
-                                content = scrcpyNewDisplayCategoryContent,
                             )
                             CategoryContentLayer(
                                 isSelected = state.category == MainCategory.App,
