@@ -60,7 +60,7 @@ fun DefaultTextField(
                 if (localText.isEmpty()) {
                     Text(
                         text = placeHolder,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.align(Alignment.CenterStart),
                     )

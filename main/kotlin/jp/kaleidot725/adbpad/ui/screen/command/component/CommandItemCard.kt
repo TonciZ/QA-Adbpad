@@ -23,15 +23,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import jp.kaleidot725.adbpad.domain.model.language.Language
+import jp.kaleidot725.adbpad.ui.common.resource.UserColor
 import jp.kaleidot725.adbpad.ui.common.resource.clickableBackground
 import jp.kaleidot725.adbpad.ui.component.indicator.RunningIndicator
 
@@ -59,8 +60,8 @@ fun CommandItemCard(
                 Modifier
                     .fillMaxWidth()
                     .clickableBackground(isSelected = isRunning, shape = RoundedCornerShape(6.dp))
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(start = 12.dp, end = 10.dp, top = 8.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -80,7 +81,7 @@ fun CommandItemCard(
                     Icon(
                         imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite) Color(0xFFFF4081) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = if (isFavorite) UserColor.getFavoriteColor() else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -89,8 +90,9 @@ fun CommandItemCard(
                 text = detail,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 3,
-                overflow = TextOverflow.Clip,
+                // Two lines fit every built-in description; the tile no longer reserves a third.
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
 
             Spacer(modifier = Modifier.weight(1f, fill = true))
@@ -101,15 +103,19 @@ fun CommandItemCard(
                         checked = toggleState ?: false,
                         onCheckedChange = { onToggle() },
                         enabled = canExecute,
+                        // The default outline (onSurface at 50%) drops below 3:1 on a hovered or running card.
+                        colors = SwitchDefaults.colors(uncheckedBorderColor = MaterialTheme.colorScheme.onSurface),
                     )
                 } else {
                     Button(
                         onClick = onExecute,
                         enabled = canExecute,
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        // Same height as the Switch, so toggle tiles and run tiles line up.
+                        modifier = Modifier.height(32.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                     ) {
                         Box(
-                            modifier = Modifier.width(60.dp),
+                            modifier = Modifier.width(52.dp),
                             contentAlignment = Alignment.Center,
                         ) {
                             if (isRunning) {

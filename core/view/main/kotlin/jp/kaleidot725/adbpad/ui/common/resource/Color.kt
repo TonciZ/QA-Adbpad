@@ -18,7 +18,8 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
-import jp.kaleidot725.adbpad.ui.common.resource.UserColor.getSplitterColor
+
+private val SELECTED_OUTLINE_WIDTH = 1.5.dp
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -31,7 +32,9 @@ fun Modifier.clickableBackground(
     var isMouseOver by remember { mutableStateOf(false) }
     val one =
         if (isSelected) {
-            this.background(color = selectedColor, shape = shape)
+            this
+                .background(color = selectedColor, shape = shape)
+                .border(width = SELECTED_OUTLINE_WIDTH, color = MaterialTheme.colorScheme.primary, shape = shape)
         } else if (isMouseOver) {
             this.background(
                 color =
@@ -52,5 +55,8 @@ fun Modifier.clickableBackground(
     return three
 }
 
+// Used as the only boundary of dropdown buttons, so it needs 3:1 (WCAG 1.4.11): the outline role
+// (onSurface at 50%), the same as the text fields next to them, not the faint splitter colour.
 @Composable
-fun Modifier.defaultBorder(): Modifier = this.border(shape = RoundedCornerShape(8.dp), color = getSplitterColor(), width = 1.dp)
+fun Modifier.defaultBorder(): Modifier =
+    this.border(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.outline, width = 1.dp)

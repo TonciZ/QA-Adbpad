@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -43,10 +42,10 @@ fun CommandList(
             when (layoutMode) {
                 CommandLayoutMode.CARD -> {
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(250.dp),
+                        columns = GridCells.Adaptive(230.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(16.dp),
+                        contentPadding = PaddingValues(12.dp),
                     ) {
                         items(filteredCommands) { command ->
                             val toggleDef = ToggleCommandDef.ON_KEY_MAP[command.favoriteKey]
@@ -62,7 +61,8 @@ fun CommandList(
                                 isToggle = isToggle,
                                 toggleState = toggleStates[command.favoriteKey],
                                 onToggle = { onToggle(command) },
-                                modifier = Modifier.height(175.dp).fillMaxWidth().padding(2.dp),
+                                // Title, two description lines and the control, with no dead space between them.
+                                modifier = Modifier.height(112.dp).fillMaxWidth(),
                             )
                         }
                     }

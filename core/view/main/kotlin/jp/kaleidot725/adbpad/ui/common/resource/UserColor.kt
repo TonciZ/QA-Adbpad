@@ -26,8 +26,15 @@ object UserColor {
         }
     }
 
+    // Fill of a selected or running item. Kept light so 12sp secondary text on it stays above
+    // 4.5:1 in every accent; the selection itself is carried by a primary outline (see
+    // clickableBackground), because a fill this pale cannot reach 3:1 against its surroundings.
     @Composable
-    fun getContentBackgroundColor(): Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+    fun getContentBackgroundColor(): Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+
+    /** Favourite heart: a pink that keeps 3:1 on cards in their resting, hover and running states. */
+    @Composable
+    fun getFavoriteColor(): Color = if (MaterialTheme.colorScheme.surface.luminance() > 0.5) Color(0xFFC2185B) else Color(0xFFFF80AB)
 
     @Composable
     fun getDropdownBackgroundColor(): Color {
@@ -46,7 +53,7 @@ object UserColor {
         val SECONDARY = Color(0xFF757575) // Medium Gray
         val SECONDARY_VARIANT = Color(0xFFE0E0E0) // Light Gray
         val ON_SECONDARY = Color(0xFFFFFFFF) // White
-        val ERROR = Color(0xFFD32F2F) // Red
+        val ERROR = Color(0xFFB71C1C) // Dark red: 4.5:1 or more on white and on hover/tinted backgrounds
         val ON_ERROR = Color(0xFFFFFFFF) // White
         val BACKGROUND = Color(0xFFFAFAFA) // Very Light Gray
         val ON_BACKGROUND = Color(0xFF212121) // Dark Gray
@@ -61,7 +68,7 @@ object UserColor {
         val SECONDARY = Color(0xFF9E9E9E) // Light Gray
         val SECONDARY_VARIANT = Color(0xFF424242) // Dark Gray
         val ON_SECONDARY = Color(0xFFFFFFFF) // White
-        val ERROR = Color(0xFFEF5350) // Light Red
+        val ERROR = Color(0xFFFF8A80) // Light red: 4.5:1 or more on the dark surface and on hover
         val ON_ERROR = Color(0xFF000000) // Black
         val BACKGROUND = Color(0xFF121212) // Very Dark Gray
         val ON_BACKGROUND = Color(0xFFE0E0E0) // Light Gray
