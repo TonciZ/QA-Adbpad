@@ -167,6 +167,8 @@ object EnglishResources : StringResources {
 
     override val outputTerminalTitle: String = "Output"
     override val outputTerminalPlaceholder: String = "Execution history will be displayed here"
+    override val toggleNotApplied: String =
+        "This setting could not be changed on this device."
     override val customCommandPlaceholder: String = "adb command, e.g. adb connect 192.168.1.20:5555 - Enter runs, Shift+Enter adds a line"
     override val customCommandStop: String = "Stop"
     override val scrcpyErrorTitle: String =

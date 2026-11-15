@@ -15,6 +15,8 @@ data class CommandState(
     val executionHistory: CommandExecutionHistory? = null,
     val toggleStates: Map<String, Boolean?> = emptyMap(),
     val isCustomCommandRunning: Boolean = false,
+    // Shown above the output when the last switch did not take effect; cleared by the next command.
+    val notice: String? = null,
     // Newest first.
     val customCommandHistory: List<String> = emptyList(),
 ) : PulseState {

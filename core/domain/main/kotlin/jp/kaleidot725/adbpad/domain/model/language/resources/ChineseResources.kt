@@ -167,6 +167,8 @@ object ChineseResources : StringResources {
 
     override val outputTerminalTitle: String = "输出"
     override val outputTerminalPlaceholder: String = "执行历史将显示在此处"
+    override val toggleNotApplied: String =
+        "无法在此设备上更改该设置。"
     override val customCommandPlaceholder: String = "输入 adb 命令，例如 adb connect 192.168.1.20:5555 - 按 Enter 运行，Shift+Enter 换行"
     override val customCommandStop: String = "停止"
     override val scrcpyErrorTitle: String =

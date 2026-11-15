@@ -315,6 +315,8 @@ object Language : StringResources {
         get() = getCurrentResources().outputTerminalTitle
     override val outputTerminalPlaceholder: String
         get() = getCurrentResources().outputTerminalPlaceholder
+    override val toggleNotApplied: String
+        get() = getCurrentResources().toggleNotApplied
     override val customCommandPlaceholder: String
         get() = getCurrentResources().customCommandPlaceholder
     override val customCommandStop: String
