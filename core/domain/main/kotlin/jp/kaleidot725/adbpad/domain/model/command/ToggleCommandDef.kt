@@ -55,7 +55,8 @@ data class ToggleCommandDef(
                     onKey = NormalCommand.WifiOn().favoriteKey,
                     offKey = NormalCommand.WifiOff().favoriteKey,
                     queryCommand = "settings get global wifi_on",
-                    parseIsOn = { it.trim() == "1" },
+                    // 2 = Wi-Fi switched on while airplane mode is on.
+                    parseIsOn = { it.trim() == "1" || it.trim() == "2" },
                     createOnCommand = { NormalCommand.WifiOn() },
                     createOffCommand = { NormalCommand.WifiOff() },
                 ),
@@ -87,7 +88,8 @@ data class ToggleCommandDef(
                     onKey = NormalCommand.LocationOn().favoriteKey,
                     offKey = NormalCommand.LocationOff().favoriteKey,
                     queryCommand = "settings get secure location_mode",
-                    parseIsOn = { it.trim() != "0" && it.trim() != "null" },
+                    // Only a positive mode counts as on; "null", empty or error text is off.
+                    parseIsOn = { (it.trim().toIntOrNull() ?: 0) > 0 },
                     createOnCommand = { NormalCommand.LocationOn() },
                     createOffCommand = { NormalCommand.LocationOff() },
                 ),
@@ -130,7 +132,9 @@ data class ToggleCommandDef(
                     onKey = NormalCommand.DataSaverOn().favoriteKey,
                     offKey = NormalCommand.DataSaverOff().favoriteKey,
                     queryCommand = "cmd netpolicy get restrict-background",
-                    parseIsOn = { it.contains("true", ignoreCase = true) },
+                    // Prints "Restrict background status: enabled" or "... disabled" (checked on
+                    // Android 9 and 14). "disabled" does not contain "enabled", so this is exact.
+                    parseIsOn = { it.contains("enabled", ignoreCase = true) },
                     createOnCommand = { NormalCommand.DataSaverOn() },
                     createOffCommand = { NormalCommand.DataSaverOff() },
                 ),

@@ -167,6 +167,8 @@ object TurkishResources : StringResources {
 
     override val outputTerminalTitle: String = "Çıktı"
     override val outputTerminalPlaceholder: String = "Yürütme geçmişi burada görüntülenecek"
+    override val toggleNotApplied: String =
+        "Bu ayar bu cihazda değiştirilemedi."
     override val customCommandPlaceholder: String =
         "adb komutu, örn. adb connect 192.168.1.20:5555 - Enter çalıştırır, Shift+Enter satır ekler"
     override val customCommandStop: String = "Durdur"

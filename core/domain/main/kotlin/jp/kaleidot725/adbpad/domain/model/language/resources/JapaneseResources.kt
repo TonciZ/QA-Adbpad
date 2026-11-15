@@ -170,6 +170,8 @@ object JapaneseResources : StringResources {
 
     override val outputTerminalTitle: String = "出力"
     override val outputTerminalPlaceholder: String = "実行履歴がここに表示されます"
+    override val toggleNotApplied: String =
+        "このデバイスではこの設定を変更できませんでした。"
     override val customCommandPlaceholder: String = "adbコマンドを入力（例: adb connect 192.168.1.20:5555）- Enterで実行、Shift+Enterで改行"
     override val customCommandStop: String = "停止"
     override val scrcpyErrorTitle: String =

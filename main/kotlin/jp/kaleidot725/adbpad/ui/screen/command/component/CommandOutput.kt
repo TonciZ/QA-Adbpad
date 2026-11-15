@@ -55,6 +55,7 @@ fun CommandOutput(
     modifier: Modifier = Modifier,
     isRunning: Boolean = false,
     history: List<String> = emptyList(),
+    notice: String? = null,
     onRun: (String) -> Unit = {},
     onStop: () -> Unit = {},
 ) {
@@ -77,6 +78,14 @@ fun CommandOutput(
             onRun = onRun,
             onStop = onStop,
         )
+
+        if (notice != null) {
+            Text(
+                text = notice,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
 
         // Content
         if (executionHistory == null) {

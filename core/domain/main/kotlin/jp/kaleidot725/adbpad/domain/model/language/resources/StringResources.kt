@@ -158,6 +158,7 @@ interface StringResources {
 
     val outputTerminalTitle: String
     val outputTerminalPlaceholder: String
+    val toggleNotApplied: String
     val customCommandPlaceholder: String
     val customCommandStop: String
     val scrcpyErrorTitle: String
