@@ -32,7 +32,7 @@ object UserColor {
     @Composable
     fun getContentBackgroundColor(): Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
 
-    /** Favourite heart: a pink that keeps 3:1 on cards in their resting, hover and running states. */
+    /** Favourite pin: a pink that keeps 3:1 on cards in their resting, hover and running states. */
     @Composable
     fun getFavoriteColor(): Color = if (MaterialTheme.colorScheme.surface.luminance() > 0.5) Color(0xFFC2185B) else Color(0xFFFF80AB)
 

@@ -4,14 +4,16 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
@@ -28,6 +30,7 @@ import jp.kaleidot725.adbpad.domain.model.language.Language
 import kotlinx.coroutines.launch
 
 private const val WHEEL_STEP = 60f
+private val FULL_LABELS_MIN_WIDTH = 660.dp
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -38,79 +41,56 @@ fun CommandTab(
 ) {
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
-    Row(
-        modifier =
-            modifier
-                .horizontalScroll(scrollState)
-                // A mouse wheel only scrolls vertically; without this the tabs past the edge
-                // could be reached only with Shift+wheel or a touchpad.
-                .onPointerEvent(PointerEventType.Scroll) { event ->
-                    val delta =
-                        event.changes
-                            .firstOrNull()
-                            ?.scrollDelta
-                            ?.y ?: 0f
-                    if (delta != 0f) scope.launch { scrollState.scrollBy(delta * WHEEL_STEP) }
-                },
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        CommandTabItem(
-            title = Language.commandCategoryAll,
-            icon = Lucide.Diamond,
-            isSelected = filtered == NormalCommandCategory.ALL,
-            onClick = { onClick(NormalCommandCategory.ALL) },
+    val tabs =
+        listOf(
+            CommandTabEntry(Language.commandCategoryFavorite, Icons.Filled.PushPin, NormalCommandCategory.FAVORITE),
+            CommandTabEntry(Language.commandCategoryAll, Lucide.Diamond, NormalCommandCategory.ALL),
+            CommandTabEntry(Language.commandCategoryCommunication, Lucide.Wifi, NormalCommandCategory.COM),
+            CommandTabEntry(Language.commandCategoryNavigation, Lucide.Navigation, NormalCommandCategory.NAVIGATION),
+            CommandTabEntry(Language.commandCategoryTheme, Lucide.Palette, NormalCommandCategory.THEME),
+            CommandTabEntry(Language.commandCategoryDisplay, Lucide.Monitor, NormalCommandCategory.DISPLAY),
+            CommandTabEntry(Language.commandCategoryDevice, Lucide.Smartphone, NormalCommandCategory.DEVICE),
+            CommandTabEntry(Language.commandCategoryTime, Lucide.Clock3, NormalCommandCategory.TIME),
         )
-
-        CommandTabItem(
-            title = Language.commandCategoryCommunication,
-            icon = Lucide.Wifi,
-            isSelected = filtered == NormalCommandCategory.COM,
-            onClick = { onClick(NormalCommandCategory.COM) },
-        )
-
-        CommandTabItem(
-            title = Language.commandCategoryNavigation,
-            icon = Lucide.Navigation,
-            isSelected = filtered == NormalCommandCategory.NAVIGATION,
-            onClick = { onClick(NormalCommandCategory.NAVIGATION) },
-        )
-
-        CommandTabItem(
-            title = Language.commandCategoryTheme,
-            icon = Lucide.Palette,
-            isSelected = filtered == NormalCommandCategory.THEME,
-            onClick = { onClick(NormalCommandCategory.THEME) },
-        )
-
-        CommandTabItem(
-            title = Language.commandCategoryDisplay,
-            icon = Lucide.Monitor,
-            isSelected = filtered == NormalCommandCategory.DISPLAY,
-            onClick = { onClick(NormalCommandCategory.DISPLAY) },
-        )
-
-        CommandTabItem(
-            title = Language.commandCategoryDevice,
-            icon = Lucide.Smartphone,
-            isSelected = filtered == NormalCommandCategory.DEVICE,
-            onClick = { onClick(NormalCommandCategory.DEVICE) },
-        )
-
-        CommandTabItem(
-            title = Language.commandCategoryTime,
-            icon = Lucide.Clock3,
-            isSelected = filtered == NormalCommandCategory.TIME,
-            onClick = { onClick(NormalCommandCategory.TIME) },
-        )
-
-        CommandTabItem(
-            title = Language.commandCategoryFavorite,
-            icon = Icons.Default.Favorite,
-            isSelected = filtered == NormalCommandCategory.FAVORITE,
-            onClick = { onClick(NormalCommandCategory.FAVORITE) },
-        )
+    BoxWithConstraints(modifier = modifier) {
+        // All eight labels need about 640dp. Below that only the selected tab keeps its label,
+        // so the row fits without scrolling down to very narrow windows.
+        val compact = maxWidth < FULL_LABELS_MIN_WIDTH
+        Row(
+            modifier =
+                Modifier
+                    .horizontalScroll(scrollState)
+                    // A mouse wheel only scrolls vertically; without this the tabs past the edge
+                    // could be reached only with Shift+wheel or a touchpad.
+                    .onPointerEvent(PointerEventType.Scroll) { event ->
+                        val delta =
+                            event.changes
+                                .firstOrNull()
+                                ?.scrollDelta
+                                ?.y ?: 0f
+                        if (delta != 0f) scope.launch { scrollState.scrollBy(delta * WHEEL_STEP) }
+                    },
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            tabs.forEach { tab ->
+                val isSelected = filtered == tab.category
+                CommandTabItem(
+                    title = tab.title,
+                    icon = tab.icon,
+                    isSelected = isSelected,
+                    onClick = { onClick(tab.category) },
+                    showLabel = !compact || isSelected,
+                )
+            }
+        }
     }
 }
+
+private data class CommandTabEntry(
+    val title: String,
+    val icon: ImageVector,
+    val category: NormalCommandCategory,
+)
 
 @Preview
 @Composable
