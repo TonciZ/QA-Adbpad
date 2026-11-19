@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,8 +77,8 @@ fun CommandItemList(
                         modifier = Modifier.size(24.dp),
                     ) {
                         Icon(
-                            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorite",
+                            imageVector = if (isFavorite) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                            contentDescription = if (isFavorite) "Unpin" else "Pin",
                             tint = if (isFavorite) UserColor.getFavoriteColor() else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
