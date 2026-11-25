@@ -74,3 +74,8 @@ local.properties
 .kotlin/sessions
 .idea/artifacts
 .idea/gradle.xml
+
+# Claude / AI agent notes: kept local (synced by Syncthing), not published
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
